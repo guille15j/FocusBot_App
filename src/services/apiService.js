@@ -35,3 +35,14 @@ async function fetchApi(endpoint, method = 'GET', body = null, token = null) {
         throw error;
     }
 }
+
+// Agrupaciones de endpoints por "objetos" para mayor control y legibilidad
+export const AuthService = {
+    // Nombre_Func : (parametros) => fetchApi(Configuracion),
+    login : (email, password) => fetchApi('auth/login', 'POST', { email, password }),
+    register: (userData) => fetchApi('auth/register', 'POST', userData),
+};
+
+export const BotService = {
+    pair: (mac, name, token) => fetchApi('bot/pair', 'POST', {mac, name, token}),
+};
