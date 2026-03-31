@@ -38,7 +38,7 @@ export default function App() {
     <SafeAreaProvider>
       <PaperProvider >
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="Login">
+          <Stack.Navigator>
             {userToken == null ? (
               // No existe un token ==> mostramos el login
               <>

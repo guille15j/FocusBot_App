@@ -3,11 +3,14 @@ import { View, StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Card, Text, Avatar } from 'react-native-paper';
 import { authStorage } from '../services/authStorage';
 import { AuthService } from '../services/apiService';
+import { AuthContext } from '../../App'; // contexto de la aplicacion
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+
+    const { signIn } = React.useContext(AuthContext);
 
     const ejecutarLogin = async () => {
         if (!email || !password) {
@@ -22,7 +25,9 @@ export default function LoginScreen({ navigation }) {
                 console.log("Token recibido:", data.token);
                 await authStorage.saveToken(data.token);
                 console.log("¡Token guardado con éxito!");
-                navigation.replace('Home'); 
+                // navigation.replace('Home'); 
+
+                signIn(response.token); //avisamos a App.js del cambio para que represente lo que toque
             }else{
                 throw new Error("El servidor no devolvió un token válido");
             }
