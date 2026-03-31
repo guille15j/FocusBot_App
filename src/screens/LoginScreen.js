@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { TextInput, Button, Card, Text, Avatar } from 'react-native-paper';
 import { authStorage } from '../services/authStorage';
 import { AuthService } from '../services/apiService';
-import { AuthContext } from '../../App'; // contexto de la aplicacion
+import { AuthContext } from '../services/AuthContext'; // contexto de la aplicacion
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
@@ -27,7 +27,7 @@ export default function LoginScreen({ navigation }) {
                 console.log("¡Token guardado con éxito!");
                 // navigation.replace('Home'); 
 
-                signIn(response.token); //avisamos a App.js del cambio para que represente lo que toque
+                signIn(data.token); //avisamos a App.js del cambio para que represente lo que toque
             }else{
                 throw new Error("El servidor no devolvió un token válido");
             }
@@ -40,7 +40,11 @@ export default function LoginScreen({ navigation }) {
     };
 
     const ejecutarRegistro = async () => {
-        navigation.replace('Home');
+        navigation.replace('Register');
+    };
+
+    const ejecutarReset = async () => {
+        navigation.replace('Reset');
     };
 
 
@@ -73,8 +77,10 @@ export default function LoginScreen({ navigation }) {
                         style={styles.input}
                     />
                     
-                    
-                    <Text style={styles.link}>¿Olvidaste tu contraseña?</Text>
+                    <TouchableOpacity 
+                            onPress={ejecutarReset} style={styles.link}>
+                        <Text style={styles.linkText}>¿Olvidaste tu contraseña?</Text>
+                    </TouchableOpacity>
 
                     <View style={styles.botonera}>
                         <Button 
@@ -86,7 +92,7 @@ export default function LoginScreen({ navigation }) {
                         >
                             Iniciar Sesión
                         </Button>
-
+                        
                         <Button 
                             mode="contained" 
                             onPress={ejecutarRegistro}
@@ -114,5 +120,14 @@ const styles = StyleSheet.create({
     input: { marginBottom: 15 },
     button: { marginTop: 10, paddingVertical: 5, flex: 1 },
     botonera: {flexDirection: 'row', gap: 10,marginTop: 10 },
-    link: {flex: 1,textAlign: 'center', marginTop: 15, justifyContent: 'center', fontSize: 16 }
+    link: {
+        alignSelf: "center",
+        marginTop: 10
+    },
+    linkText: {
+        color: "#007AFF",
+        fontWeight: "500"
+    }
+
+
 });

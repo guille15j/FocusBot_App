@@ -2,10 +2,21 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Button, FAB } from 'react-native-paper';
+import { authStorage } from '../services/authStorage';
+import { AuthContext } from '../services/AuthContext';
 
 export default function HomeScreen({ navigation }) {
 
-   const ejecutarLogin = async () => {navigation.replace('Login');};
+  const { signOut } = React.useContext(AuthContext);
+
+  const ejecutarLogOut = async () => {
+    try{
+      await signOut();
+      console.log("Sesión cerrada correctamente");
+    }catch(error){
+      console.error("Error al cerrar sesión", error);
+    }
+  };
 
 
 
@@ -16,10 +27,10 @@ export default function HomeScreen({ navigation }) {
       <Text style={styles.info}>Aquí aparecerán tus dispositivos pronto.</Text>
       <Button 
           mode="contained" 
-          onPress={ejecutarLogin}
+          onPress={ejecutarLogOut}
           style={styles.button}
       >
-          Volver
+          Cerrar Sesion
       </Button>
 
       {/* Botón flotante */}
