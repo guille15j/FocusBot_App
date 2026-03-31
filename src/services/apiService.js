@@ -44,5 +44,6 @@ export const AuthService = {
 };
 
 export const BotService = {
-    pair: (mac, name, token) => fetchApi('bot/pair', 'POST', {mac, name, token}),
+    getBots: (token) => fetchApi('bot/bots','GET',null, token),
+    linkBot: (mac, name, token) => fetchApi('bot/pair', 'POST', {mac, name, token}),
 };
