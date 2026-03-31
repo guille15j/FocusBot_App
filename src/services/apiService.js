@@ -1,6 +1,9 @@
 const API_URL = 'http://192.168.1.38:5000/';
 
-async function fetchApi(endpoint, method = 'GET', body = null, token = null) {
+import aut_storage from './auth_storage'
+
+async function fetchApi(endpoint, method = 'GET', body = null) {
+    const token = await authStorage.getToken();
     const url = API_URL + endpoint;
 
     const headers = {
@@ -44,6 +47,6 @@ export const AuthService = {
 };
 
 export const BotService = {
-    getBots: (token) => fetchApi('bot/bots','GET',null, token),
-    linkBot: (mac, name, token) => fetchApi('bot/pair', 'POST', {mac, name, token}),
+    getBots: () => fetchApi('bot/bots','GET',null),
+    linkBot: (mac, name) => fetchApi('bot/pair', 'POST', {mac_address: mac, custom_name: name}),
 };
