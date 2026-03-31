@@ -1,9 +1,8 @@
-// src/screens/LoginScreen.js
 import React, { useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Card, Text, Avatar } from 'react-native-paper';
+import { authStorage } from '../services/authStorage';
 import { AuthService } from '../services/apiService';
-import { Link } from '@react-navigation/native';
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
@@ -19,10 +18,14 @@ export default function LoginScreen({ navigation }) {
         setLoading(true);
         try {
             const data = await AuthService.login(email, password);
-            
-            console.log("Token recibido:", data.token);
-
-            navigation.replace('Home'); 
+            if (data && data.token) {
+                console.log("Token recibido:", data.token);
+                await authStorage.saveToken(data.token);
+                console.log("¡Token guardado con éxito!");
+                navigation.replace('Home'); 
+            }else{
+                throw new Error("El servidor no devolvió un token válido");
+            }
             
         } catch (error) {
             Alert.alert("Error de acceso", error.message);
@@ -32,7 +35,7 @@ export default function LoginScreen({ navigation }) {
     };
 
     const ejecutarRegistro = async () => {
-        
+        navigation.replace('Home');
     };
 
 

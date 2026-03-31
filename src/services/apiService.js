@@ -1,6 +1,6 @@
 const API_URL = 'http://192.168.1.38:5000/';
 
-import aut_storage from './auth_storage'
+import {authStorage} from './authStorage'
 
 async function fetchApi(endpoint, method = 'GET', body = null) {
     const token = await authStorage.getToken();

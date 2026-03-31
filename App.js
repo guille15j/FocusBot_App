@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PaperProvider, ActivityIndicator } from 'react-native-paper';
-import { theme } from './src/styles/theme';
 import { authStorage } from './src/services/authStorage';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // Importación de las Pantallas
 import LoginScreen from './src/screens/LoginScreen';
@@ -20,7 +20,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [userToken, setUserToken] = useState(null);
 
-  userCheck(() => {
+  useEffect(() => {
       const bootstrapAsync = async () =>{
         const token = await authStorage.getToken();
         setUserToken(token);
@@ -41,18 +41,33 @@ export default function App() {
           <Stack.Navigator initialRouteName="Login">
             {userToken == null ? (
               // No existe un token ==> mostramos el login
-              <Stack.Screen 
-                name="Login" 
-                component={LoginScreen} 
-                options={{ headerShown: false }} // Ocultamos la barra superior en el login
-              />
+              <>
+                <Stack.Screen 
+                  name="Login" 
+                  component={LoginScreen} 
+                  options={{ headerShown: false }} // Ocultamos la barra superior en el login
+                />
+
+                <Stack.Screen 
+                  name="Register" 
+                  component={RegisterScreen} 
+                  options={{ headerShown: false }} // Ocultamos la barra superior en el login
+                />
+              </>
             ) : (
               //En este caso si que existe asique pasamos direcatamente al screen de home
-              <Stack.Screen 
-                name="Home" 
-                component={HomeScreen} 
-                options={{ title: 'Mis FocusBots' }} 
-              />
+             <>
+                <Stack.Screen 
+                  name="Home" 
+                  component={HomeScreen} 
+                  options={{ title: 'Mis FocusBots' }} 
+                />
+                <Stack.Screen 
+                  name="LinkBot" 
+                  component={LinkBotScreen} 
+                  options={{ title: 'Mis FocusBots' }} 
+                />
+             </>
             )}
           </Stack.Navigator>
         </NavigationContainer>
