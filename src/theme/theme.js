@@ -104,11 +104,11 @@ export const globalStyles = StyleSheet.create({
         fontWeight: "600",
     },
     fab: { 
-        backgroundColor: AppColors.primary, 
+        backgroundColor: AppColors.secondary, 
         position: 'absolute', 
         margin: 16, 
         right: 0, 
-        bottom: 0 
+        bottom: 100, borderRadius: 150
     },
     container: { 
         flex: 1, 

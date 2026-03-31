@@ -26,15 +26,12 @@ export default function HomeScreen({ navigation }) {
       <Button 
           mode="contained" 
           onPress={ejecutarLogOut}
-          style={globalStyles.button}
       >
           Cerrar Sesion
       </Button>
 
-      {/* Botón flotante */}
       <FAB
-        icon="plus"
-        label="Bot"
+        icon="robot"
         style={globalStyles.fab}
         onPress={() => navigation.replace('LinkBot')}
         // onPress={() => console.log("Ir a vincular...")}

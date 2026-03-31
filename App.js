@@ -79,12 +79,12 @@ export default function App() {
                 <Stack.Screen 
                   name="Home" 
                   component={HomeScreen} 
-                  options={{ title: 'Mis FocusBots' }} 
+                  options={{ headerShown: false  }} 
                 />
                 <Stack.Screen 
                   name="LinkBot" 
                   component={LinkBotScreen} 
-                  options={{ title: 'Mis FocusBots' }} 
+                  options={{ headerShown: false  }} 
                 />
              </>
             )}
