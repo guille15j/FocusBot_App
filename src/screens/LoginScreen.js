@@ -60,13 +60,14 @@ export default function LoginScreen({ navigation }) {
                     </View>
                     
                     <TextInput
-                        label="Correo Electrónico"
+                        label="Email o Usuario"
                         value={email}
                         onChangeText={setEmail}
                         mode="outlined"
                         keyboardType="email-address"
                         autoCapitalize="none"
                         style={globalStyles.input}
+                        outlineStyle = {globalStyles.border_radius}
                     />
                     
                     <TextInput
@@ -76,6 +77,7 @@ export default function LoginScreen({ navigation }) {
                         mode="outlined"
                         secureTextEntry
                         style={globalStyles.input}
+                        outlineStyle = {globalStyles.border_radius}
                     />
                     
                     <TouchableOpacity 
@@ -95,7 +97,7 @@ export default function LoginScreen({ navigation }) {
                         </Button>
                         
                         <Button 
-                            mode="contained" 
+                            mode="outlined" 
                             onPress={ejecutarRegistro}
                             loading={loading}
                             disabled={loading}
