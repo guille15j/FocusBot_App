@@ -70,8 +70,7 @@ const DatePicker = ({ label, mode = 'date', value, onChange }) => {
 
   return (
     <View style={styles.container}>
-      {/* Usamos el estilo de etiqueta de tu globalStyles */}
-      {label && <Text style={globalStyles.subtitle}>{label}</Text>}
+      {label && <Text style={globalStyles.label}>{label}</Text>}
       
       <Pressable 
         style={({ pressed }) => [

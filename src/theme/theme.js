@@ -6,7 +6,7 @@ import { StyleSheet } from 'react-native';
 export const AppColors = {
   primary: '#ef5d5d',     // Un violeta suave, no chillón
   secondary: '#70D6FF',   // Azul claro para calma
-  background: '#F8F9FA',  // Off-white para evitar el brillo excesivo
+  background: '#ef5d5d46',  // Off-white para evitar el brillo excesivo
   surface: '#FFFFFF',
   text: '#2D3436',        // Gris muy oscuro en lugar de negro puro
   error: '#FF6B6B',
@@ -45,9 +45,11 @@ export const globalStyles = StyleSheet.create({
     },
     card: { 
         backgroundColor: AppColors.surface,
-        elevation: 2, // Elevación sutil para no distraer
+        elevation: 2, 
         borderRadius: 16, 
         padding: 16,
+        marginTop: 150,
+        marginBottom: 150
     },
     header: { 
         alignItems: 'center', 

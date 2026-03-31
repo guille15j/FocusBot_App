@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View} from 'react-native';
+import { View, ScrollView} from 'react-native';
 import { TextInput, Button, Card, Text, Avatar } from 'react-native-paper';
 // En src/screens/RegisterScreen.js
 import DatePicker from '../components/DatePicker';
@@ -28,16 +28,18 @@ export default function RegisterScreen({ navigation }) {
     return (
         <View style={globalStyles.fullScreen}>
             <Card style={globalStyles.card}>
-                <Card.Content>
-                    <View style={globalStyles.header}>
+                <View style={globalStyles.header}>
                         <Avatar.Icon size={64} icon="brain" style={globalStyles.icon} />
                         <Text style={globalStyles.title}>FocusBot</Text>
                         <Text style={globalStyles.subtitle}>
                             Registro de Nuevo Usuario
                         </Text>
                     </View>
-
-                    <TextInput
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    
+                <Card.Content>
+                    
+                <TextInput
                         label="Usuario"
                         value={nickname}
                         onChangeText={setNickname}
@@ -91,18 +93,13 @@ export default function RegisterScreen({ navigation }) {
                             mode="date"
                             value={birthdate}
                             onChange={(val) => setBthdate(val)}
-                        />
+                        />            
 
-                    <DatePicker
-                        label="Selecciona Fecha y Hora (Timestamp)"
-                        mode="datetime"
-                        value={fullTimestamp} // Usamos el nuevo estado
-                        onChange={(val) => setFullTimestamp(val)} // Cambiado de setTimestamp a setFullTimestamp
-                    />
+                    
+                </Card.Content>
+                </ScrollView>
 
-
-
-                    <View style={globalStyles.botonera}>
+                <View style={globalStyles.botonera}>
                         <Button 
                             mode="contained" 
                             onPress={ejecutarRegistro}
@@ -119,7 +116,6 @@ export default function RegisterScreen({ navigation }) {
                             Cancelar
                         </Button>
                     </View>
-                </Card.Content>
             </Card>
         </View>
     );
