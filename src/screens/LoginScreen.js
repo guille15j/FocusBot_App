@@ -5,6 +5,8 @@ import { authStorage } from '../services/authStorage';
 import { AuthService } from '../services/apiService';
 import { AuthContext } from '../services/AuthContext'; // contexto de la aplicacion
 
+import { globalStyles } from '../theme/theme';
+
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -47,15 +49,14 @@ export default function LoginScreen({ navigation }) {
         navigation.replace('Reset');
     };
 
-
     return (
-        <View style={styles.fullScreen}>
-            <Card style={styles.card}>
+        <View style={globalStyles.fullScreen}>
+            <Card style={globalStyles.card}>
                 <Card.Content>
-                    <View style={styles.header}>
-                        <Avatar.Icon size={64} icon="brain" style={styles.icon} />
-                        <Text style={styles.title}>FocusBot</Text>
-                        <Text style={styles.subtitle}>Deep Focus Manager</Text>
+                    <View style={globalStyles.header}>
+                        <Avatar.Icon size={64} icon="brain" style={globalStyles.icon} />
+                        <Text style={globalStyles.title}>FocusBot</Text>
+                        <Text style={globalStyles.subtitle}>Deep Focus Manager</Text>
                     </View>
                     
                     <TextInput
@@ -65,7 +66,7 @@ export default function LoginScreen({ navigation }) {
                         mode="outlined"
                         keyboardType="email-address"
                         autoCapitalize="none"
-                        style={styles.input}
+                        style={globalStyles.input}
                     />
                     
                     <TextInput
@@ -74,21 +75,21 @@ export default function LoginScreen({ navigation }) {
                         onChangeText={setPassword}
                         mode="outlined"
                         secureTextEntry
-                        style={styles.input}
+                        style={globalStyles.input}
                     />
                     
                     <TouchableOpacity 
-                            onPress={ejecutarReset} style={styles.link}>
-                        <Text style={styles.linkText}>¿Olvidaste tu contraseña?</Text>
+                            onPress={ejecutarReset} style={globalStyles.link}>
+                        <Text style={globalStyles.linkText}>¿Olvidaste tu contraseña?</Text>
                     </TouchableOpacity>
 
-                    <View style={styles.botonera}>
+                    <View style={globalStyles.botonera}>
                         <Button 
                             mode="contained" 
                             onPress={ejecutarLogin}
                             loading={loading}
                             disabled={loading}
-                            style={styles.button}
+                            style={globalStyles.button}
                         >
                             Iniciar Sesión
                         </Button>
@@ -98,7 +99,7 @@ export default function LoginScreen({ navigation }) {
                             onPress={ejecutarRegistro}
                             loading={loading}
                             disabled={loading}
-                            style={styles.button}
+                            style={globalStyles.button}
                         >
                             Registrarme
                         </Button>
@@ -110,24 +111,3 @@ export default function LoginScreen({ navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
-    fullScreen: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#f0f2f5' },
-    card: { elevation: 4, borderRadius: 12 },
-    header: { alignItems: 'center', marginBottom: 20 },
-    icon: { backgroundColor: '#6200ee', marginBottom: 10 },
-    title: { fontSize: 28, fontWeight: 'bold' },
-    subtitle: { color: '#666' },
-    input: { marginBottom: 15 },
-    button: { marginTop: 10, paddingVertical: 5, flex: 1 },
-    botonera: {flexDirection: 'row', gap: 10,marginTop: 10 },
-    link: {
-        alignSelf: "center",
-        marginTop: 10
-    },
-    linkText: {
-        color: "#007AFF",
-        fontWeight: "500"
-    }
-
-
-});

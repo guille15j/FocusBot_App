@@ -2,8 +2,9 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Button, FAB } from 'react-native-paper';
-import { authStorage } from '../services/authStorage';
 import { AuthContext } from '../services/AuthContext';
+
+import { globalStyles } from '../theme/theme';
 
 export default function HomeScreen({ navigation }) {
 
@@ -18,17 +19,14 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
-
-
-
   return (
-    <View style={styles.container}>
+    <View style={globalStyles.container}>
       <Text variant="headlineMedium">¡Bienvenido a FocusBot!</Text>
-      <Text style={styles.info}>Aquí aparecerán tus dispositivos pronto.</Text>
+      <Text style={globalStyles.info}>Aquí aparecerán tus dispositivos pronto.</Text>
       <Button 
           mode="contained" 
           onPress={ejecutarLogOut}
-          style={styles.button}
+          style={globalStyles.button}
       >
           Cerrar Sesion
       </Button>
@@ -37,16 +35,10 @@ export default function HomeScreen({ navigation }) {
       <FAB
         icon="plus"
         label="Bot"
-        style={styles.fab}
-        onPress={() => console.log("Ir a vincular...")}
+        style={globalStyles.fab}
+        onPress={() => navigation.replace('LinkBot')}
+        // onPress={() => console.log("Ir a vincular...")}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, justifyContent: 'center', alignItems: 'center' },
-  info: { marginTop: 10, color: 'gray' },
-  button: { marginTop: 10, paddingVertical: 5},
-  fab: { position: 'absolute', margin: 16, right: 0, bottom: 0 },
-});

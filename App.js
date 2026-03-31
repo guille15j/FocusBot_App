@@ -6,6 +6,8 @@ import { authStorage } from './src/services/authStorage';
 import { AuthContext } from './src/services/AuthContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { theme } from './src/theme/theme';
+
 // Importación de las Pantallas
 import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from './src/screens/HomeScreen'; 
@@ -47,7 +49,7 @@ export default function App() {
   return (
     <AuthContext.Provider value={authActions}>
     <SafeAreaProvider>
-      <PaperProvider >
+      <PaperProvider theme={theme}>
         <NavigationContainer>
           <Stack.Navigator>
             {userToken == null ? (
