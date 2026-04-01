@@ -22,8 +22,7 @@ export default function ResetScreen({ navigation }) {
             <Card style={globalStyles.card}>
                 <Card.Content>
                     <View style={globalStyles.header}>
-                        <Avatar.Icon size={64} icon="brain" style={globalStyles.icon} />
-                        <Text style={globalStyles.title}>FocusBot</Text>
+                        <Avatar.Icon size={64} icon="robot" style={globalStyles.icon} /><Text style={globalStyles.title}>FocusBot</Text>
                         <Text style={globalStyles.subtitle}>
                             Reseto de contraseña
                         </Text>

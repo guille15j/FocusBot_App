@@ -54,7 +54,7 @@ export default function LoginScreen({ navigation }) {
             <Card style={globalStyles.card}>
                 <Card.Content>
                     <View style={globalStyles.header}>
-                        <Avatar.Icon size={64} icon="brain" style={globalStyles.icon} />
+                        <Avatar.Icon size={64} icon="robot" style={globalStyles.icon} />
                         <Text style={globalStyles.title}>FocusBot</Text>
                         <Text style={globalStyles.subtitle}>Deep Focus Manager</Text>
                     </View>

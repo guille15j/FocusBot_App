@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, ScrollView} from 'react-native';
 import { TextInput, Button, Card, Text, Avatar } from 'react-native-paper';
-// En src/screens/RegisterScreen.js
 import DatePicker from '../components/DatePicker';
 
 import { globalStyles } from '../theme/theme';
@@ -14,7 +13,7 @@ export default function RegisterScreen({ navigation }) {
     const [nickname, setNickname] = useState('');
     const [birthdate, setBthdate] = useState(new Date());
 
-    const [fullTimestamp, setFullTimestamp] = useState(new Date());
+    // const [fullTimestamp, setFullTimestamp] = useState(new Date());
 
 
     const ejecutarRegistro = async () => {
@@ -29,8 +28,7 @@ export default function RegisterScreen({ navigation }) {
         <View style={globalStyles.fullScreen}>
             <Card style={globalStyles.card}>
                 <View style={globalStyles.header}>
-                        <Avatar.Icon size={64} icon="brain" style={globalStyles.icon} />
-                        <Text style={globalStyles.title}>FocusBot</Text>
+                        <Avatar.Icon size={64} icon="robot" style={globalStyles.icon} /><Text style={globalStyles.title}>FocusBot</Text>
                         <Text style={globalStyles.subtitle}>
                             Registro de Nuevo Usuario
                         </Text>
