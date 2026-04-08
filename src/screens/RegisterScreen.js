@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
-import { View, ScrollView} from 'react-native';
+import React, { useState, useContext } from 'react';
+import { View, Alert, ScrollView} from 'react-native';
 import { TextInput, Button, Card, Text, Avatar } from 'react-native-paper';
 import DatePicker from '../components/DatePicker';
 
+import { AuthService } from '../services/apiService';
+import { authStorage } from '../services/authStorage';
+import { AuthContext } from '../services/AuthContext'; // Importamos el contexto
 import { globalStyles } from '../theme/theme';
 
 export default function RegisterScreen({ navigation }) {
@@ -12,14 +15,56 @@ export default function RegisterScreen({ navigation }) {
     const [lastName, setlastName] = useState('');
     const [nickname, setNickname] = useState('');
     const [birthdate, setBthdate] = useState(new Date());
+    const [loading, setLoading] = useState(false);
 
-    // const [fullTimestamp, setFullTimestamp] = useState(new Date());
+    const { signIn } = useContext(AuthContext);
 
 
     const ejecutarRegistro = async () => {
-        console.log("Registrando")
-    };
+        // 1. Validación local
+        if (!email || !password || !firstName || !lastName || !nickname) {
+            Alert.alert("Atención", "Por favor, completa todos los campos obligatorios.");
+            return;
+        }
 
+        setLoading(true);
+
+        try {
+            // 2. Preparar datos para el backend (nombres exactos de las keys de Flask)
+            const userData = {
+                first_name: firstName,
+                last_name: lastName,
+                nickname: nickname,
+                email: email.toLowerCase().trim(),
+                birth_date: birthdate.toISOString().split('T')[0], // Formato YYYY-MM-DD
+                password: password,
+                phone: "",
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                profile_img: ""
+            };
+
+            // 3. Llamada al servicio
+            const data = await AuthService.register(userData);
+
+            if (data && data.token) {
+                console.log("Registro exitoso y token recibido");
+                
+                // 4. Guardar token y avisar al contexto (Auto-login)
+                await authStorage.saveToken(data.token);
+                Alert.alert("¡Bienvenido!", "Cuenta creada correctamente.");
+                
+                signIn(data.token); 
+            } else {
+                throw new Error("El servidor no devolvió un token tras el registro");
+            }
+
+        } catch (error) {
+            // 5. El error aquí ya trae el mensaje de Flask gracias a la corrección de fetchApi
+            Alert.alert("Error de registro", error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
     const volver = async () => {
         navigation.replace('Login');
     };

@@ -1,4 +1,4 @@
-const API_URL = 'http://192.168.1.38:5000/';
+const API_URL = 'http://88.0.69.82:5000/';
 
 import {authStorage} from './authStorage'
 
@@ -25,11 +25,12 @@ async function fetchApi(endpoint, method = 'GET', body = null) {
 
     try {
         const respuesta = await fetch(url, options);
-        const data = await respuesta.json();
+        const data = await respuesta.json().catch(() => null);
 
         if (!respuesta.ok) {
-            const errorText = await respuesta.text();
-            throw new Error(`Error ${respuesta.status} en la petición: ${respuesta.statusText} - ${errorText}`);
+            console.error(`Status: ${respuesta.status} en la URL: ${url}`);
+            const errorData = await respuesta.json().catch(() => ({ message: "Error no JSON" }));
+            throw new Error(errorData.message || `Error ${respuesta.status}`);
         }
 
         return data;
