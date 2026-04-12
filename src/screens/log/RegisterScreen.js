@@ -1,12 +1,12 @@
 import React, { useState, useContext } from 'react';
 import { View, Alert, ScrollView} from 'react-native';
 import { TextInput, Button, Card, Text, Avatar } from 'react-native-paper';
-import DatePicker from '../components/DatePicker';
+import DatePicker from '../../components/DatePicker';
 
-import { AuthService } from '../services/apiService';
-import { authStorage } from '../services/authStorage';
-import { AuthContext } from '../services/AuthContext'; // Importamos el contexto
-import { globalStyles } from '../theme/theme';
+import { AuthService } from '../../services/apiService';
+import { authStorage } from '../../services/authStorage';
+import { AuthContext } from '../../services/AuthContext'; // Importamos el contexto
+import { globalStyles } from '../../theme/theme';
 
 export default function RegisterScreen({ navigation }) {
     const [email, setEmail] = useState('');

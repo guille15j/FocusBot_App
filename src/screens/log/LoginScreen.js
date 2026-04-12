@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { TextInput, Button, Card, Text, Avatar } from 'react-native-paper';
-import { authStorage } from '../services/authStorage';
-import { AuthService } from '../services/apiService';
-import { AuthContext } from '../services/AuthContext'; // contexto de la aplicacion
+import { authStorage } from '../../services/authStorage';
+import { AuthService, UserService } from '../../services/apiService';
+import { AuthContext } from '../../services/AuthContext'; // contexto de la aplicacion
 
-import { globalStyles } from '../theme/theme';
+import { globalStyles } from '../../theme/theme';
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
@@ -28,8 +28,13 @@ export default function LoginScreen({ navigation }) {
                 await authStorage.saveToken(data.token);
                 console.log("¡Token guardado con éxito!");
                 // navigation.replace('Home'); 
+                console.log(data)
+                const user = await UserService.getUSer();
 
-                signIn(data.token); //avisamos a App.js del cambio para que represente lo que toque
+                if (user && user.user)
+                    await authStorage.saveUer(user.user);
+
+                signIn(data.token, user.user); //avisamos a App.js del cambio para que represente lo que toque
             }else{
                 throw new Error("El servidor no devolvió un token válido");
             }

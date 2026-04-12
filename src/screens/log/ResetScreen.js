@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { TextInput, Button, Card, Text, Avatar } from 'react-native-paper';
 
-import { globalStyles } from '../theme/theme';
+import { globalStyles } from '../../theme/theme';
 
 export default function ResetScreen({ navigation }) {
     const [email, setEmail] = useState('');

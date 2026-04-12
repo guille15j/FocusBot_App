@@ -7,6 +7,8 @@ import { globalStyles,  } from '../theme/theme';
 import ListaBots from '../components/ListBot';
 import GridBots from '../components/GridBots';
 import {BotService} from '../services/apiService'
+import BotCard from '../components/BotCard';
+import BotTile from '../components/BotListTile';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -33,7 +35,9 @@ export default function HomeScreen({ navigation }) {
     try {
       setBots([]);
       const data = await BotService.getBots();
-      setBots(data);
+      setBots(data.bots);
+      console.log(data.bots.length + " - Bots registrados")
+      console.log(bots[0].status)
     } catch (error) {
       console.error("Error al obtener bots:", error);
     } finally {
@@ -49,27 +53,24 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <View style={globalStyles.container}>
-      
-      
-      <Text variant="headlineMedium">¡Bienvenido a FocusBot!</Text>
-      <Text style={globalStyles.info}>Aquí aparecerán tus dispositivos pronto.</Text>
-      <Button 
-          mode="contained" 
-          onPress={ejecutarLogOut}
-      >
-          Cerrar Sesion
-      </Button>
 
-      <Button 
-          mode="contained" onPress={obtenerBots} >adsdas</Button>
+  {/* <Text>{bots.length > 0 ? bots[0].status : "No hay bots disponibles"}</Text>
+
 
       
 
       <GridBots data={bots} numColumns={columnas}/>
+      <ListaBots data={bots}/>
+      {/* <ScrollView showsVerticalScrollIndicator={false}>
+        
+      </ScrollView> */}
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <ListaBots data={bots}/>
-      </ScrollView>
+
+      <View style={globalStyles.botonera}>
+        <Button mode="contained" onPress={ejecutarLogOut}>Cerrar Sesion</Button>
+
+        <Button mode="contained" onPress={obtenerBots} >Recargar</Button>
+      </View> 
       
       <FAB
         icon="robot"

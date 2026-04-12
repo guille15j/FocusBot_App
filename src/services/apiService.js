@@ -47,7 +47,15 @@ export const AuthService = {
     register: (userData) => fetchApi('auth/register', 'POST', userData),
 };
 
+export const UserService = {
+    getUSer: () => fetchApi('users/user', 'GET')
+}
+
 export const BotService = {
-    getBots: () => fetchApi('bot/bots','GET',null),
+    getBots: () => fetchApi('bot/getByUser','GET',null),
     linkBot: (mac, name) => fetchApi('bot/pair', 'POST', {mac_address: mac, custom_name: name}),
+};
+
+export const ActivityService = {
+
 };

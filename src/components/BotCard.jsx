@@ -58,8 +58,7 @@ const BotCard = ({ item }) => {
         </Text>
       </Card.Content>
 
-      <Card.Actions>
-        {/* Botón de Play: Solo activo en IDLE o PAUSED */}
+      {/* <Card.Actions>
         <IconButton 
             icon="play" 
             mode="contained"
@@ -68,13 +67,12 @@ const BotCard = ({ item }) => {
             style={{ backgroundColor: (item.status === 'IDLE' || item.status === 'PAUSED') ? '#6200ee' : '#e0e0e0' }}
             onPress={() => console.log("Start", item.bot_id)} 
         />
-        {/* Botón de Stop: Activo en FOCUSING o BREAK */}
         <IconButton 
             icon="stop" 
             disabled={item.status !== 'FOCUSING' && item.status !== 'BREAK'}
             onPress={() => console.log("Stop", item.bot_id)} 
         />
-      </Card.Actions>
+      </Card.Actions> */}
     </Card>
   );
 };

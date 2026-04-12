@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 // Definición de colores amigables para TDAH 
 // (Tonos suaves, menos "agresivos" que el azul eléctrico o blanco puro)
 export const AppColors = {
-  primary: '#e84ab9',     // Un violeta suave, no chillón
+  primary: '#4a6fe8',     // Un violeta suave, no chillón
   secondary: '#70D6FF',   // Azul claro para calma
   background: '#4a86e846',  // Off-white para evitar el brillo excesivo
   surface: '#FFFFFF',

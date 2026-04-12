@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, ScrollView, Alert  } from 'react-native';
 import { TextInput, Button, Card, Text, Avatar } from 'react-native-paper';
-import  MacAddressInput  from '../components/MACInput';
+import  MacAddressInput  from '../../components/MACInput';
 
-import { globalStyles } from '../theme/theme';
-import { BotService } from '../services/apiService';
+import { globalStyles } from '../../theme/theme';
+import { BotService } from '../../services/apiService';
 
 export default function RegisterScreen({ navigation }) {
 

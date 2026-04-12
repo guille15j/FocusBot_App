@@ -10,28 +10,35 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { AppColors, theme } from './src/theme/theme';
 
 // Importación de las Pantallas
-import LoginScreen from './src/screens/LoginScreen';
+import LoginScreen from './src/screens/log/LoginScreen';
 import HomeScreen from './src/screens/HomeScreen'; 
-import LinkBotScreen from './src/screens/LinkBotScreen';
-import RegisterScreen from './src/screens/RegisterScreen';
-import ResetScreen from './src/screens/ResetScreen';
+import LinkBotScreen from './src/screens/bots/LinkBotScreen';
+import RegisterScreen from './src/screens/log/RegisterScreen';
+import ResetScreen from './src/screens/log/ResetScreen';
 
 const Stack = createStackNavigator();
 
-const UserHeader = () => (
-  // SafeAreaView asegura que el contenido no se pegue al notch/status bar
-  <SafeAreaView edges={['top']} style={styles.topBarContainer}>
-    <View style={styles.userContainer}>
-      <Avatar.Icon 
-        size={40} 
-        icon="account" // Icono de persona de react-native-paper
-        style={theme.avatarCircle} 
-        color="white" // Color del icono
-      />
-      <Text style={styles.userName}>Juan Pérez</Text>
-    </View>
-  </SafeAreaView>
-);
+const UserHeader = ({ user }) => { // <--- Agregadas las llaves { }
+  // Si el objeto user no existe todavía, no renderizamos nada o mostramos un placeholder
+  if (!user) return null;
+
+  return (
+    <SafeAreaView edges={['top']} style={styles.topBarContainer}>
+      <View style={styles.userContainer}>
+        <Avatar.Icon 
+          size={40} 
+          icon="account" 
+          style={theme.avatarCircle} 
+          color="white" 
+        />
+        {/* Usamos el nickname o un fallback si está vacío */}
+        <Text style={styles.userName}>
+          {user.first_name || user.username || 'Usuario'}
+        </Text>
+      </View>
+    </SafeAreaView>
+  );
+};
 
 const BottomNav = ({ navigation }) => (
   <View style={styles.bottomBar}>
@@ -49,22 +56,27 @@ export default function App() {
   // funcionalidades que encargadas de controlar el acceso al token
   const [loading, setLoading] = useState(true);
   const [userToken, setUserToken] = useState(null);
+  const [user, setUser] = useState(null);
 
   const navigationRef = React.useRef();
 
   const authActions = useMemo(() => ({
-    signIn: (token) => setUserToken(token),
+    signIn: (token, userData) => {setUserToken(token);setUser(userData);},
     signOut: async () => {
       await authStorage.deleteToken();
+      await authStorage.deleteUser();
+      setUser(null);
       setUserToken(null);
     },
-    userToken,
-  }), [userToken]);
+    userToken, user,
+  }), [userToken, user]);
 
   useEffect(() => {
       const bootstrapAsync = async () =>{
         const token = await authStorage.getToken();
+        const user = await authStorage.getUser();
         setUserToken(token);
+        setUser(user);
         setLoading(false);
       };
       bootstrapAsync();
@@ -79,7 +91,7 @@ export default function App() {
     <AuthContext.Provider value={authActions}>
     <SafeAreaProvider>
       <PaperProvider theme={theme}>
-        {userToken && <UserHeader />}
+        {userToken && <UserHeader user = {user} />}
         <NavigationContainer style = {{backgroundColor : AppColors.background}}>
           <Stack.Navigator>
             {userToken == null ? (
@@ -120,9 +132,7 @@ export default function App() {
             )}
           </Stack.Navigator>
         </NavigationContainer>
-        {userToken && (
-              <BottomNav navigation={navigationRef.current} />
-        )}
+        
       </PaperProvider>
     </SafeAreaProvider>
     </AuthContext.Provider>
@@ -133,8 +143,6 @@ const styles = StyleSheet.create({
   // Estilos Barra Superior
   topBarContainer: {
     backgroundColor: AppColors.secondary,
-    borderBottomEndRadius: 16,
-    borderBottomStartRadius: 16,
     elevation: 2,
     shadowColor: '#000', 
     shadowOffset: { width: 0, height: 1 },
@@ -158,9 +166,9 @@ const styles = StyleSheet.create({
 
   // Estilos Barra Inferior
   bottomBarContainer: {
-    backgroundColor: 'white',
+    backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: '#ff0000',
   },
   bottomBar: {
     height: 60,
