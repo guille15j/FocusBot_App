@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'; // Añadidos
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { PaperProvider, ActivityIndicator, Avatar } from 'react-native-paper';
+import { PaperProvider, ActivityIndicator, Avatar, IconButton } from 'react-native-paper';
 import { authStorage } from './src/services/authStorage';
 import { AuthContext } from './src/services/AuthContext';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -10,46 +10,31 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { AppColors, theme } from './src/theme/theme';
 
 // Importación de las Pantallas
+// Pantallas de LOG
 import LoginScreen from './src/screens/log/LoginScreen';
-import HomeScreen from './src/screens/HomeScreen'; 
-import LinkBotScreen from './src/screens/bots/LinkBotScreen';
 import RegisterScreen from './src/screens/log/RegisterScreen';
 import ResetScreen from './src/screens/log/ResetScreen';
 
+// Pantalla Principal
+import HomeScreen from './src/screens/HomeScreen'; 
+
+// Pantallas de BOTS
+import BotsPage from './src/screens/bots/BotsPage';
+import LinkBotScreen from './src/screens/bots/LinkBotScreen';
+
+// Pantallas de ACTIVIDADES
+import Activities from './src/screens/activities/Activities';
+
+// Pantallas de RECORDS
+import HistoricalRecords from './src/screens/records/HistoricalRecords';
+
+// Pantallas de PROFILE (Opcional para el futuro)
+import ProfilePage from './src/screens/profile/ProfilePage';
+
+import UserHeader from './src/components/UserHeader';
+import BottomNav from './src/components/BottomNav';
+
 const Stack = createStackNavigator();
-
-const UserHeader = ({ user }) => { // <--- Agregadas las llaves { }
-  // Si el objeto user no existe todavía, no renderizamos nada o mostramos un placeholder
-  if (!user) return null;
-
-  return (
-    <SafeAreaView edges={['top']} style={styles.topBarContainer}>
-      <View style={styles.userContainer}>
-        <Avatar.Icon 
-          size={40} 
-          icon="account" 
-          style={theme.avatarCircle} 
-          color="white" 
-        />
-        {/* Usamos el nickname o un fallback si está vacío */}
-        <Text style={styles.userName}>
-          {user.first_name || user.username || 'Usuario'}
-        </Text>
-      </View>
-    </SafeAreaView>
-  );
-};
-
-const BottomNav = ({ navigation }) => (
-  <View style={styles.bottomBar}>
-    <TouchableOpacity onPress={() => navigation?.navigate('Home')} style={styles.navBtn}>
-      <Text>Inicio</Text>
-    </TouchableOpacity>
-    <TouchableOpacity onPress={() => navigation?.navigate('LinkBot')} style={styles.navBtn}>
-      <Text>LinkBot</Text>
-    </TouchableOpacity>
-  </View>
-);
 
 export default function App() {
   
@@ -75,8 +60,10 @@ export default function App() {
       const bootstrapAsync = async () =>{
         const token = await authStorage.getToken();
         const user = await authStorage.getUser();
+
         setUserToken(token);
         setUser(user);
+
         setLoading(false);
       };
       bootstrapAsync();
@@ -91,46 +78,41 @@ export default function App() {
     <AuthContext.Provider value={authActions}>
     <SafeAreaProvider>
       <PaperProvider theme={theme}>
-        {userToken && <UserHeader user = {user} />}
-        <NavigationContainer style = {{backgroundColor : AppColors.background}}>
+        {userToken && <UserHeader user={user} />}
+        <NavigationContainer ref={navigationRef} style = {{backgroundColor : AppColors.background}}>
           <Stack.Navigator>
             {userToken == null ? (
-              // No existe un token ==> mostramos el login
+              // STACK DE AUTENTICACIÓN
               <>
-                <Stack.Screen 
-                  name="Login" 
-                  component={LoginScreen} 
-                  options={{ headerShown: false }} // Ocultamos la barra superior en el login
-                />
-
-                <Stack.Screen 
-                  name="Register" 
-                  component={RegisterScreen} 
-                  options={{ headerShown: false }} // Ocultamos la barra superior en el login
-                />
-
-                <Stack.Screen 
-                  name="Reset" 
-                  component={ResetScreen} 
-                  options={{ headerShown: false }} // Ocultamos la barra superior en el login
-                />
+                <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+                <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
+                <Stack.Screen name="Reset" component={ResetScreen} options={{ headerShown: false }} />
               </>
             ) : (
-              //En este caso si que existe asique pasamos direcatamente al screen de home
-             <>
-                <Stack.Screen 
-                  name="Home" 
-                  component={HomeScreen} 
-                  options={{ headerShown: false  }} 
-                />
-                <Stack.Screen 
-                  name="LinkBot" 
-                  component={LinkBotScreen} 
-                  options={{ headerShown: false  }} 
-                />
-             </>
+              // STACK DE LA APLICACIÓN
+              <>
+                {/* Home es la pantalla por defecto */}
+                <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+                
+                {/* Pantalla de listado de Bots */}
+                <Stack.Screen name="BotPage" component={BotsPage} options={{ headerShown: false }} />
+                
+                {/* Pantalla de Actividades */}
+                <Stack.Screen name="Activities" component={Activities} options={{ headerShown: false }} />
+                
+                {/* Pantalla de Historial */}
+                <Stack.Screen name="Records" component={HistoricalRecords} options={{ headerShown: false }} />
+
+                {/* Pantallas secundarias (Navegación interna) */}
+                <Stack.Screen name="LinkBot" component={LinkBotScreen} options={{ headerShown: false }} />
+                <Stack.Screen name="Profile" component={ProfilePage} options={{ headerShown: false }} />
+              </>
             )}
           </Stack.Navigator>
+
+          {userToken && (
+            <BottomNav navigation={navigationRef.current} />
+          )}
         </NavigationContainer>
         
       </PaperProvider>

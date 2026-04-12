@@ -33,7 +33,7 @@ export const authStorage = {
 
     getUser: async () => {
         try {
-            const jsonValue = await AsyncStorage.getItem(USER_KEY);
+            const jsonValue = await AsyncStorage.getItem(USER);
             return jsonValue != null ? JSON.parse(jsonValue) : null;
         } catch (e) {
             console.error("Error al obtener el usuario", e);
