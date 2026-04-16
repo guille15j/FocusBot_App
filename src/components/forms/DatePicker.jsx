@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, Platform, Modal, Button } from 'react-native';
+import { View, Platform } from 'react-native';
+import { TextInput, Button } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
-
-// Importamos tus estilos y colores
-import { globalStyles, AppColors } from '../theme/theme';
 
 const DatePicker = ({ label, mode = 'date', value, onChange }) => {
   const [show, setShow] = useState(false);

@@ -1,8 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
-import { Avatar } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppColors, theme } from '../theme/theme';
+import { View, StyleSheet, SafeAreaView, Platform } from 'react-native'; // ← Añadir SafeAreaView y Platform
+import { Avatar, Text } from 'react-native-paper';
+import { AppColors } from '../../theme/theme';
 
 const UserHeader = ({ user }) => {
   if (!user) return null;
@@ -13,7 +12,7 @@ const UserHeader = ({ user }) => {
         <Avatar.Icon 
           size={40} 
           icon="account" 
-          style={theme.avatarCircle} 
+          style={{ backgroundColor: AppColors.primary }} 
           color="white" 
         />
         <Text style={styles.userName}>
@@ -38,7 +37,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingBottom: 10,
-    paddingTop: Platform.OS === 'web' ? 10 : 0, // Ajuste para web
+    paddingTop: Platform.OS === 'web' ? 10 : 0,
   },
   userName: {
     fontSize: 16,

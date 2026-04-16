@@ -1,6 +1,6 @@
 const API_URL = 'http://88.0.69.82:5000/';
 
-import {authStorage} from './authStorage'
+import { authStorage } from '../core/authStorage';
 
 async function fetchApi(endpoint, method = 'GET', body = null) {
     const token = await authStorage.getToken();

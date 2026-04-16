@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { List, Avatar, Text, Caption } from 'react-native-paper';
-import { AppColors } from '../theme/theme';
+import { StyleSheet } from 'react-native';
+import { List, Chip } from 'react-native-paper';
+import { AppColors } from '../../theme/theme';
 
 const BotTile = ({ item, onPress }) => {
   // Configuramos el color y el icono según el estado del Bot

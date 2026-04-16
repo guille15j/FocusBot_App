@@ -1,165 +1,296 @@
-import React, { useState, useContext } from 'react';
-import { View, Alert, ScrollView} from 'react-native';
-import { TextInput, Button, Card, Text, Avatar } from 'react-native-paper';
-import DatePicker from '../../components/DatePicker';
+// ============================================================
+// IMPORTS
+// ============================================================
 
-import { AuthService } from '../../services/apiService';
-import { authStorage } from '../../services/authStorage';
-import { AuthContext } from '../../services/AuthContext'; // Importamos el contexto
-import { globalStyles } from '../../theme/theme';
+import React, { useState, useContext } from 'react';
+import { 
+  View, 
+  Alert, 
+  ScrollView,           // Para hacer scroll cuando hay muchos campos
+  KeyboardAvoidingView,
+  Platform,
+  TouchableOpacity
+} from 'react-native';
+import { 
+  TextInput, 
+  Button, 
+  Text, 
+  Surface 
+} from 'react-native-paper';
+import { AuthContext } from '../../context/AuthContext';
+import { authStorage } from '../../core/authStorage';
+import { globalStyles, AppColors } from '../../theme/theme';
+
+// ============================================================
+// COMPONENTE PRINCIPAL
+// ============================================================
 
 export default function RegisterScreen({ navigation }) {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [firstName, setfirstName] = useState('');
-    const [lastName, setlastName] = useState('');
-    const [nickname, setNickname] = useState('');
-    const [birthdate, setBthdate] = useState(new Date());
-    const [loading, setLoading] = useState(false);
+  
+  // ----------------------------------------------------------
+  // ESTADOS PARA CADA CAMPO DEL FORMULARIO
+  // ----------------------------------------------------------
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [birthdate, setBirthdate] = useState('');
+  
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const { signIn } = useContext(AuthContext);
+  const { signIn } = useContext(AuthContext);
 
+  // ----------------------------------------------------------
+  // FUNCIÓN: validarFormulario
+  // Verifica que todos los campos cumplan los requisitos
+  // ----------------------------------------------------------
+  const validarFormulario = () => {
+    if (!firstName.trim()) {
+      Alert.alert("Error", "El nombre es obligatorio");
+      return false;
+    }
+    if (!lastName.trim()) {
+      Alert.alert("Error", "Los apellidos son obligatorios");
+      return false;
+    }
+    if (!nickname.trim()) {
+      Alert.alert("Error", "El nombre de usuario es obligatorio");
+      return false;
+    }
+    if (!email.trim()) {
+      Alert.alert("Error", "El email es obligatorio");
+      return false;
+    }
+    // Validación básica de email
+    if (!email.includes('@') || !email.includes('.')) {
+      Alert.alert("Error", "Introduce un email válido");
+      return false;
+    }
+    if (!password) {
+      Alert.alert("Error", "La contraseña es obligatoria");
+      return false;
+    }
+    if (password.length < 6) {
+      Alert.alert("Error", "La contraseña debe tener al menos 6 caracteres");
+      return false;
+    }
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Las contraseñas no coinciden");
+      return false;
+    }
+    return true;
+  };
 
-    const ejecutarRegistro = async () => {
-        // 1. Validación local
-        if (!email || !password || !firstName || !lastName || !nickname) {
-            Alert.alert("Atención", "Por favor, completa todos los campos obligatorios.");
-            return;
-        }
+  // ----------------------------------------------------------
+  // FUNCIÓN: ejecutarRegistro
+  // Se ejecuta al presionar "Register"
+  // ----------------------------------------------------------
+  const ejecutarRegistro = async () => {
+    
+    // 1. Validar formulario
+    if (!validarFormulario()) {
+      return;
+    }
 
-        setLoading(true);
+    setLoading(true);
+    
+    try {
+      console.log("📝 Registrando usuario:", email);
+      
+      // Simulamos delay de servidor
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Datos que enviaríamos al backend
+      const userData = {
+        first_name: firstName,
+        last_name: lastName,
+        nickname: nickname,
+        email: email.toLowerCase().trim(),
+        birth_date: birthdate || null,
+        password: password,
+      };
+      
+      console.log("📦 Datos enviados:", userData);
+      
+      // Simulamos respuesta exitosa del servidor
+      const fakeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fake-register-token-67890";
+      const fakeUser = {
+        id: 2,
+        first_name: firstName,
+        last_name: lastName,
+        nickname: nickname,
+        email: email,
+      };
+      
+      // Guardar token y usuario
+      await authStorage.saveToken(fakeToken);
+      await authStorage.saveUser(fakeUser);
+      
+      // Notificar al contexto global
+      signIn(fakeToken, fakeUser);
+      
+      Alert.alert("¡Registro exitoso!", `Bienvenido/a ${firstName}!`);
+      
+    } catch (error) {
+      console.error("❌ Error en registro:", error);
+      Alert.alert("Error de registro", "No se pudo completar el registro");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        try {
-            // 2. Preparar datos para el backend (nombres exactos de las keys de Flask)
-            const userData = {
-                first_name: firstName,
-                last_name: lastName,
-                nickname: nickname,
-                email: email.toLowerCase().trim(),
-                birth_date: birthdate.toISOString().split('T')[0], // Formato YYYY-MM-DD
-                password: password,
-                phone: "",
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                profile_img: ""
-            };
+  // ----------------------------------------------------------
+  // FUNCIÓN: volverAlLogin
+  // ----------------------------------------------------------
+  const volverAlLogin = () => {
+    navigation.replace('Login');
+  };
 
-            // 3. Llamada al servicio
-            const data = await AuthService.register(userData);
-
-            if (data && data.token) {
-                console.log("Registro exitoso y token recibido");
-                
-                // 4. Guardar token y avisar al contexto (Auto-login)
-                await authStorage.saveToken(data.token);
-                Alert.alert("¡Bienvenido!", "Cuenta creada correctamente.");
-                
-                signIn(data.token); 
-            } else {
-                throw new Error("El servidor no devolvió un token tras el registro");
+  // ----------------------------------------------------------
+  // RENDER
+  // ----------------------------------------------------------
+  return (
+    <KeyboardAvoidingView 
+      style={globalStyles.authContainer}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      {/* ScrollView permite hacer scroll si el formulario es muy largo */}
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+      >
+        <Surface style={globalStyles.card} elevation={4}>
+          
+          {/* ========== TÍTULO ========== */}
+          <View style={globalStyles.logoContainer}>
+            <Text style={[globalStyles.logo, { fontSize: 36 }]}>Focus.Bot</Text>
+            <Text style={globalStyles.logoSubtitle}>Create Account</Text>
+          </View>
+          
+          {/* ========== FORMULARIO ========== */}
+          
+          <TextInput
+            label="First Name"
+            value={firstName}
+            onChangeText={setFirstName}
+            mode="outlined"
+            style={globalStyles.input}
+            outlineStyle={{ borderRadius: 30 }}
+            left={<TextInput.Icon icon="account" />}
+          />
+          
+          <TextInput
+            label="Last Name"
+            value={lastName}
+            onChangeText={setLastName}
+            mode="outlined"
+            style={globalStyles.input}
+            outlineStyle={{ borderRadius: 30 }}
+            left={<TextInput.Icon icon="account-group" />}
+          />
+          
+          <TextInput
+            label="Nickname"
+            value={nickname}
+            onChangeText={setNickname}
+            mode="outlined"
+            autoCapitalize="none"
+            style={globalStyles.input}
+            outlineStyle={{ borderRadius: 30 }}
+            left={<TextInput.Icon icon="at" />}
+          />
+          
+          <TextInput
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            mode="outlined"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            style={globalStyles.input}
+            outlineStyle={{ borderRadius: 30 }}
+            left={<TextInput.Icon icon="email" />}
+          />
+          
+          <TextInput
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            mode="outlined"
+            secureTextEntry={!showPassword}
+            style={globalStyles.input}
+            outlineStyle={{ borderRadius: 30 }}
+            left={<TextInput.Icon icon="lock" />}
+            right={
+              <TextInput.Icon 
+                icon={showPassword ? "eye-off" : "eye"} 
+                onPress={() => setShowPassword(!showPassword)}
+              />
             }
-
-        } catch (error) {
-            // 5. El error aquí ya trae el mensaje de Flask gracias a la corrección de fetchApi
-            Alert.alert("Error de registro", error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-    const volver = async () => {
-        navigation.replace('Login');
-    };
-
-    return (
-        <View style={globalStyles.fullScreen}>
-            <Card style={globalStyles.card}>
-                <View style={globalStyles.header}>
-                        <Avatar.Icon size={64} icon="robot" style={globalStyles.icon} /><Text style={globalStyles.title}>FocusBot</Text>
-                        <Text style={globalStyles.subtitle}>
-                            Registro de Nuevo Usuario
-                        </Text>
-                    </View>
-                <ScrollView showsVerticalScrollIndicator={false}>
-                    
-                <Card.Content>
-                    
-                <TextInput
-                        label="Usuario"
-                        value={nickname}
-                        onChangeText={setNickname}
-                        mode="outlined"
-                        style={globalStyles.input}
-                        outlineStyle = {globalStyles.border_radius}
-                    />
-
-                    <TextInput
-                        label="Nombre"
-                        value={firstName}
-                        onChangeText={setfirstName}
-                        mode="outlined"
-                        style={globalStyles.input}
-                        outlineStyle = {globalStyles.border_radius}
-                    />
-
-                    <TextInput
-                        label="Apellidos"
-                        value={lastName}
-                        onChangeText={setlastName}
-                        mode="outlined"
-                        style={globalStyles.input}
-                        outlineStyle = {globalStyles.border_radius}
-                    />
-
-                    <TextInput
-                        label="Email"
-                        value={email}
-                        onChangeText={setEmail}
-                        mode="outlined"
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        style={globalStyles.input}
-                        outlineStyle = {globalStyles.border_radius}
-                    />
-                    
-                    <TextInput
-                        label="Contraseña"
-                        value={password}
-                        onChangeText={setPassword}
-                        mode="outlined"
-                        secureTextEntry
-                        style={globalStyles.input}
-                        outlineStyle = {globalStyles.border_radius}
-                        
-                    />
-
-                    <DatePicker
-                            label="Fecha de Nacimiento"
-                            mode="date"
-                            value={birthdate}
-                            onChange={(val) => setBthdate(val)}
-                        />            
-
-                    
-                </Card.Content>
-                </ScrollView>
-
-                <View style={globalStyles.botonera}>
-                        <Button 
-                            mode="contained" 
-                            onPress={ejecutarRegistro}
-                            style={globalStyles.button}
-                        >
-                            Registrar
-                        </Button>
-                        
-                        <Button 
-                            mode="outlined" 
-                            onPress={volver}
-                            style={globalStyles.button}
-                        >
-                            Cancelar
-                        </Button>
-                    </View>
-            </Card>
-        </View>
-    );
+          />
+          
+          <TextInput
+            label="Confirm Password"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            mode="outlined"
+            secureTextEntry={!showConfirmPassword}
+            style={globalStyles.input}
+            outlineStyle={{ borderRadius: 30 }}
+            left={<TextInput.Icon icon="lock-check" />}
+            right={
+              <TextInput.Icon 
+                icon={showConfirmPassword ? "eye-off" : "eye"} 
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              />
+            }
+          />
+          
+          <TextInput
+            label="Birthdate (YYYY-MM-DD)"
+            value={birthdate}
+            onChangeText={setBirthdate}
+            mode="outlined"
+            placeholder="1990-01-01"
+            style={globalStyles.input}
+            outlineStyle={{ borderRadius: 30 }}
+            left={<TextInput.Icon icon="calendar" />}
+          />
+          
+          {/* ========== BOTONES ========== */}
+          <View style={globalStyles.botonera}>
+            <Button
+              mode="contained"
+              onPress={ejecutarRegistro}
+              loading={loading}
+              disabled={loading}
+              style={[globalStyles.button, { flex: 1 }]}
+              labelStyle={{ fontSize: 16, fontWeight: '600' }}
+            >
+              Register
+            </Button>
+            
+            <Button
+              mode="outlined"
+              onPress={volverAlLogin}
+              disabled={loading}
+              style={[globalStyles.buttonOutline, { flex: 1 }]}
+            >
+              Cancel
+            </Button>
+          </View>
+          
+          {/* ========== LINK PARA VOLVER ========== */}
+          <TouchableOpacity onPress={volverAlLogin} style={globalStyles.linkContainer}>
+            <Text style={globalStyles.link}>Already have an account? Sign in</Text>
+          </TouchableOpacity>
+          
+        </Surface>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
 }

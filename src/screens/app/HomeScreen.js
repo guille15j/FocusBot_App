@@ -1,83 +1,181 @@
-// src/screens/HomeScreen.js
-import React, {useState,useEffect} from 'react';
-import { View, ScrollView, Dimensions } from 'react-native';
-import { Text, Button, FAB } from 'react-native-paper';
-import { AuthContext } from '../services/AuthContext';
-import { globalStyles,  } from '../theme/theme';
-import ListaBots from '../components/ListBot';
-import GridBots from '../components/GridBots';
-import {BotService} from '../services/apiService'
-import BotCard from '../components/BotCard';
-import BotTile from '../components/BotListTile';
+// ============================================================
+// IMPORTS
+// ============================================================
 
-const screenWidth = Dimensions.get('window').width;
+import React, { useContext } from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
+import { Text, Button, Card, Avatar, Surface } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-// Si la pantalla es ancha (más de 600px), ponemos 3 columnas, si no, 2.
-const columnas = screenWidth > 600 ? 5 : (screenWidth > 300 ? 2 : 1);
+// Contexto para obtener datos del usuario y función de logout
+import { AuthContext } from '../../context/AuthContext';
+import { globalStyles, AppColors } from '../../theme/theme';
+
+// ============================================================
+// COMPONENTE PRINCIPAL
+// ============================================================
 
 export default function HomeScreen({ navigation }) {
-  const [bots, setBots] = useState([]);
-  const [cargando, setCargando] = useState(true);
-
-  const { signOut } = React.useContext(AuthContext);
-
-  const ejecutarLogOut = async () => {
-    try{
-      await signOut();
-      console.log("Sesión cerrada correctamente");
-    }catch(error){
-      console.error("Error al cerrar sesión", error);
-    }
-  };
-
-  const obtenerBots = async () => {
-    setCargando(true);
-    try {
-      setBots([]);
-      const data = await BotService.getBots();
-      setBots(data.bots);
-      console.log(data.bots.length + " - Bots registrados")
-      console.log(bots[0].status)
-    } catch (error) {
-      console.error("Error al obtener bots:", error);
-    } finally {
-      setCargando(false);
-    }
-  };
-
-  useEffect(() => {
-    //Cargar al inicializar
-    obtenerBots();
-  }, []);
   
+  // Obtenemos los datos del usuario y la función signOut del contexto
+  const { user, signOut } = useContext(AuthContext);
+  
+  // Función para cerrar sesión
+  const ejecutarLogout = async () => {
+    await signOut();
+    console.log("👋 Sesión cerrada");
+  };
 
   return (
-    <View style={globalStyles.container}>
-
-  {/* <Text>{bots.length > 0 ? bots[0].status : "No hay bots disponibles"}</Text>
-
-
+    <SafeAreaView style={globalStyles.container} edges={['top']}>
       
-
-      <GridBots data={bots} numColumns={columnas}/>
-      <ListaBots data={bots}/>
-      {/* <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         
-      </ScrollView> */}
-
-
-      <View style={globalStyles.botonera}>
-        <Button mode="contained" onPress={ejecutarLogOut}>Cerrar Sesion</Button>
-
-        <Button mode="contained" onPress={obtenerBots} >Recargar</Button>
-      </View> 
+        {/* ========== CABECERA CON DATOS DEL USUARIO ========== */}
+        <View style={styles.header}>
+          <View style={styles.userInfo}>
+            <Avatar.Text 
+              size={50} 
+              label={user?.first_name?.charAt(0) || 'U'} 
+              style={{ backgroundColor: AppColors.primary }}
+            />
+            <View style={styles.userText}>
+              <Text variant="titleMedium" style={styles.welcome}>
+                Bienvenido,
+              </Text>
+              <Text variant="headlineSmall" style={styles.userName}>
+                {user?.first_name} {user?.last_name}
+              </Text>
+            </View>
+          </View>
+        </View>
+        
+        {/* ========== TARJETA DE ESTADÍSTICAS ========== */}
+        <Surface style={styles.statsCard} elevation={2}>
+          <Text variant="titleMedium" style={styles.statsTitle}>
+            Resumen de Hoy
+          </Text>
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>0</Text>
+              <Text style={styles.statLabel}>Sesiones</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>0h</Text>
+              <Text style={styles.statLabel}>Enfoque</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>0</Text>
+              <Text style={styles.statLabel}>Bots</Text>
+            </View>
+          </View>
+        </Surface>
+        
+        {/* ========== SECCIÓN DE ACTIVIDAD RECIENTE ========== */}
+        <View style={styles.section}>
+          <Text variant="titleLarge" style={styles.sectionTitle}>
+            Actividad Reciente
+          </Text>
+          
+          <Card style={styles.activityCard}>
+            <Card.Content>
+              <Text variant="bodyMedium" style={{ color: AppColors.textLight }}>
+                No hay actividad reciente
+              </Text>
+              <Text variant="bodySmall" style={{ marginTop: 8, color: AppColors.placeholder }}>
+                ¡Comienza una sesión de enfoque para ver tu progreso!
+              </Text>
+            </Card.Content>
+          </Card>
+        </View>
+        
+        {/* ========== BOTÓN DE CERRAR SESIÓN ========== */}
+        <Button
+          mode="outlined"
+          onPress={ejecutarLogout}
+          style={styles.logoutButton}
+          textColor={AppColors.error}
+          icon="logout"
+        >
+          Cerrar Sesión
+        </Button>
+        
+      </ScrollView>
       
-      <FAB
-        icon="robot"
-        style={globalStyles.fab}
-        onPress={() => navigation.replace('LinkBot')}
-        // onPress={() => console.log("Ir a vincular...")}
-      />
-    </View>
+    </SafeAreaView>
   );
 }
+
+// ============================================================
+// ESTILOS ESPECÍFICOS DE ESTA PANTALLA
+// ============================================================
+
+const styles = StyleSheet.create({
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
+  },
+  userInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  userText: {
+    marginLeft: 16,
+  },
+  welcome: {
+    color: AppColors.textLight,
+  },
+  userName: {
+    color: AppColors.text,
+    fontWeight: '600',
+  },
+  statsCard: {
+    margin: 20,
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: AppColors.surface,
+  },
+  statsTitle: {
+    color: AppColors.text,
+    marginBottom: 16,
+    fontWeight: '500',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: AppColors.primary,
+  },
+  statLabel: {
+    fontSize: 14,
+    color: AppColors.textLight,
+    marginTop: 4,
+  },
+  section: {
+    paddingHorizontal: 20,
+    marginTop: 10,
+  },
+  sectionTitle: {
+    color: AppColors.text,
+    marginBottom: 12,
+    fontWeight: '500',
+  },
+  activityCard: {
+    borderRadius: 16,
+    backgroundColor: AppColors.surface,
+  },
+  logoutButton: {
+    margin: 20,
+    marginTop: 30,
+    marginBottom: 100, // Espacio para la barra inferior
+    borderColor: AppColors.error,
+    borderRadius: 30,
+  },
+});

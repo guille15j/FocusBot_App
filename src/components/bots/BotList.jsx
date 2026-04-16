@@ -1,8 +1,6 @@
 import React from 'react';
-import { FlatList, View, StyleSheet, Dimensions } from 'react-native';
-import { List, Divider, Text } from 'react-native-paper';
-import BotTile from './BotListTile';
-import { AppColors } from '../theme/theme';
+import { FlatList, StyleSheet } from 'react-native';
+import BotListTile from './BotListTile';
 
 const screenWidth = Dimensions.get('window').width;
 

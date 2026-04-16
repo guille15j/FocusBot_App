@@ -1,7 +1,7 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Card, Text, IconButton, Avatar, Badge } from 'react-native-paper';
-import { AppColors } from '../theme/theme';
+import { View, StyleSheet } from 'react-native';
+import { Card, Text, Chip } from 'react-native-paper';
+import { AppColors } from '../../theme/theme';
 
 const BotCard = ({ item }) => {
   const estadoConfig = {

@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
-import { TextInput } from 'react-native-paper';
-import { MaskedTextInput } from 'react-native-mask-text';
-import { globalStyles } from '../theme/theme';
+import React from 'react';
+import { TextInput, HelperText } from 'react-native-paper';
 
 export default function MacAddressInput({ value, onChange }) {
   return (

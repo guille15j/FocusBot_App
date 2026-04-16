@@ -1,9 +1,6 @@
 import React from 'react';
-import { FlatList, View, StyleSheet } from 'react-native';
-import { Card, Text, IconButton, Avatar } from 'react-native-paper'; 
-import { globalStyles, AppColors } from '../theme/theme';
+import { FlatList, StyleSheet, Dimensions } from 'react-native';
 import BotCard from './BotCard';
-import { Dimensions } from 'react-native';
 
 const screenWidth = Dimensions.get('window').width;
 

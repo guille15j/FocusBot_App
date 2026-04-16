@@ -1,28 +1,19 @@
-import { MD3LightTheme, configureFonts } from 'react-native-paper';
+import { MD3LightTheme } from 'react-native-paper';
 import { StyleSheet } from 'react-native';
 
-// Definición de colores amigables para TDAH 
-// (Tonos suaves, menos "agresivos" que el azul eléctrico o blanco puro)
 export const AppColors = {
-  primary: '#4a6fe8',     // Un violeta suave, no chillón
-  secondary: '#70D6FF',   // Azul claro para calma
-  background: '#4a86e846',  // Off-white para evitar el brillo excesivo
+  primary: '#6C63FF',
+  secondary: '#FF6584',
+  background: '#F8F9FE',
   surface: '#FFFFFF',
-  text: '#2D3436',        // Gris muy oscuro en lugar de negro puro
+  text: '#2D3436',
+  textLight: '#636E72',
   error: '#FF6B6B',
-  placeholder: '#A2A2A2',
-  accent: '#FFD93D',      // Amarillo suave para elementos de atención
+  placeholder: '#A0A0A0',
 };
 
-// Configuración de fuentes (Legibilidad es clave para TDAH)
-const fontConfig = {
-  fontFamily: 'System', // O una fuente Sans Serif limpia
-};
-
-// 1. OBJETO PARA REACT NATIVE PAPER (Componentes de la librería)
 export const theme = {
   ...MD3LightTheme,
-  fonts: configureFonts({ config: fontConfig }),
   colors: {
     ...MD3LightTheme.colors,
     primary: AppColors.primary,
@@ -30,95 +21,75 @@ export const theme = {
     background: AppColors.background,
     surface: AppColors.surface,
     onSurface: AppColors.text,
-    outline: AppColors.primary,
   },
-  roundness: 3, // Esquinas un poco más redondeadas transmiten calma
+  roundness: 16,
 };
 
-// 2. HOJA DE ESTILOS GLOBAL (Para tus contenedores y vistas propias)
+export const CombinedDefaultTheme = theme;
+
 export const globalStyles = StyleSheet.create({
-    fullScreen: { 
-        flex: 1, 
-        justifyContent: 'center', 
-        padding: 24, // Más espacio (aire) para evitar sensación de encierro
-        backgroundColor: AppColors.background 
-    },
-    card: { 
-        backgroundColor: AppColors.surface,
-        elevation: 2, 
-        borderRadius: 16, 
-        padding: 16,
-        marginTop: 150,
-        marginBottom: 150,
-        // maxWidth: 500
-    },
-    header: { 
-        alignItems: 'center', 
-        marginBottom: 30 
-    },
-    icon: { 
-        backgroundColor: AppColors.primary, 
-        marginBottom: 12 
-    },
-    title: { 
-        fontSize: 26, 
-        fontWeight: '700', 
-        color: AppColors.text,
-        textAlign: 'center',
-        letterSpacing: 0.5 // Mejor legibilidad
-    },
-    subtitle: { 
-        color: '#636E72', 
-        fontSize: 16,
-        textAlign: 'center',
-        lineHeight: 22 
-    },
-    border_radius: {
-        borderRadius: 16,
-    },
-    input: { 
-        backgroundColor: AppColors.surface,
-        marginTop: 5,
-        marginBottom: 5
-    },
-    botonera: {
-        flexDirection: 'row',
-        gap: 12,
-        padding: 5,
-        width: '100%',     
-        marginTop: 16
-    },
-
-    button: { 
-        flex: 1,
-        paddingVertical: 6, 
-        borderRadius: 160, 
-        maxHeight: 50
-    },
-
-    link: {
-        alignSelf: "center",
-        padding: 10
-    },
-    linkText: {
-        color: AppColors.primary,
-        fontWeight: "600",
-    },
-    fab: { 
-        backgroundColor: AppColors.secondary, 
-        position: 'absolute', 
-        margin: 16, 
-        right: 0, 
-        bottom: 100, borderRadius: 150
-    },
-    container: { 
-        flex: 1, 
-        padding: 20, 
-        justifyContent: 'center', 
-        alignItems: 'center' 
-    },
-    info: { 
-        marginTop: 10, 
-        color: 'gray' 
-    },
+  container: {
+    flex: 1,
+    backgroundColor: AppColors.background,
+  },
+  authContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    backgroundColor: AppColors.background,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  logo: {
+    fontSize: 42,
+    fontWeight: 'bold',
+    color: AppColors.primary,
+    marginBottom: 8,
+  },
+  logoSubtitle: {
+    fontSize: 16,
+    color: AppColors.textLight,
+  },
+  input: {
+    backgroundColor: AppColors.surface,
+    marginBottom: 12,
+  },
+  button: {
+    marginTop: 12,
+    paddingVertical: 6,
+    borderRadius: 30,
+    backgroundColor: AppColors.primary,
+  },
+  buttonOutline: {
+    marginTop: 12,
+    paddingVertical: 6,
+    borderRadius: 30,
+    borderColor: AppColors.primary,
+  },
+  linkContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  link: {
+    color: AppColors.primary,
+    fontWeight: '600',
+  },
+  botonera: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 16,
+  },
+  card: {
+    backgroundColor: AppColors.surface,
+    borderRadius: 20,
+    padding: 24,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
 });

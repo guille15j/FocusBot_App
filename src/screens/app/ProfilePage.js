@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Avatar, Button, Text, List } from 'react-native-paper';
-import { AuthContext } from '../../services/AuthContext';
+import { AuthContext } from '../../context/AuthContext';
 
 export default function ProfilePage() {
   const { signOut } = useContext(AuthContext);

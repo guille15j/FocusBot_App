@@ -1,170 +1,158 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'; // Añadidos
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { PaperProvider, ActivityIndicator, Avatar, IconButton } from 'react-native-paper';
-import { authStorage } from './src/services/authStorage';
-import { AuthContext } from './src/services/AuthContext';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { PaperProvider, ActivityIndicator } from 'react-native-paper';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { AppColors, theme } from './src/theme/theme';
+// Importaciones locales
+import { authStorage } from './src/core/authStorage';
+import { AuthContext } from './src/context/AuthContext';
+import { CombinedDefaultTheme as theme } from './src/theme/theme';
 
-// Importación de las Pantallas
-// Pantallas de LOG
-import LoginScreen from './src/screens/log/LoginScreen';
-import RegisterScreen from './src/screens/log/RegisterScreen';
-import ResetScreen from './src/screens/log/ResetScreen';
+// Pantallas
+import LoginScreen from './src/screens/auth/LoginScreen';
+import RegisterScreen from './src/screens/auth/RegisterScreen';
+import ResetScreen from './src/screens/auth/ResetScreen';
+import HomeScreen from './src/screens/app/HomeScreen';
 
-// Pantalla Principal
-import HomeScreen from './src/screens/HomeScreen'; 
+// Navegación
+import BottomNav from './src/navigation/BottomTabs';
 
-// Pantallas de BOTS
-import BotsPage from './src/screens/bots/BotsPage';
-import LinkBotScreen from './src/screens/bots/LinkBotScreen';
-
-// Pantallas de ACTIVIDADES
-import Activities from './src/screens/activities/Activities';
-
-// Pantallas de RECORDS
-import HistoricalRecords from './src/screens/records/HistoricalRecords';
-
-// Pantallas de PROFILE (Opcional para el futuro)
-import ProfilePage from './src/screens/profile/ProfilePage';
-
-import UserHeader from './src/components/UserHeader';
-import BottomNav from './src/components/BottomNav';
-
+// Configuración del Navegador =======================================================
+// Creamos un "stack" de navegación
 const Stack = createStackNavigator();
 
+
 export default function App() {
-  
-  // funcionalidades que encargadas de controlar el acceso al token
+  // Estados =========================================================================
+  // loading: true = estamos cargando, false = ya terminó de cargar
   const [loading, setLoading] = useState(true);
+  
+  // userToken: null = no hay sesión, "token" = hay sesión iniciada
   const [userToken, setUserToken] = useState(null);
+  
+  // user: null o objeto con los datos del usuario
   const [user, setUser] = useState(null);
 
+  // Referencia al navegador - Nos permite navegar desde cualquier parte de la app
   const navigationRef = React.useRef();
 
+  // Funciones de autenticacion =====================================================
+  // useMemo memoriza el objeto para que no se cree de nuevo en cada render
   const authActions = useMemo(() => ({
-    signIn: (token, userData) => {setUserToken(token);setUser(userData);},
-    signOut: async () => {
-      await authStorage.deleteToken();
-      await authStorage.deleteUser();
-      setUser(null);
-      setUserToken(null);
+    
+    // Función para INICIAR SESIÓN
+    // Recibe el token y los datos del usuario
+    signIn: (token, userData) => {
+      console.log("Iniciando sesión con token:", token);
+      setUserToken(token);    // Guardamos el token en el estado
+      setUser(userData);      // Guardamos los datos del usuario
     },
-    userToken, user,
-  }), [userToken, user]);
+
+    // Función para CERRAR SESIÓN
+    signOut: async () => {
+      console.log("Cerrando sesión...");
+      await authStorage.deleteToken();   // Borramos el token del almacenamiento
+      await authStorage.deleteUser();    // Borramos los datos del usuario
+      setUser(null);       // Limpiamos el estado del usuario
+      setUserToken(null);  // Limpiamos el estado del token
+    },
+
+    // Exponemos los estados para que otros componentes puedan leerlos
+    userToken,
+    user,
+  }), [userToken, user]); // Dependencias: se recalcula si cambia userToken o user
 
   useEffect(() => {
-      const bootstrapAsync = async () =>{
-        const token = await authStorage.getToken();
-        const user = await authStorage.getUser();
+    // Función que verifica si hay una sesión guardada
+    const verificarSesionGuardada = async () => {
+      console.log("Verificando si hay sesión guardada...");
+      
+      // Intentamos obtener el token guardado
+      const token = await authStorage.getToken();
+      
+      // Intentamos obtener los datos del usuario guardados
+      const userData = await authStorage.getUser();
+      
+      if (token) {
+        console.log("Sesión encontrada. Token:", token);
+      } else {
+        console.log("No hay sesion guardada");
+      }
+      
+      // Actualizamos los estados con lo que encontramos
+      setUserToken(token);
+      setUser(userData);
+      
+      // Terminó la carga inicial
+      setLoading(false);
+    };
+    
+    verificarSesionGuardada();
+  }, []); // Array vacío = solo se ejecuta una vez al montar
 
-        setUserToken(token);
-        setUser(user);
-
-        setLoading(false);
-      };
-      bootstrapAsync();
-    }, []
-  );
-
+  // Pantalla de carga
   if (loading) {
-    return <ActivityIndicator animating={true} style={{ flex: 1 }} size="large" />;
+    return (
+      <PaperProvider theme={theme}>
+        {/* ActivityIndicator es el circulito que gira */}
+        <ActivityIndicator 
+          animating={true} 
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} 
+          size="large" 
+          color={theme.colors.primary}
+        />
+      </PaperProvider>
+    );
   }
 
   return (
+    // AuthContext.Provider - Hace que authActions esté disponible en TODA la app
     <AuthContext.Provider value={authActions}>
-    <SafeAreaProvider>
-      <PaperProvider theme={theme}>
-        {userToken && <UserHeader user={user} />}
-        <NavigationContainer ref={navigationRef} style = {{backgroundColor : AppColors.background}}>
-          <Stack.Navigator>
-            {userToken == null ? (
-              // STACK DE AUTENTICACIÓN
-              <>
-                <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-                <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
-                <Stack.Screen name="Reset" component={ResetScreen} options={{ headerShown: false }} />
-              </>
-            ) : (
-              // STACK DE LA APLICACIÓN
-              <>
-                {/* Home es la pantalla por defecto */}
-                <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-                
-                {/* Pantalla de listado de Bots */}
-                <Stack.Screen name="BotPage" component={BotsPage} options={{ headerShown: false }} />
-                
-                {/* Pantalla de Actividades */}
-                <Stack.Screen name="Activities" component={Activities} options={{ headerShown: false }} />
-                
-                {/* Pantalla de Historial */}
-                <Stack.Screen name="Records" component={HistoricalRecords} options={{ headerShown: false }} />
-
-                {/* Pantallas secundarias (Navegación interna) */}
-                <Stack.Screen name="LinkBot" component={LinkBotScreen} options={{ headerShown: false }} />
-                <Stack.Screen name="Profile" component={ProfilePage} options={{ headerShown: false }} />
-              </>
-            )}
-          </Stack.Navigator>
-
-          {userToken && (
-            <BottomNav navigation={navigationRef.current} />
-          )}
-        </NavigationContainer>
+      
+      {/* SafeAreaProvider - Maneja los márgenes seguros en iOS/Android */}
+      <SafeAreaProvider>
         
-      </PaperProvider>
-    </SafeAreaProvider>
+        {/* PaperProvider - Proporciona el tema a todos los componentes de React Native Paper */}
+        <PaperProvider theme={theme}>
+          
+          {/* NavigationContainer - Contenedor principal de navegación */}
+          <NavigationContainer ref={navigationRef}>
+            
+            {/* Stack.Navigator - Gestiona la pila de pantallas */}
+            <Stack.Navigator 
+              screenOptions={{ 
+                headerShown: false  // Ocultamos la barra superior por defecto
+              }}
+            >
+              
+              {userToken == null ? (
+                // Si NO hay token -> Mostramos pantallas de login/registro
+                <>
+                  <Stack.Screen name="Login" component={LoginScreen} />
+                  <Stack.Screen name="Register" component={RegisterScreen} />
+                  <Stack.Screen name="Reset" component={ResetScreen} />
+                </>
+              ) : (
+                // Si SÍ hay token -> Mostramos la pantalla principal
+                <>
+                  <Stack.Screen name="Home" component={HomeScreen} />
+                </>
+              )}
+              
+            </Stack.Navigator>
+            
+            {/* Solo mostramos la barra si hay sesión iniciada */}
+            {userToken && (
+              <BottomNav navigation={navigationRef.current} />
+            )}
+            
+          </NavigationContainer>
+          
+        </PaperProvider>
+        
+      </SafeAreaProvider>
+      
     </AuthContext.Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  // Estilos Barra Superior
-  topBarContainer: {
-    backgroundColor: AppColors.secondary,
-    elevation: 2,
-    shadowColor: '#000', 
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 1,
-  },
-  userContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingHorizontal: 20,
-    paddingBottom: 10
-  },
-  userName: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginRight: 10,
-    color: '#333',
-    marginLeft: 16
-  },
-
-  // Estilos Barra Inferior
-  bottomBarContainer: {
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#ff0000',
-  },
-  bottomBar: {
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  navBtn: {
-    flex: 1,
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  navBtnText: {
-    fontWeight: '500',
-    color: '#6200ee',
-  }
-});
