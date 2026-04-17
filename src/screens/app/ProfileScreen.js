@@ -1,9 +1,11 @@
 import React, { useContext } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet , ScrollView } from 'react-native';
 import { Avatar, Button, Text, List } from 'react-native-paper';
 import { AuthContext } from '../../context/AuthContext';
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppColors, globalStyles } from '../../theme/theme';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 
 export default function ProfilePage() {
@@ -14,38 +16,33 @@ export default function ProfilePage() {
     console.log("Sesión cerrada");
   };
 
+  
+  const { isWeb } = useResponsiveLayout();
+
 
   return (
-    <ScreenWrapper>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Avatar.Text size={80} label="U" />
-          <Text variant="headlineSmall" style={styles.name}>Mi Perfil</Text>
-        </View>
-        
-        <List.Section style={styles.section}>
-          <List.Item title="Configuración de Cuenta" left={p => <List.Icon {...p} icon="cog" />} />
-          <List.Item title="Privacidad" left={p => <List.Icon {...p} icon="shield-account" />} />
-        </List.Section>
-
-        <Button
-          mode="outlined"
-          onPress={ejecutarLogout}
-          style={globalStyles.logoutButton}
-          textColor={AppColors.error}
-          icon="logout"
-        >
-          Cerrar Sesión
-        </Button>
-      </View>
-    </ScreenWrapper>
+    <ScreenWrapper >
+          <View style ={(isWeb ? globalStyles.container_web : globalStyles.container_movil)}>
+            <SafeAreaView style = {(isWeb ? {height: '100dvh'}: {})} >
+              <ScrollView>
+                
+              <Text>
+                Perfil
+              </Text>
+               <Button
+                            mode="outlined"
+                            onPress={ejecutarLogout}
+                            style={globalStyles.logoutButton}
+                            textColor={AppColors.error}
+                            icon="logout"
+                          >
+                            Cerrar Sesión
+                          </Button>
+    
+    
+              </ScrollView>
+            </SafeAreaView>
+          </View>
+        </ScreenWrapper>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 20 },
-  header: { alignItems: 'center', marginTop: 20 },
-  name: { marginTop: 10 },
-  section: { marginTop: 30 },
-  logout: { marginTop: 50, borderColor: 'red' }
-});

@@ -28,10 +28,24 @@ export const theme = {
 export const CombinedDefaultTheme = theme;
 
 export const globalStyles = StyleSheet.create({
+  container_web:{
+    // backgroundColor: '#f00',
+    minHeight: '100dvh'
+  },
+  container_movil:{
+    // backgroundColor: 'rgb(0, 13, 255)',
+    minHeight: '100%'   
+  },
+
+
+
+
+
+
+
   container: {
     flex: 1,
-    backgroundColor: AppColors.background,
-    
+    backgroundColor: AppColors.primary,
   },
   logoutButton: {
     margin: 20,

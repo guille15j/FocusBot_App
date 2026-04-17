@@ -2,20 +2,27 @@ import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Card, Button } from 'react-native-paper';
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import { AppColors, globalStyles } from '../../theme/theme';
 
 export default function Activities() {
+
+  const { isWeb } = useResponsiveLayout();
+
   return (
-    <ScreenWrapper>
-      <ScrollView style={styles.container}>
-        <Text variant="headlineMedium" style={styles.title}>Actividades</Text>
-        <Card style={styles.card}>
-          <Card.Title title="Sesión de Enfoque" subtitle="Pendiente" />
-          <Card.Content>
-            <Text variant="bodyMedium">No hay actividades recientes hoy.</Text>
-          </Card.Content>
-        </Card>
-      </ScrollView>
-    </ScreenWrapper>
+    <ScreenWrapper >
+          <View style ={(isWeb ? globalStyles.container_web : globalStyles.container_movil)}>
+            <SafeAreaView style = {(isWeb ? {height: '100dvh'}: {})} >
+              <ScrollView>
+                
+    
+    
+    
+              </ScrollView>
+            </SafeAreaView>
+          </View>
+        </ScreenWrapper>
   );
 }
 

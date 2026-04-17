@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Platform, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Platform, Dimensions, Text } from 'react-native';
 import { useNavigationState } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { AppColors } from '../theme/theme';
@@ -73,14 +73,18 @@ export default function BottomNav({ navigation }) {
               style={useSidebar ? styles.sidebarBtn : styles.bottomBarBtn}
               activeOpacity={0.7}
             >
+              {useSidebar && isActive && <View style={styles.activeIndicator} />}
               <MaterialCommunityIcons 
                 name={isActive ? item.icon : item.iconOutline}
                 size={useSidebar ? 28 : 24} 
-                color={isActive ? AppColors.primary : AppColors.placeholder}
+                color={isActive ? ( isWeb? AppColors.background : AppColors.primary) : AppColors.placeholder}
               />
               
-              {useSidebar && isActive && <View style={styles.activeIndicator} />}
+              
+              {/* {isWeb ? <Text>{item.name}</Text> : null} */}
+              
             </TouchableOpacity>
+            
           );
         })}
       </View>
@@ -135,8 +139,9 @@ const styles = StyleSheet.create({
   },
   sidebar: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: AppColors.surface,
-    paddingTop: 80,
     paddingHorizontal: 16,
     ...Platform.select({
       web: {
@@ -147,20 +152,21 @@ const styles = StyleSheet.create({
   sidebarBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 14,
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
     marginBottom: 4,
     borderRadius: 12,
     backgroundColor: 'transparent',
   },
   activeIndicator: {
     position: 'absolute',
-    left: 0,
+    left: -3.5,
     top: '50%',
-    marginTop: -12,
-    width: 4,
-    height: 24,
+    marginTop: -25,
+    width:50,
+    height: 50,
     backgroundColor: AppColors.primary,
-    borderRadius: 4,
+    borderRadius: '100%',
   },
 });

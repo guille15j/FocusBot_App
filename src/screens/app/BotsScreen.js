@@ -1,21 +1,26 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView  } from 'react-native';
 import { Text, FAB } from 'react-native-paper';
-import { AppColors } from '../../theme/theme';
+import { AppColors, globalStyles } from '../../theme/theme';
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 export default function BotsPage({ navigation }) {
+
+  const { isWeb } = useResponsiveLayout();
+
   return (
-    <ScreenWrapper>
-      <View style={styles.container}>
-        <Text variant="headlineMedium">Mis Bots</Text>
-        <Text>Aquí aparecerá la lista de tus dispositivos vinculados.</Text>
-        <FAB
-          icon="plus"
-          style={styles.fab}
-          onPress={() => navigation.navigate('LinkBot')}
-          label="Vincular Nuevo"
-        />
+    <ScreenWrapper >
+      <View style ={(isWeb ? globalStyles.container_web : globalStyles.container_movil)}>
+        <SafeAreaView style = {(isWeb ? {height: '100dvh'}: {})} >
+          <ScrollView>
+            
+
+
+
+          </ScrollView>
+        </SafeAreaView>
       </View>
     </ScreenWrapper>
   );
