@@ -1,31 +1,54 @@
 import { MD3LightTheme } from 'react-native-paper';
 import { StyleSheet } from 'react-native';
 
-export const AppColors = {
-  primary: '#6C63FF',
-  secondary: '#FF6584',
-  background: '#F8F9FE',
-  surface: '#FFFFFF',
-  text: '#2D3436',
-  textLight: '#636E72',
-  error: '#FF6B6B',
-  placeholder: '#A0A0A0',
+
+export const LightColors = {
+  primary:    '#5B4BFF', // Indigo elegante
+  secondary:  '#FF6B8A', // Rosa coral suave
+  background: '#F7F8FC', // Gris azulado premium
+  surface:    '#FFFFFF', // Tarjetas limpias
+  text:       '#1E1E1E', // Negro suave
+  textLight:  '#6B7280', // Gris profesional
+  error:      '#FF6B6B',
+  placeholder:'#A0A4B8',
 };
 
-export const theme = {
-  ...MD3LightTheme,
-  colors: {
-    ...MD3LightTheme.colors,
-    primary: AppColors.primary,
-    secondary: AppColors.secondary,
-    background: AppColors.background,
-    surface: AppColors.surface,
-    onSurface: AppColors.text,
-  },
-  roundness: 16,
+export const DarkColors = {
+  primary:    '#8eff84', // Indigo más luminoso para dark
+  secondary:  '#8ffff6',
+  background: '#121212', // Negro real
+  surface:    '#1E1E1E', // Tarjetas oscuras
+  text:       '#E5E7EB', // Gris claro
+  textLight:  '#9CA3AF',
+  error:      '#FF6B6B',
+  placeholder:'#6B7280',
 };
 
-export const CombinedDefaultTheme = theme;
+
+export let AppColors = DarkColors;
+
+export const updateAppColors = (scheme) => {
+  AppColors = scheme === 'dark' ? DarkColors : LightColors;
+};
+
+
+export const getAppTheme = (scheme) => {
+  const colors = scheme === 'dark' ? DarkColors : LightColors;
+
+  return {
+    ...MD3LightTheme,
+    colors: {
+      ...MD3LightTheme.colors,
+      primary: colors.primary,
+      secondary: colors.secondary,
+      background: colors.background,
+      surface: colors.surface,
+      onSurface: colors.text,
+    },
+    roundness: 16,
+  };
+};
+
 
 export const globalStyles = StyleSheet.create({
   container_web:{

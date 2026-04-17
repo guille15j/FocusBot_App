@@ -19,6 +19,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { authStorage } from '../../core/authStorage';
 import { globalStyles, AppColors } from '../../theme/theme';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import App from "../../../App";
 
 
 export default function LoginScreen({ navigation }) {
@@ -99,7 +100,7 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <LinearGradient
-      colors={[AppColors.primary, AppColors.background]}   // azul añil → blanco
+      colors={[AppColors.background, AppColors.primary]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={{ flex: 1 }}

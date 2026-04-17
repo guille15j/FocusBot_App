@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, StyleSheet, SafeAreaView, Platform } from 'react-native'; // ← Añadir SafeAreaView y Platform
-import { Avatar, Text } from 'react-native-paper';
+import { Avatar, Text, Button } from 'react-native-paper';
 import { AppColors } from '../../theme/theme';
+import { AuthContext } from '../../context/AuthContext';
+import { globalStyles } from '../../theme/theme';
 
 const UserHeader = ({ user }) => {
   if (!user) return null;
+
+  const { signOut } = useContext(AuthContext);
+
+  const ejecutarLogout = async () => {
+    await signOut();
+    console.log("Sesión cerrada");
+  };
 
   return (
     <SafeAreaView edges={['top']} style={styles.topBarContainer}>
@@ -12,12 +21,20 @@ const UserHeader = ({ user }) => {
         <Avatar.Icon 
           size={40} 
           icon="account" 
-          style={{ backgroundColor: AppColors.primary }} 
+          style={{ backgroundColor: AppColors.secondary }} 
           color="white" 
         />
         <Text style={styles.userName}>
           {user.first_name} {user.last_name}
         </Text>
+
+        <Button
+                mode="outlined"
+                onPress={ejecutarLogout}
+                icon="logout"
+              >
+                Cerrar Sesión
+              </Button>
       </View>
     </SafeAreaView>
   );
@@ -25,7 +42,7 @@ const UserHeader = ({ user }) => {
 
 const styles = StyleSheet.create({
   topBarContainer: {
-    backgroundColor: AppColors.secondary,
+    backgroundColor: AppColors.primary,
     elevation: 2,
     shadowColor: '#000', 
     shadowOffset: { width: 0, height: 1 },
@@ -36,8 +53,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingBottom: 10,
-    paddingTop: Platform.OS === 'web' ? 10 : 0,
+    padding: 10,
   },
   userName: {
     fontSize: 16,

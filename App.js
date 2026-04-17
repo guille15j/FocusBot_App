@@ -4,13 +4,13 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PaperProvider, ActivityIndicator } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-
+import { useColorScheme } from 'react-native';
 
 
 // Importaciones locales
 import { authStorage } from './src/core/authStorage';
 import { AuthContext } from './src/context/AuthContext';
-import { globalStyles, CombinedDefaultTheme as theme } from './src/theme/theme';
+import { globalStyles, getAppTheme, updateAppColors } from './src/theme/theme';
 
 // Pantallas
 // auth
@@ -28,6 +28,7 @@ import HistoricalRecords from './src/screens/app/HistoricalScreen';
 // Navegación
 import BottomNav from './src/navigation/BottomTabs';
 import { useResponsiveLayout } from './src/hooks/useResponsiveLayout';
+import { useAppColors } from './src/hooks/useAppColors';
 
 // Configuración del Navegador =======================================================
 // Creamos un "stack" de navegación
@@ -35,6 +36,12 @@ const Stack = createStackNavigator();
 
 
 export default function App() {
+  const scheme = useColorScheme(); // 'light' | 'dark'
+  updateAppColors(scheme);
+  
+  const theme = useMemo(() => {
+    return getAppTheme(scheme);
+  }, [scheme])
   
   const { isWeb } = useResponsiveLayout();
 
@@ -120,37 +127,39 @@ export default function App() {
     );
   }
 
-return (
-  <AuthContext.Provider value={authActions}>
-    <SafeAreaProvider>
-      <PaperProvider theme={theme}>         
-        <NavigationContainer ref={navigationRef}>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            {userToken == null ? (
-              <>
-                <Stack.Screen name="Login" component={LoginScreen} />
-                <Stack.Screen name="Register" component={RegisterScreen} />
-                <Stack.Screen name="Reset" component={ResetScreen} />
-              </>
-            ) : (
-              <>
-                <Stack.Screen name="Home" component={HomeScreen} />
-                <Stack.Screen name="Activities" component={ActivitiesScreen} />
-                <Stack.Screen name="Bots" component={BotsPage} />
-                <Stack.Screen name="Profile" component={ProfileScreen} />
-                <Stack.Screen name="Records" component={HistoricalRecords} />
-              </>
-            )}
-          </Stack.Navigator>
 
-          {userToken && (
-            <BottomNav navigation={navigationRef.current} />
-          )}
-        </NavigationContainer>
-      </PaperProvider>
-    </SafeAreaProvider>
-  </AuthContext.Provider>
-);
+
+  return (
+    <AuthContext.Provider value={authActions}>
+      <SafeAreaProvider>
+        <PaperProvider theme={theme}>         
+          <NavigationContainer ref={navigationRef}>
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+              {userToken == null ? (
+                <>
+                  <Stack.Screen name="Login" component={LoginScreen} />
+                  <Stack.Screen name="Register" component={RegisterScreen} />
+                  <Stack.Screen name="Reset" component={ResetScreen} />
+                </>
+              ) : (
+                <>
+                  <Stack.Screen name="Home" component={HomeScreen} />
+                  <Stack.Screen name="Activities" component={ActivitiesScreen} />
+                  <Stack.Screen name="Bots" component={BotsPage} />
+                  <Stack.Screen name="Profile" component={ProfileScreen} />
+                  <Stack.Screen name="Records" component={HistoricalRecords} />
+                </>
+              )}
+            </Stack.Navigator>
+
+            {userToken && (
+              <BottomNav navigation={navigationRef.current} />
+            )}
+          </NavigationContainer>
+        </PaperProvider>
+      </SafeAreaProvider>
+    </AuthContext.Provider>
+  );
 
 
 }

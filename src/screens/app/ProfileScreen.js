@@ -29,15 +29,15 @@ export default function ProfilePage() {
               <Text>
                 Perfil
               </Text>
-               <Button
-                            mode="outlined"
-                            onPress={ejecutarLogout}
-                            style={globalStyles.logoutButton}
-                            textColor={AppColors.error}
-                            icon="logout"
-                          >
-                            Cerrar Sesión
-                          </Button>
+              <Button
+                mode="outlined"
+                onPress={ejecutarLogout}
+                style={globalStyles.logoutButton}
+                textColor={AppColors.error}
+                icon="logout"
+              >
+                Cerrar Sesión
+              </Button>
     
     
               </ScrollView>
