@@ -4,6 +4,7 @@ import { useNavigationState } from '@react-navigation/native';
 import { Text } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { AppColors } from '../theme/theme';
+import {useResponsiveLayout} from '../hooks/useResponsiveLayout'
 
 export default function BottomNav({ navigation }) {
   // Obtención de la navegación actual
@@ -15,7 +16,7 @@ export default function BottomNav({ navigation }) {
 
   //Comprobaciones de sistema operativo Para cambio de estilo
   // Detectar si es Web
-  const isWeb = Platform.OS === 'web';
+  const { isWeb } = useResponsiveLayout();
   
   // Para Web, detectar si es pantalla pequeña (móvil) o grande (tablet/desktop)
   const { width } = Dimensions.get('window');

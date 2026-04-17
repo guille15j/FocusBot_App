@@ -24,6 +24,7 @@ import HistoricalRecords from './src/screens/app/HistoricalScreen';
 
 // Navegación
 import BottomNav from './src/navigation/BottomTabs';
+import { useResponsiveLayout } from './src/hooks/useResponsiveLayout';
 
 // Configuración del Navegador =======================================================
 // Creamos un "stack" de navegación
@@ -31,6 +32,9 @@ const Stack = createStackNavigator();
 
 
 export default function App() {
+  
+  const { isWeb } = useResponsiveLayout();
+
   // Estados =========================================================================
   // loading: true = estamos cargando, false = ya terminó de cargar
   const [loading, setLoading] = useState(true);
