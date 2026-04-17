@@ -36,17 +36,6 @@ export const globalStyles = StyleSheet.create({
     // backgroundColor: 'rgb(0, 13, 255)',
     minHeight: '100%'   
   },
-
-
-
-
-
-
-
-  container: {
-    flex: 1,
-    backgroundColor: AppColors.primary,
-  },
   logoutButton: {
     margin: 20,
     marginTop: 30,
@@ -54,25 +43,58 @@ export const globalStyles = StyleSheet.create({
     borderColor: AppColors.error,
     borderRadius: 30,
   },
-  authContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-    backgroundColor: AppColors.background,
-  },
   logoContainer: {
     alignItems: 'center',
     marginBottom: 40,
   },
-  logo: {
+  logoContainer_name: {
+    display: 'flex',
+    flexDirection: "row"
+
+  },
+  logo_focus: {
     fontSize: 42,
     fontWeight: 'bold',
     color: AppColors.primary,
     marginBottom: 8,
   },
+  logo_bot: {
+    fontSize: 42,
+    fontWeight: 'bold',
+    color: AppColors.text,
+    marginBottom: 8,
+  },
   logoSubtitle: {
     fontSize: 16,
     color: AppColors.textLight,
+  },
+  authContainer: {
+    flex: 1,
+    display: 'flex',
+    // alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    backgroundColor: 'transparent',
+  },
+  authContainer_web: {
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    backgroundColor: 'transparent',
+  },
+  form: {
+    backgroundColor: AppColors.surface,
+    borderRadius: 20,
+    padding: 24,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    maxWidth: '500px',
+    minWidth: '400px'
   },
   input: {
     backgroundColor: AppColors.surface,

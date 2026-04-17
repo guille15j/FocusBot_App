@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
         // paddingHorizontal: 0, 
         // paddingVertical: 24,
         marginLeft: 80,
+        paddingLeft: '30px'
         // backgroundColor: '#ff0'
     },
     mobilePadding: { 
@@ -36,5 +37,6 @@ const styles = StyleSheet.create({
         // paddingVertical: 12,
         // marginLeft: 0,
         // backgroundColor: '#ff0000'
+        paddingHorizontal: '30'
     },
 });
