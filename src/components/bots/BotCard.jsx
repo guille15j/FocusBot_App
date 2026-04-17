@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Card, Text, Chip } from 'react-native-paper';
+import {Avatar, Badge, IconButton, Card, Text, Chip } from 'react-native-paper';
 import { AppColors } from '../../theme/theme';
 
 const BotCard = ({ item }) => {

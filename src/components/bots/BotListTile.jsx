@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import { List, Chip } from 'react-native-paper';
+import { StyleSheet, View } from 'react-native';
+import { List, Chip, Avatar, Text } from 'react-native-paper';
 import { AppColors } from '../../theme/theme';
 
 const BotTile = ({ item, onPress }) => {

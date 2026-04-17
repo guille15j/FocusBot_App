@@ -1,10 +1,12 @@
 import React from 'react';
 import { FlatList, StyleSheet, Dimensions } from 'react-native';
 import BotCard from './BotCard';
+import { AppColors } from '../../theme/theme';
 
 const screenWidth = Dimensions.get('window').width;
 
 const GridBots = ({ data,  numColumns }) => {
+    
 
    return (
     <FlatList

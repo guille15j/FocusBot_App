@@ -141,7 +141,7 @@ export const globalStyles = StyleSheet.create({
     position: 'absolute', 
     margin: 16, 
     right: 0, 
-    bottom: 100, 
+    // bottom: 100, 
     borderRadius: 150
   },
 });
