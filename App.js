@@ -10,10 +10,16 @@ import { AuthContext } from './src/context/AuthContext';
 import { CombinedDefaultTheme as theme } from './src/theme/theme';
 
 // Pantallas
+// auth
 import LoginScreen from './src/screens/auth/LoginScreen';
 import RegisterScreen from './src/screens/auth/RegisterScreen';
 import ResetScreen from './src/screens/auth/ResetScreen';
+
+// app
 import HomeScreen from './src/screens/app/HomeScreen';
+import ActivitiesScreen from './src/screens/app/ActivitiesScreen';
+import BotsScreen from './src/screens/app/BotsScreen';
+import ProfileScreen from './src/screens/app/ProfileScreen';
 
 // Navegación
 import BottomNav from './src/navigation/BottomTabs';
@@ -137,6 +143,9 @@ export default function App() {
                 // Si SÍ hay token -> Mostramos la pantalla principal
                 <>
                   <Stack.Screen name="Home" component={HomeScreen} />
+                  <Stack.Screen name="Activities" component={ActivitiesScreen} />
+                  <Stack.Screen name="Bots" component={BotsScreen} />
+                  <Stack.Screen name="Profile" component={ProfileScreen} />
                 </>
               )}
               

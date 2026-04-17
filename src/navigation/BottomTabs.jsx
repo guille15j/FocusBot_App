@@ -1,66 +1,72 @@
-// ============================================================
-// IMPORTS
-// ============================================================
-
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigationState } from '@react-navigation/native';
 import { Text } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { AppColors } from '../theme/theme';
 
-// ============================================================
-// COMPONENTE: Barra de navegación inferior personalizada
-// ============================================================
-
 export default function BottomNav({ navigation }) {
+  // Obtención de la navegación actual
+  const currentRouteName = useNavigationState((state) => {
+    if (!state || !state.routes) return 'Home';
+    const route = state.routes[state.index];
+    return route?.name || 'Home';
+  });
   
   // Definimos los items de la barra de navegación
   const navItems = [
-    { name: 'Home', label: 'Inicio', icon: 'home', iconOutline: 'home-outline' },
-    { name: 'Activities', label: 'Actividad', icon: 'calendar', iconOutline: 'calendar-outline' },
-    { name: 'Records', label: 'Historial', icon: 'time', iconOutline: 'time-outline' },
-    { name: 'Profile', label: 'Perfil', icon: 'person', iconOutline: 'person-outline' },
+    { name: 'Home', icon: 'home', iconOutline: 'home-outline' },
+    { name: 'Activities', icon: 'star', iconOutline: 'star-outline' },
+    { name: 'Records', icon: 'time', iconOutline: 'time-outline' },
+    { name: 'Profile', icon: 'person', iconOutline: 'person-outline' },
   ];
 
-  // NOTA: Por ahora solo tenemos HomeScreen, las otras pantallas se agregarán después
-  // Por eso, al hacer clic en otras opciones, mostramos un mensaje en consola
-
   const handleNavigation = (screenName) => {
-    console.log(`📱 Navegando a: ${screenName}`);
-    
-    // Si la pantalla existe, navegamos
-    // Si no, mostramos un mensaje (por ahora)
-    if (screenName === 'Home') {
-      navigation?.navigate(screenName);
-    } else {
-      console.log(`⚠️ Pantalla "${screenName}" aún no implementada`);
+    console.log(`Navegando a: ${screenName}`);
+
+    switch (screenName){
+      case 'Home':
+        navigation?.navigate('Home');
+        break;
+      case 'Activities':
+        navigation?.navigate('Activities');
+        break;
+      case 'Bots':
+        navigation?.navigate('Bots');
+        break;
+      case 'Profile':
+        navigation?.navigate('Profile');
+        break;
+      default: 
+        console.log(`Pantalla "${screenName}" aún no implementada`);
     }
   };
 
   return (
     <View style={styles.bottomBar}>
-      {navItems.map((item) => (
-        <TouchableOpacity
-          key={item.name}
-          onPress={() => handleNavigation(item.name)}
-          style={styles.navBtn}
-          activeOpacity={0.7}
-        >
-          <Ionicons 
-            name={item.iconOutline} 
-            size={24} 
-            color={AppColors.placeholder} 
-          />
-          <Text style={styles.navBtnText}>{item.label}</Text>
-        </TouchableOpacity>
-      ))}
+      {navItems.map((item) => {
+        //Determinar si esta pestaña es la activa
+        const isActive = currentRouteName === item.name;
+        
+        return (
+          <TouchableOpacity
+            key={item.name}
+            onPress={() => handleNavigation(item.name)}
+            style={styles.navBtn}
+            activeOpacity={0.7}
+          >
+            <Ionicons 
+              name={isActive ? item.icon : item.iconOutline}
+              size={24} 
+              color={isActive ? AppColors.primary : AppColors.placeholder}
+            />
+            
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 }
-
-// ============================================================
-// ESTILOS
-// ============================================================
 
 const styles = StyleSheet.create({
   bottomBar: {
@@ -87,11 +93,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 8,
-  },
-  navBtnText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: AppColors.textLight,
-    marginTop: 4,
   },
 });

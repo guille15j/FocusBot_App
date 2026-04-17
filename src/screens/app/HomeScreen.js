@@ -1,7 +1,3 @@
-// ============================================================
-// IMPORTS
-// ============================================================
-
 import React, { useContext } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Button, Card, Avatar, Surface } from 'react-native-paper';
@@ -11,10 +7,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AuthContext } from '../../context/AuthContext';
 import { globalStyles, AppColors } from '../../theme/theme';
 
-// ============================================================
-// COMPONENTE PRINCIPAL
-// ============================================================
-
 export default function HomeScreen({ navigation }) {
   
   // Obtenemos los datos del usuario y la función signOut del contexto
@@ -23,7 +15,7 @@ export default function HomeScreen({ navigation }) {
   // Función para cerrar sesión
   const ejecutarLogout = async () => {
     await signOut();
-    console.log("👋 Sesión cerrada");
+    console.log("Sesión cerrada");
   };
 
   return (
@@ -89,7 +81,6 @@ export default function HomeScreen({ navigation }) {
           </Card>
         </View>
         
-        {/* ========== BOTÓN DE CERRAR SESIÓN ========== */}
         <Button
           mode="outlined"
           onPress={ejecutarLogout}
@@ -106,9 +97,6 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
-// ============================================================
-// ESTILOS ESPECÍFICOS DE ESTA PANTALLA
-// ============================================================
 
 const styles = StyleSheet.create({
   header: {
