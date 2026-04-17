@@ -3,9 +3,17 @@ import { View, StyleSheet } from 'react-native';
 import { Avatar, Button, Text, List } from 'react-native-paper';
 import { AuthContext } from '../../context/AuthContext';
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
+import { AppColors, globalStyles } from '../../theme/theme';
+
 
 export default function ProfilePage() {
   const { signOut } = useContext(AuthContext);
+
+  const ejecutarLogout = async () => {
+    await signOut();
+    console.log("Sesión cerrada");
+  };
+
 
   return (
     <ScreenWrapper>
@@ -20,7 +28,13 @@ export default function ProfilePage() {
           <List.Item title="Privacidad" left={p => <List.Icon {...p} icon="shield-account" />} />
         </List.Section>
 
-        <Button mode="outlined" onPress={signOut} color="red" style={styles.logout}>
+        <Button
+          mode="outlined"
+          onPress={ejecutarLogout}
+          style={globalStyles.logoutButton}
+          textColor={AppColors.error}
+          icon="logout"
+        >
           Cerrar Sesión
         </Button>
       </View>

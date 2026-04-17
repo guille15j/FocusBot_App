@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, Button, Card, Avatar, Surface } from 'react-native-paper';
+import { Text, Button, Card, Avatar, Surface, FAB } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
 
@@ -66,7 +66,7 @@ export default function HomeScreen({ navigation }) {
           <Button
             mode="outlined"
             onPress={ejecutarLogout}
-            style={styles.logoutButton}
+            style={globalStyles.logoutButton}
             textColor={AppColors.error}
             icon="logout"
           >
@@ -74,6 +74,13 @@ export default function HomeScreen({ navigation }) {
           </Button>
           
         </ScrollView>
+
+        <FAB
+        icon="robot"
+        style={globalStyles.fab}
+        // onPress={() => navigation.replace('LinkBot')}
+        
+        />
         
       </SafeAreaView>
     </ScreenWrapper>
@@ -114,11 +121,5 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: AppColors.surface,
   },
-  logoutButton: {
-    margin: 20,
-    marginTop: 30,
-    marginBottom: 100, // Espacio para la barra inferior
-    borderColor: AppColors.error,
-    borderRadius: 30,
-  },
+  
 });

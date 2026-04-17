@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PaperProvider, ActivityIndicator } from 'react-native-paper';
@@ -7,7 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 // Importaciones locales
 import { authStorage } from './src/core/authStorage';
 import { AuthContext } from './src/context/AuthContext';
-import { CombinedDefaultTheme as theme } from './src/theme/theme';
+import { globalStyles, CombinedDefaultTheme as theme } from './src/theme/theme';
 
 // Pantallas
 // auth
@@ -126,44 +127,44 @@ export default function App() {
         
         {/* PaperProvider - Proporciona el tema a todos los componentes de React Native Paper */}
         <PaperProvider theme={theme}>
-          
-          {/* NavigationContainer - Contenedor principal de navegación */}
-          <NavigationContainer ref={navigationRef}>
-            
-            {/* Stack.Navigator - Gestiona la pila de pantallas */}
-            <Stack.Navigator 
-              screenOptions={{ 
-                headerShown: false  // Ocultamos la barra superior por defecto
-              }}
-            >
+          <View style={[globalStyles.container, { flexDirection: 'row' }]}>
+            {/* NavigationContainer - Contenedor principal de navegación */}
+            <NavigationContainer ref={navigationRef}>
               
-              {userToken == null ? (
-                // Si NO hay token -> Mostramos pantallas de login/registro
-                <>
-                  <Stack.Screen name="Login" component={LoginScreen} />
-                  <Stack.Screen name="Register" component={RegisterScreen} />
-                  <Stack.Screen name="Reset" component={ResetScreen} />
-                </>
-              ) : (
-                // Si SÍ hay token -> Mostramos la pantalla principal
-                <>
-                  <Stack.Screen name="Home" component={HomeScreen} />
-                  <Stack.Screen name="Activities" component={ActivitiesScreen} />
-                  <Stack.Screen name="Bots" component={BotsPage} />
-                  <Stack.Screen name="Profile" component={ProfileScreen} />
-                  <Stack.Screen name="Records" component={HistoricalRecords} />
-                </>
+              {/* Stack.Navigator - Gestiona la pila de pantallas */}
+              <Stack.Navigator 
+                screenOptions={{ 
+                  headerShown: false  // Ocultamos la barra superior por defecto
+                }}
+              >
+                
+                {userToken == null ? (
+                  // Si NO hay token -> Mostramos pantallas de login/registro
+                  <>
+                    <Stack.Screen name="Login" component={LoginScreen} />
+                    <Stack.Screen name="Register" component={RegisterScreen} />
+                    <Stack.Screen name="Reset" component={ResetScreen} />
+                  </>
+                ) : (
+                  // Si SÍ hay token -> Mostramos la pantalla principal
+                  <>
+                    <Stack.Screen name="Home" component={HomeScreen} />
+                    <Stack.Screen name="Activities" component={ActivitiesScreen} />
+                    <Stack.Screen name="Bots" component={BotsPage} />
+                    <Stack.Screen name="Profile" component={ProfileScreen} />
+                    <Stack.Screen name="Records" component={HistoricalRecords} />
+                  </>
+                )}
+                
+              </Stack.Navigator>
+              
+              {/* Solo mostramos la barra si hay sesión iniciada */}
+              {userToken && (
+                <BottomNav navigation={navigationRef.current} />
               )}
               
-            </Stack.Navigator>
-            
-            {/* Solo mostramos la barra si hay sesión iniciada */}
-            {userToken && (
-              <BottomNav navigation={navigationRef.current} />
-            )}
-            
-          </NavigationContainer>
-          
+            </NavigationContainer>
+          </View>
         </PaperProvider>
         
       </SafeAreaProvider>

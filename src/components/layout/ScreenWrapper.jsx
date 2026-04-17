@@ -22,7 +22,8 @@ export const ScreenWrapper = ({ children, withScroll = true }) => {
 const styles = StyleSheet.create({
     safeArea: { 
         flex: 1, 
-        backgroundColor: AppColors.background 
+        backgroundColor: AppColors.background,
+        
     },
     webPadding: { 
         // paddingHorizontal: 0, 

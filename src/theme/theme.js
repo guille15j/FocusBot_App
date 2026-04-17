@@ -31,6 +31,14 @@ export const globalStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: AppColors.background,
+    
+  },
+  logoutButton: {
+    margin: 20,
+    marginTop: 30,
+    marginBottom: 100, // Espacio para la barra inferior
+    borderColor: AppColors.error,
+    borderRadius: 30,
   },
   authContainer: {
     flex: 1,
@@ -91,5 +99,13 @@ export const globalStyles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
+  },
+  fab: { 
+    backgroundColor: AppColors.primary, 
+    position: 'absolute', 
+    margin: 16, 
+    right: 0, 
+    bottom: 100, 
+    borderRadius: 150
   },
 });
