@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, FAB } from 'react-native-paper';
 import { AppColors } from '../../theme/theme';
+import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
 
 export default function BotsPage({ navigation }) {
   return (

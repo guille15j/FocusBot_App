@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Card, Button } from 'react-native-paper';
+import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
 
 export default function Activities() {
   return (
