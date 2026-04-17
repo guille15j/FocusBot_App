@@ -1,43 +1,35 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Platform, Dimensions } from 'react-native';
 import { useNavigationState } from '@react-navigation/native';
-import { Text } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { AppColors } from '../theme/theme';
-import {useResponsiveLayout} from '../hooks/useResponsiveLayout'
+import { useResponsiveLayout } from '../hooks/useResponsiveLayout';
 
 export default function BottomNav({ navigation }) {
-  // Obtención de la navegación actual
   const currentRouteName = useNavigationState((state) => {
     if (!state || !state.routes) return 'Home';
     const route = state.routes[state.index];
     return route?.name || 'Home';
   });
 
-  //Comprobaciones de sistema operativo Para cambio de estilo
-  // Detectar si es Web
   const { isWeb } = useResponsiveLayout();
   
-  // Para Web, detectar si es pantalla pequeña (móvil) o grande (tablet/desktop)
   const { width } = Dimensions.get('window');
   const isLargeScreen = width >= 768;
-  
-  // En Web: barra lateral solo en pantallas grandes
-  // En móvil (Web o nativo): barra inferior
   const useSidebar = isWeb && isLargeScreen;
   
-  // Definimos los items de la barra de navegación
-  const navItems = [
+  const navItems = [    
+    { name: 'Records', icon: 'clock-outline', iconOutline: 'clock-outline' },
+    { name: 'Activities', icon: 'calendar', iconOutline: 'calendar-outline' },
     { name: 'Home', icon: 'home', iconOutline: 'home-outline' },
-    { name: 'Activities', icon: 'star', iconOutline: 'star-outline' },
-    { name: 'Records', icon: 'time', iconOutline: 'time-outline' },
-    { name: 'Profile', icon: 'person', iconOutline: 'person-outline' },
+    { name: 'Bots', icon: 'robot', iconOutline: 'robot-outline' },
+    { name: 'Profile', icon: 'account', iconOutline: 'account-outline' },
   ];
 
   const handleNavigation = (screenName) => {
     console.log(`Navegando a: ${screenName}`);
 
-    switch (screenName){
+    switch (screenName) {
       case 'Home':
         navigation?.navigate('Home');
         break;
@@ -47,10 +39,13 @@ export default function BottomNav({ navigation }) {
       case 'Records':
         navigation?.navigate('Records');
         break;
+      case 'Bots':
+        navigation?.navigate('Bots');
+        break;
       case 'Profile':
         navigation?.navigate('Profile');
         break;
-      default: 
+      default:
         console.log(`Pantalla "${screenName}" aún no implementada`);
     }
   };
@@ -68,13 +63,12 @@ export default function BottomNav({ navigation }) {
               style={useSidebar ? styles.sidebarBtn : styles.bottomBarBtn}
               activeOpacity={0.7}
             >
-              <Ionicons 
+              <MaterialCommunityIcons 
                 name={isActive ? item.icon : item.iconOutline}
                 size={useSidebar ? 28 : 24} 
                 color={isActive ? AppColors.primary : AppColors.placeholder}
               />
               
-              {/* Indicador visual de activo para web */}
               {useSidebar && isActive && <View style={styles.activeIndicator} />}
             </TouchableOpacity>
           );
@@ -85,7 +79,6 @@ export default function BottomNav({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  // MOVIL
   bottomBarContainer: {
     position: 'absolute',
     bottom: 0,
@@ -100,7 +93,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#F0F0F0',
-    paddingBottom: Platform.OS === 'ios' ? 20 : 10, // Para respetar la barra inferior de navegación
+    paddingBottom: Platform.OS === 'ios' ? 20 : 10,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -122,8 +115,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingTop: 8,
   },
-
-  // WEB
   sidebarContainer: {
     position: 'absolute',
     top: 0,
@@ -135,7 +126,7 @@ const styles = StyleSheet.create({
   sidebar: {
     flex: 1,
     backgroundColor: AppColors.surface,
-    paddingTop: 80, // Espacio para el header
+    paddingTop: 80,
     paddingHorizontal: 16,
     ...Platform.select({
       web: {

@@ -44,26 +44,6 @@ export default function HomeScreen({ navigation }) {
             </View>
           </View>
           
-          {/* ========== TARJETA DE ESTADÍSTICAS ========== */}
-          <Surface style={styles.statsCard} elevation={2}>
-            <Text variant="titleMedium" style={styles.statsTitle}>
-              Resumen de Hoy
-            </Text>
-            <View style={styles.statsRow}>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>0</Text>
-                <Text style={styles.statLabel}>Sesiones</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>0h</Text>
-                <Text style={styles.statLabel}>Enfoque</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>0</Text>
-                <Text style={styles.statLabel}>Bots</Text>
-              </View>
-            </View>
-          </Surface>
           
           {/* ========== SECCIÓN DE ACTIVIDAD RECIENTE ========== */}
           <View style={styles.section}>
@@ -120,34 +100,6 @@ const styles = StyleSheet.create({
   userName: {
     color: AppColors.text,
     fontWeight: '600',
-  },
-  statsCard: {
-    margin: 20,
-    padding: 20,
-    borderRadius: 20,
-    backgroundColor: AppColors.surface,
-  },
-  statsTitle: {
-    color: AppColors.text,
-    marginBottom: 16,
-    fontWeight: '500',
-  },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: AppColors.primary,
-  },
-  statLabel: {
-    fontSize: 14,
-    color: AppColors.textLight,
-    marginTop: 4,
   },
   section: {
     paddingHorizontal: 20,
