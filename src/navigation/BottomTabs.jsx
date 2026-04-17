@@ -17,14 +17,24 @@ export default function BottomNav({ navigation }) {
   const { width } = Dimensions.get('window');
   const isLargeScreen = width >= 768;
   const useSidebar = isWeb && isLargeScreen;
+  let navItems = [    
+      { name: 'Records', icon: 'clock-outline', iconOutline: 'clock-outline' },
+      { name: 'Activities', icon: 'calendar', iconOutline: 'calendar-outline' },
+      { name: 'Home', icon: 'home', iconOutline: 'home-outline' },
+      { name: 'Bots', icon: 'robot', iconOutline: 'robot-outline' },
+      { name: 'Profile', icon: 'account', iconOutline: 'account-outline' },
+    ];
+
+  if (isWeb){
+    navItems = [    
+      { name: 'Home', icon: 'home', iconOutline: 'home-outline' },
+      { name: 'Bots', icon: 'robot', iconOutline: 'robot-outline' },
+      { name: 'Activities', icon: 'calendar', iconOutline: 'calendar-outline' },
+      { name: 'Records', icon: 'clock-outline', iconOutline: 'clock-outline' },
+      { name: 'Profile', icon: 'account', iconOutline: 'account-outline' },
+    ];
+  }
   
-  const navItems = [    
-    { name: 'Records', icon: 'clock-outline', iconOutline: 'clock-outline' },
-    { name: 'Activities', icon: 'calendar', iconOutline: 'calendar-outline' },
-    { name: 'Home', icon: 'home', iconOutline: 'home-outline' },
-    { name: 'Bots', icon: 'robot', iconOutline: 'robot-outline' },
-    { name: 'Profile', icon: 'account', iconOutline: 'account-outline' },
-  ];
 
   const handleNavigation = (screenName) => {
     console.log(`Navegando a: ${screenName}`);
