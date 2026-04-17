@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, List, Divider } from 'react-native-paper';
+import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
 
 export default function HistoricalRecords() {
   const data = [
@@ -9,6 +10,7 @@ export default function HistoricalRecords() {
   ];
 
   return (
+    <ScreenWrapper>
     <View style={styles.container}>
       <Text variant="headlineMedium" style={styles.title}>Historial</Text>
       <FlatList
@@ -24,6 +26,7 @@ export default function HistoricalRecords() {
         ItemSeparatorComponent={Divider}
       />
     </View>
+    </ScreenWrapper>
   );
 }
 

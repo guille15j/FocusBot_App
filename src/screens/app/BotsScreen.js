@@ -5,16 +5,18 @@ import { AppColors } from '../../theme/theme';
 
 export default function BotsPage({ navigation }) {
   return (
-    <View style={styles.container}>
-      <Text variant="headlineMedium">Mis Bots</Text>
-      <Text>Aquí aparecerá la lista de tus dispositivos vinculados.</Text>
-      <FAB
-        icon="plus"
-        style={styles.fab}
-        onPress={() => navigation.navigate('LinkBot')}
-        label="Vincular Nuevo"
-      />
-    </View>
+    <ScreenWrapper>
+      <View style={styles.container}>
+        <Text variant="headlineMedium">Mis Bots</Text>
+        <Text>Aquí aparecerá la lista de tus dispositivos vinculados.</Text>
+        <FAB
+          icon="plus"
+          style={styles.fab}
+          onPress={() => navigation.navigate('LinkBot')}
+          label="Vincular Nuevo"
+        />
+      </View>
+    </ScreenWrapper>
   );
 }
 
