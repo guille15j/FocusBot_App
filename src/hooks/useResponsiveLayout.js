@@ -9,9 +9,16 @@ import { useState, useEffect } from 'react';
 */
 
 export const useResponsiveLayout = () => {
-  const isWeb = Platform.OS === 'web';
-  const isMobile = Platform.OS === 'ios' || Platform.OS === 'android';
-
+  const width = Dimensions.get('window').width;
+  const platform = Platform.OS;
+  
+  const isMobile = (
+    platform === 'web' ?
+    width < 768 
+    : (platform === 'ios' || platform === 'android'));
+  
+  const isWeb = (platform === 'web' && !isMobile);
+  
   return {
     isWeb,
     isMobile,

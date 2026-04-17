@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Button, Card, Avatar, Surface } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
 
 // Contexto para obtener datos del usuario y función de logout
 import { AuthContext } from '../../context/AuthContext';
@@ -19,81 +20,83 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={globalStyles.container} edges={['top']}>
-      
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <ScreenWrapper>
+      <SafeAreaView style={globalStyles.container} edges={['top']}>
         
-        {/* ========== CABECERA CON DATOS DEL USUARIO ========== */}
-        <View style={styles.header}>
-          <View style={styles.userInfo}>
-            <Avatar.Text 
-              size={50} 
-              label={user?.first_name?.charAt(0) || 'U'} 
-              style={{ backgroundColor: AppColors.primary }}
-            />
-            <View style={styles.userText}>
-              <Text variant="titleMedium" style={styles.welcome}>
-                Bienvenido,
-              </Text>
-              <Text variant="headlineSmall" style={styles.userName}>
-                {user?.first_name} {user?.last_name}
-              </Text>
-            </View>
-          </View>
-        </View>
-        
-        {/* ========== TARJETA DE ESTADÍSTICAS ========== */}
-        <Surface style={styles.statsCard} elevation={2}>
-          <Text variant="titleMedium" style={styles.statsTitle}>
-            Resumen de Hoy
-          </Text>
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>0</Text>
-              <Text style={styles.statLabel}>Sesiones</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>0h</Text>
-              <Text style={styles.statLabel}>Enfoque</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>0</Text>
-              <Text style={styles.statLabel}>Bots</Text>
-            </View>
-          </View>
-        </Surface>
-        
-        {/* ========== SECCIÓN DE ACTIVIDAD RECIENTE ========== */}
-        <View style={styles.section}>
-          <Text variant="titleLarge" style={styles.sectionTitle}>
-            Actividad Reciente
-          </Text>
+        <ScrollView showsVerticalScrollIndicator={false}>
           
-          <Card style={styles.activityCard}>
-            <Card.Content>
-              <Text variant="bodyMedium" style={{ color: AppColors.textLight }}>
-                No hay actividad reciente
-              </Text>
-              <Text variant="bodySmall" style={{ marginTop: 8, color: AppColors.placeholder }}>
-                ¡Comienza una sesión de enfoque para ver tu progreso!
-              </Text>
-            </Card.Content>
-          </Card>
-        </View>
+          {/* ========== CABECERA CON DATOS DEL USUARIO ========== */}
+          <View style={styles.header}>
+            <View style={styles.userInfo}>
+              <Avatar.Text 
+                size={50} 
+                label={user?.first_name?.charAt(0) || 'U'} 
+                style={{ backgroundColor: AppColors.primary }}
+              />
+              <View style={styles.userText}>
+                <Text variant="titleMedium" style={styles.welcome}>
+                  Bienvenido,
+                </Text>
+                <Text variant="headlineSmall" style={styles.userName}>
+                  {user?.first_name} {user?.last_name}
+                </Text>
+              </View>
+            </View>
+          </View>
+          
+          {/* ========== TARJETA DE ESTADÍSTICAS ========== */}
+          <Surface style={styles.statsCard} elevation={2}>
+            <Text variant="titleMedium" style={styles.statsTitle}>
+              Resumen de Hoy
+            </Text>
+            <View style={styles.statsRow}>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>0</Text>
+                <Text style={styles.statLabel}>Sesiones</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>0h</Text>
+                <Text style={styles.statLabel}>Enfoque</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>0</Text>
+                <Text style={styles.statLabel}>Bots</Text>
+              </View>
+            </View>
+          </Surface>
+          
+          {/* ========== SECCIÓN DE ACTIVIDAD RECIENTE ========== */}
+          <View style={styles.section}>
+            <Text variant="titleLarge" style={styles.sectionTitle}>
+              Actividad Reciente
+            </Text>
+            
+            <Card style={styles.activityCard}>
+              <Card.Content>
+                <Text variant="bodyMedium" style={{ color: AppColors.textLight }}>
+                  No hay actividad reciente
+                </Text>
+                <Text variant="bodySmall" style={{ marginTop: 8, color: AppColors.placeholder }}>
+                  ¡Comienza una sesión de enfoque para ver tu progreso!
+                </Text>
+              </Card.Content>
+            </Card>
+          </View>
+          
+          <Button
+            mode="outlined"
+            onPress={ejecutarLogout}
+            style={styles.logoutButton}
+            textColor={AppColors.error}
+            icon="logout"
+          >
+            Cerrar Sesión
+          </Button>
+          
+        </ScrollView>
         
-        <Button
-          mode="outlined"
-          onPress={ejecutarLogout}
-          style={styles.logoutButton}
-          textColor={AppColors.error}
-          icon="logout"
-        >
-          Cerrar Sesión
-        </Button>
-        
-      </ScrollView>
-      
-    </SafeAreaView>
+      </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 

@@ -130,12 +130,11 @@ const styles = StyleSheet.create({
     left: 0,
     bottom: 0,
     width: 80,
-    zIndex: 100,
-    margin_right: 10
+    zIndex: 100
   },
   sidebar: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: AppColors.surface,
     paddingTop: 80, // Espacio para el header
     paddingHorizontal: 16,
     ...Platform.select({
