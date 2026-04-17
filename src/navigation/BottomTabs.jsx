@@ -31,8 +31,8 @@ export default function BottomNav({ navigation }) {
       case 'Activities':
         navigation?.navigate('Activities');
         break;
-      case 'Bots':
-        navigation?.navigate('Bots');
+      case 'Records':
+        navigation?.navigate('Records');
         break;
       case 'Profile':
         navigation?.navigate('Profile');

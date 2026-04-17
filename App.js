@@ -18,8 +18,9 @@ import ResetScreen from './src/screens/auth/ResetScreen';
 // app
 import HomeScreen from './src/screens/app/HomeScreen';
 import ActivitiesScreen from './src/screens/app/ActivitiesScreen';
-import BotsScreen from './src/screens/app/BotsScreen';
+import BotsPage from './src/screens/app/BotsScreen';
 import ProfileScreen from './src/screens/app/ProfileScreen';
+import HistoricalRecords from './src/screens/app/HistoricalScreen';
 
 // Navegación
 import BottomNav from './src/navigation/BottomTabs';
@@ -144,8 +145,9 @@ export default function App() {
                 <>
                   <Stack.Screen name="Home" component={HomeScreen} />
                   <Stack.Screen name="Activities" component={ActivitiesScreen} />
-                  <Stack.Screen name="Bots" component={BotsScreen} />
+                  <Stack.Screen name="Bots" component={BotsPage} />
                   <Stack.Screen name="Profile" component={ProfileScreen} />
+                  <Stack.Screen name="Records" component={HistoricalRecords} />
                 </>
               )}
               
