@@ -1,5 +1,5 @@
 import { MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { useAppColors } from '../hooks/useAppColors';
 
 
@@ -11,7 +11,7 @@ export const LightColors = {
   text:        '#4A4E69', // Gris malva oscuro (Elegante y legible)
   textLight:   '#9A8C98', // Arena grisáceo
   error:       '#E5989B', // Rosa coral pastel
-  placeholder: '#C9ADA7',
+  placeholder: '#948b89',
 };
 
 export const DarkColors = {
@@ -64,6 +64,26 @@ export const getglobalStyles = (scheme) => {
     container_movil:{
       backgroundColor: AppColors.background,
       minHeight: '100%'   
+    },
+    section:{
+      paddingHorizontal: 40,
+      paddingVertical: 20,
+      margin: 20,
+      maxHeight: 1000,
+      // minHeight: 300,
+      borderRadius:20,
+      backgroundColor: AppColors.secondary + 20,
+      overflow: 'hidden'
+    },
+    section_huge:{
+      paddingHorizontal: 0,
+      paddingVertical: 0,
+      // margin: 20,
+      maxHeight: 1000,
+      // minHeight: 300,
+      borderRadius:20,
+      backgroundColor: AppColors.secondary + 20,
+      overflow: Platform.OS === 'web'? 'scroll' : 'visible',
     },
     logoutButton: {
       margin: 20,
@@ -131,13 +151,13 @@ export const getglobalStyles = (scheme) => {
     },
     button: {
       marginTop: 12,
-      paddingVertical: 6,
+      // paddingVertical: 6,
       borderRadius: 30,
       backgroundColor: AppColors.primary,
     },
     buttonOutline: {
       marginTop: 12,
-      paddingVertical: 6,
+      // paddingVertical: 6,
       borderRadius: 30,
       borderColor: AppColors.primary,
     },
@@ -170,7 +190,7 @@ export const getglobalStyles = (scheme) => {
       position: 'absolute', 
       margin: 16, 
       right: 0, 
-      // bottom: 100, 
+      bottom: 100, 
       borderRadius: 150
     },
   });
