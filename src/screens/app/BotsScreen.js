@@ -1,24 +1,24 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView  } from 'react-native';
-import { Text, FAB } from 'react-native-paper';
-import { AppColors, globalStyles } from '../../theme/theme';
+import { View, useColorScheme, ScrollView, StyleSheet } from 'react-native';
+import { Text } from 'react-native-paper';
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import { getglobalStyles, updateAppColors } from '../../theme/theme';
 
-export default function BotsPage({ navigation }) {
-
+export default function BotsPage() {
+  const scheme = useColorScheme();
+  const AppColors = updateAppColors(scheme);
+  const globalStyles = getglobalStyles(scheme);
   const { isWeb } = useResponsiveLayout();
+  const styles = getStyles(AppColors);
 
   return (
-    <ScreenWrapper >
-      <View style ={(isWeb ? globalStyles.container_web : globalStyles.container_movil)}>
-        <SafeAreaView style = {(isWeb ? {height: '100dvh'}: {})} >
+    <ScreenWrapper>
+      <View style={(isWeb ? globalStyles.container_web : globalStyles.container_movil)}>
+        <SafeAreaView style={(isWeb ? { height: '100dvh' } : { height: '100%' })}>
           <ScrollView>
-            
-
-
-
+            <Text style={{ color: AppColors.text, padding: 20 }}>Bots</Text>
           </ScrollView>
         </SafeAreaView>
       </View>
@@ -26,7 +26,4 @@ export default function BotsPage({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-  fab: { position: 'absolute', margin: 16, right: 0, bottom: 20, backgroundColor: AppColors.primary }
-});
+const getStyles = (AppColors) => StyleSheet.create({});

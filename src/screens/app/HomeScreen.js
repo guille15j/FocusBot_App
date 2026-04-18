@@ -86,15 +86,15 @@ export default function HomeScreen({ navigation }) {
     <ScreenWrapper >
       <View style ={(isWeb ? globalStyles.container_web : globalStyles.container_movil)}>
         <SafeAreaView style = {(isWeb ? {height: '100dvh'}: {height: '100%'})} >
-          <UserHeader user = {{'first_name':'nombre', 'last_name':'apellido'}}/>
+          <UserHeader user = {{'first_name':'nombre', 'last_name':'apellido', 'user_id':'123123'}}/>
           
           <ScrollView>
-            <GridBots data = {botsData} numColumns = {3} globalStyles={globalStyles} AppColors={AppColors}/>
-            
 
-            <ListaBots data={botsData} colors={AppColors}/>
+
           </ScrollView>
 
+          <GridBots data = {botsData} numColumns = {3} globalStyles={globalStyles} AppColors={AppColors}/>
+          <ListaBots data={botsData} colors={AppColors}/>
           <Portal>
             <FAB.Group
               open={open}
@@ -124,7 +124,7 @@ export default function HomeScreen({ navigation }) {
               backdropColor='transparent'
 
             />
-        </Portal>
+          </Portal>
         </SafeAreaView>
       </View>
     </ScreenWrapper>

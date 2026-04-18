@@ -1,48 +1,29 @@
-import React, { useContext } from 'react';
-import { View, StyleSheet , ScrollView } from 'react-native';
-import { Avatar, Button, Text, List } from 'react-native-paper';
-import { AuthContext } from '../../context/AuthContext';
+import React from 'react';
+import { View, useColorScheme, ScrollView, StyleSheet } from 'react-native';
+import { Text } from 'react-native-paper';
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppColors, globalStyles } from '../../theme/theme';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
-
+import { getglobalStyles, updateAppColors } from '../../theme/theme';
 
 export default function ProfilePage() {
-  const { signOut } = useContext(AuthContext);
-
-  const ejecutarLogout = async () => {
-    await signOut();
-    console.log("Sesión cerrada");
-  };
-
-  
+  const scheme = useColorScheme();
+  const AppColors = updateAppColors(scheme);
+  const globalStyles = getglobalStyles(scheme);
   const { isWeb } = useResponsiveLayout();
-
+  const styles = getStyles(AppColors);
 
   return (
-    <ScreenWrapper >
-          <View style ={(isWeb ? globalStyles.container_web : globalStyles.container_movil)}>
-            <SafeAreaView style = {(isWeb ? {height: '100dvh'}: {})} >
-              <ScrollView>
-                
-              <Text>
-                Perfil
-              </Text>
-              <Button
-                mode="outlined"
-                onPress={ejecutarLogout}
-                style={globalStyles.logoutButton}
-                textColor={AppColors.error}
-                icon="logout"
-              >
-                Cerrar Sesión
-              </Button>
-    
-    
-              </ScrollView>
-            </SafeAreaView>
-          </View>
-        </ScreenWrapper>
+    <ScreenWrapper>
+      <View style={(isWeb ? globalStyles.container_web : globalStyles.container_movil)}>
+        <SafeAreaView style={(isWeb ? { height: '100dvh' } : { height: '100%' })}>
+          <ScrollView>
+            <Text style={{ color: AppColors.text, padding: 20 }}>Perfil</Text>
+          </ScrollView>
+        </SafeAreaView>
+      </View>
+    </ScreenWrapper>
   );
 }
+
+const getStyles = (AppColors) => StyleSheet.create({});

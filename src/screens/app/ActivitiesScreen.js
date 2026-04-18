@@ -1,33 +1,29 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, Card, Button } from 'react-native-paper';
+import { View, useColorScheme, ScrollView, StyleSheet } from 'react-native';
+import { Text } from 'react-native-paper';
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
-import { AppColors, globalStyles } from '../../theme/theme';
+import { getglobalStyles, updateAppColors } from '../../theme/theme';
 
 export default function Activities() {
-
+  const scheme = useColorScheme();
+  const AppColors = updateAppColors(scheme);
+  const globalStyles = getglobalStyles(scheme);
   const { isWeb } = useResponsiveLayout();
+  const styles = getStyles(AppColors);
 
   return (
-    <ScreenWrapper >
-          <View style ={(isWeb ? globalStyles.container_web : globalStyles.container_movil)}>
-            <SafeAreaView style = {(isWeb ? {height: '100dvh'}: {})} >
-              <ScrollView>
-                
-    
-    
-    
-              </ScrollView>
-            </SafeAreaView>
-          </View>
-        </ScreenWrapper>
+    <ScreenWrapper>
+      <View style={(isWeb ? globalStyles.container_web : globalStyles.container_movil)}>
+        <SafeAreaView style={(isWeb ? { height: '100dvh' } : { height: '100%' })}>
+          <ScrollView>
+            <Text style={{ color: AppColors.text, padding: 20 }}>Actividades</Text>
+          </ScrollView>
+        </SafeAreaView>
+      </View>
+    </ScreenWrapper>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5', padding: 15 },
-  title: { marginBottom: 20 },
-  card: { marginBottom: 10 }
-});
+const getStyles = (AppColors) => StyleSheet.create({});

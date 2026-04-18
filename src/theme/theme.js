@@ -26,7 +26,7 @@ export const DarkColors = {
 };
 
 
-export let AppColors = DarkColors;
+export let AppColors = LightColors;
 
 export const updateAppColors = (scheme) => {
   AppColors = scheme === 'dark' ? DarkColors : LightColors;
