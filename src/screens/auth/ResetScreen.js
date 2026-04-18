@@ -4,7 +4,8 @@ import {
   Alert, 
   KeyboardAvoidingView,
   Platform,
-  TouchableOpacity
+  TouchableOpacity,
+  useColorScheme
 } from 'react-native';
 import { 
   TextInput, 
@@ -12,12 +13,16 @@ import {
   Text, 
   Surface 
 } from 'react-native-paper';
-import { globalStyles, AppColors } from '../../theme/theme';
+import {  AppColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from "expo-linear-gradient";
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 
+
 export default function ResetScreen({ navigation }) {
+
+    const scheme = useColorScheme(); 
+  let globalStyles = getglobalStyles(scheme);
   
   // Estados
   const [identifier, setIdentifier] = useState(''); // Puede ser email o username

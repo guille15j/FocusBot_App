@@ -5,7 +5,8 @@ import {
   ScrollView,           
   KeyboardAvoidingView,
   Platform,
-  TouchableOpacity
+  TouchableOpacity,
+  useColorScheme
 } from 'react-native';
 import { 
   TextInput, 
@@ -15,13 +16,17 @@ import {
 } from 'react-native-paper';
 import { AuthContext } from '../../context/AuthContext';
 import { authStorage } from '../../core/authStorage';
-import { globalStyles, AppColors } from '../../theme/theme';
+import { AppColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from "expo-linear-gradient";
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 
 
+
 export default function RegisterScreen({ navigation }) {
+
+  const scheme = useColorScheme(); 
+  let globalStyles = getglobalStyles(scheme);
   
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');

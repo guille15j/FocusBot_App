@@ -17,13 +17,15 @@ import {
 // Importamos el contexto de autenticación
 import { AuthContext } from '../../context/AuthContext';
 import { authStorage } from '../../core/authStorage';
-import { globalStyles, AppColors } from '../../theme/theme';
+import { getglobalStyles, AppColors } from '../../theme/theme';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import App from "../../../App";
+import { useColorScheme } from "react-native";
 
 
 export default function LoginScreen({ navigation }) {
-
+  const scheme = useColorScheme(); 
+  let globalStyles = getglobalStyles(scheme);
   // email: guarda lo que el usuario escribe en el campo email/username
   const [email, setEmail] = useState('');
   

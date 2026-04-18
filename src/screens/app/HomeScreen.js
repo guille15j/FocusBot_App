@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, useColorScheme } from 'react-native';
 import { Text, Button, Card, Avatar, Surface, FAB, Portal } from 'react-native-paper';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
-import { globalStyles, AppColors } from '../../theme/theme';
+import { getglobalStyles,  updateAppColors} from '../../theme/theme';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { ScrollView } from "react-native-gesture-handler";
 import { BlurView } from 'expo-blur';
@@ -16,6 +16,10 @@ import UserHeader from '../../components/common/UserHeader'
 import { AuthContext } from '../../context/AuthContext';
 
 export default function HomeScreen({ navigation }) {
+  const scheme = useColorScheme(); 
+  let AppColors = updateAppColors(scheme);
+  let globalStyles = getglobalStyles(scheme);
+
   
   // Obtenemos los datos del usuario y la función signOut del contexto
   const { user, signOut } = useContext(AuthContext);
@@ -75,7 +79,7 @@ export default function HomeScreen({ navigation }) {
     version: "1.2.3",
     last_sync: "2026-04-17T19:50:00",
   },
-];
+  ];
 
 
   return (
@@ -85,10 +89,10 @@ export default function HomeScreen({ navigation }) {
           <UserHeader user = {{'first_name':'nombre', 'last_name':'apellido'}}/>
           
           <ScrollView>
-            <GridBots data = {botsData} numColumns = {3}/>
+            <GridBots data = {botsData} numColumns = {3} globalStyles={globalStyles} AppColors={AppColors}/>
             
 
-            <ListaBots data={botsData}/>
+            <ListaBots data={botsData} colors={AppColors}/>
           </ScrollView>
 
           <Portal>
@@ -132,10 +136,6 @@ const styles = StyleSheet.create({
 
   content: {
     padding: 20,
-  },
-  blurOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: -10,
   },
 
 });

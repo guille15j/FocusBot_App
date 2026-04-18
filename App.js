@@ -10,7 +10,7 @@ import { useColorScheme } from 'react-native';
 // Importaciones locales
 import { authStorage } from './src/core/authStorage';
 import { AuthContext } from './src/context/AuthContext';
-import { globalStyles, getAppTheme, updateAppColors } from './src/theme/theme';
+import { getglobalStyles, getAppTheme, updateAppColors } from './src/theme/theme';
 
 // Pantallas
 // auth
@@ -38,6 +38,7 @@ const Stack = createStackNavigator();
 export default function App() {
   const scheme = useColorScheme(); // 'light' | 'dark'
   updateAppColors(scheme);
+  let globalStyles = getglobalStyles();
   
   const theme = useMemo(() => {
     return getAppTheme(scheme);

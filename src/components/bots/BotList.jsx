@@ -7,10 +7,10 @@ import BotTile from './BotListTile';
 
 const screenWidth = Dimensions.get('window').width;
 
-const ListaBots = ({ data }) => {
+const ListaBots = ({ data , colors }) => {
   
-  const renderItem = ({ item }) => (
-    <BotTile item={item}/>
+  const renderItems = ({ item }) => (
+    <BotTile item={item} AppColors ={colors} onPress={console.log("h")}/>
   );
 
 return (
@@ -18,10 +18,9 @@ return (
     <Text variant="headlineMedium" style={styles.titulo}>Actividades</Text>
 
     <FlatList
+      style = {{backgroundColor: colors.surface}}
       data={data}
-      renderItem={({ item }) => (
-        <BotTile item={item} onPress={console.log("h")} />
-      )}
+      renderItem= {renderItems}
       keyExtractor={(item, index) => item.bot_id?.toString() ?? index.toString()}
       ItemSeparatorComponent={Divider}
     />
@@ -33,7 +32,7 @@ return (
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: AppColors.accent, 
+    // backgroundColor: AppColors.accent, 
     padding: 5, 
     // width: screenWidth - 50
   },

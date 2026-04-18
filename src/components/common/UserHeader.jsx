@@ -21,7 +21,7 @@ const UserHeader = ({ user }) => {
         <Avatar.Icon 
           size={40} 
           icon="account" 
-          style={{ backgroundColor: AppColors.secondary }} 
+          style={{ backgroundColor: AppColors.primary }} 
           color="white" 
         />
         <Text style={styles.userName}>
@@ -42,7 +42,7 @@ const UserHeader = ({ user }) => {
 
 const styles = StyleSheet.create({
   topBarContainer: {
-    backgroundColor: AppColors.primary,
+    backgroundColor: AppColors.surface,
     elevation: 2,
     shadowColor: '#000', 
     shadowOffset: { width: 0, height: 1 },
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#333',
+    color: AppColors.text,
     marginLeft: 16
   },
 });

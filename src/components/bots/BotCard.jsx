@@ -1,9 +1,12 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, useColorScheme } from 'react-native';
 import {Avatar, Badge, IconButton, Card, Text, Chip } from 'react-native-paper';
-import { AppColors } from '../../theme/theme';
+// import {  getglobalStyles, updateAppColors } from '../../theme/theme';
 
-const BotCard = ({ item }) => {
+
+const BotCard = ({ item , AppColors, globalStyles}) => {
+  // this.AppColors = AppColors
+
   const estadoConfig = {
     OFFLINE:    { color: '#757575', icono: 'robot-off', animar: false },
     BOOTING:    { color: '#FF9800', icono: 'robot-confused', animar: true },
@@ -19,6 +22,7 @@ const BotCard = ({ item }) => {
   const config = estadoConfig[item.status] || estadoConfig.ERROR;
 
   return (
+
     <Card style={styles.card} elevation={3}>
       <Card.Title 
         title={item.name} 
@@ -82,12 +86,12 @@ const styles = StyleSheet.create({
     flex: 1,
     margin: 8,
     borderRadius: 15,
-    backgroundColor: '#fff',
+    // backgroundColor: AppColors.surface,
     overflow: 'hidden'
   },
   content: { marginTop: -4 },
   statusBadge: {
-    backgroundColor: '#f0f0f0',
+    // backgroundColor: AppColors.background,
     paddingVertical: 2,
     paddingHorizontal: 8,
     borderRadius: 10,

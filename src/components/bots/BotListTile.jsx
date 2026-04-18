@@ -1,9 +1,9 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { List, Chip, Avatar, Text } from 'react-native-paper';
-import { AppColors } from '../../theme/theme';
+// import { AppColors } from '../../theme/theme';
 
-const BotTile = ({ item, onPress }) => {
+const BotTile = ({ item, onPress, AppColors }) => {
   // Configuramos el color y el icono según el estado del Bot
   const obtenerConfiguracion = (status) => {
     switch (status) {
@@ -40,7 +40,8 @@ const BotTile = ({ item, onPress }) => {
           {...props} 
           icon={config.icon} 
           size={48} 
-          style={{ backgroundColor: AppColors.primary }} 
+          style={{ backgroundColor: AppColors.primary}} 
+          color= {AppColors.background}
         />
       )}
       
@@ -50,12 +51,12 @@ const BotTile = ({ item, onPress }) => {
           <Text variant="labelSmall" style={styles.timeText}>
             {item.last_sync ? item.last_sync.split('T')[1].substring(0, 5) : '--:--'}
           </Text>
-          <List.Icon {...props} icon="chevron-right" color="#CCC" />
+          <List.Icon {...props} icon="chevron-right" />
         </View>
       )}
       
       onPress={() => onPress && onPress(item)}
-      style={styles.listItem}
+      style={[styles.listItem, {backgroundColor: AppColors.surface}]}
     />
   );
 };
@@ -63,7 +64,7 @@ const BotTile = ({ item, onPress }) => {
 const styles = StyleSheet.create({
   listItem: {
     paddingVertical: 8,
-    backgroundColor: 'white',
+    // backgroundColor: 'white',
     padding: 16,
     
   },
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   timeText: {
-    color: '#999',
+    // color: '#999',
     marginBottom: 4,
   },
 });
