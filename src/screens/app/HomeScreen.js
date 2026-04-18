@@ -12,6 +12,7 @@ import { BlurView } from 'expo-blur';
 import GridBots from '../../components/bots/BotsGrid'
 import ListaBots from '../../components/bots/BotList'
 import UserHeader from '../../components/common/UserHeader'
+import BotCarousel from '../../components/bots/BotCarrusel';
 
 import { AuthContext } from '../../context/AuthContext';
 
@@ -88,13 +89,20 @@ export default function HomeScreen({ navigation }) {
         <SafeAreaView style = {(isWeb ? {height: '100dvh'}: {height: '100%'})} >
           <UserHeader user = {{'first_name':'nombre', 'last_name':'apellido', 'user_id':'123123'}}/>
           
-          <ScrollView>
-
-
+          <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+            <BotCarousel 
+              bots={botsData} 
+              onAddPress={() => console.log("Añadir nuevo bot")}
+              onBotPress={(bot) => console.log("Seleccionado:", bot.name)}
+              globalStyles={globalStyles}
+            />
+            <Text variant="titleMedium" style={{ marginLeft: 20, marginTop: 10, color: AppColors.text }}>
+              Resumen de dispositivos
+            </Text>
           </ScrollView>
 
-          <GridBots data = {botsData} numColumns = {3} globalStyles={globalStyles} AppColors={AppColors}/>
-          <ListaBots data={botsData} colors={AppColors}/>
+          {/* <GridBots data = {botsData} numColumns = {3} globalStyles={globalStyles} AppColors={AppColors}/>
+          <ListaBots data={botsData} colors={AppColors}/> */}
           <Portal>
             <FAB.Group
               open={open}
