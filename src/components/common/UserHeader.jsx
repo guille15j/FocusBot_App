@@ -24,20 +24,26 @@ const UserHeader = ({ user }) => {
   return (
     <SafeAreaView edges={['top']} style={styles.topBarContainer}>
       <View style={styles.userContainer}>
-        <Avatar.Icon 
+        {/* <Avatar.Icon 
           size={40} 
           icon="account" 
           style={{ backgroundColor: AppColors.secondary }} 
           color="white" 
+        /> */}
+        <Avatar.Image 
+          size={60} 
+          source={require('../../assets/avatar.png')} 
+          style={{ backgroundColor: AppColors.secondary }} 
+          // color="white" 
         />
+
         <View>
-          
-        <Text style={styles.userName}>
-          {user.first_name} {user.last_name}
-        </Text>
-        <Text style={styles.userDetail}>
-          {user.user_id}
-        </Text>
+          <Text style={styles.userName}>
+            {user.first_name} {user.last_name}
+          </Text>
+          <Text style={styles.userDetail}>
+            {user.user_id}
+          </Text>
         </View>
 
         <View style={{ flex: 1 }} /> 
@@ -76,7 +82,7 @@ const getStyles = (AppColors) => StyleSheet.create({
   userContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
     paddingVertical: 5,
   },
   userName: {

@@ -199,11 +199,13 @@ const getStyles = (AppColors, CARD_WIDTH, SPACING, isWeb, ARROW_OFFSET_WEB) => S
   cardContainer: {
     width: CARD_WIDTH,
     marginRight: SPACING,
-    height: 240,
+    // height: 240,
     justifyContent: 'center',
+    elevation: 4
+    
   },
   addCard: {
-    height: 200,
+    // height: 200,
     margin: 8,
     borderRadius: 15,
     backgroundColor: AppColors.surface,
