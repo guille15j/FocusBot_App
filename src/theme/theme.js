@@ -4,29 +4,28 @@ import { useAppColors } from '../hooks/useAppColors';
 
 
 export const LightColors = {
-  primary:    '#5B4BFF', // Indigo elegante
-  secondary:  '#FF6B8A', // Rosa coral suave
-  background: '#F7F8FC', // Gris azulado premium
-  surface:    '#FFFFFF', // Tarjetas limpias
-  text:       '#1E1E1E', // Negro suave
-  textLight:  '#6B7280', // Gris profesional
-  error:      '#FF6B6B',
-  placeholder:'#A0A4B8',
+  primary:     '#0095C7', // Color 2: Azul vibrante (Enfoque activo)
+  secondary:   '#29B9E0', // Color 1: Cyan eléctrico (Acentos leves)
+  background:  '#F5F7FA', // Blanco gélido para limpieza absoluta
+  surface:     '#FFFFFF', 
+  text:        '#03045E', // Color 5: El azul más profundo para el texto
+  textLight:   '#023C88', // Color 4: Azul marino para jerarquía secundaria
+  error:       '#D11149',
+  placeholder: '#7E9EC9', 
 };
 
 export const DarkColors = {
-  primary:    '#8eff84', // Indigo más luminoso para dark
-  secondary:  '#8ffff6',
-  background: '#121212', // Negro real
-  surface:    '#1E1E1E', // Tarjetas oscuras
-  text:       '#E5E7EB', // Gris claro
-  textLight:  '#9CA3AF',
-  error:      '#FF6B6B',
-  placeholder:'#6B7280',
+  primary:     '#29B9E0', // Color 1: Ahora es el protagonista sobre el fondo oscuro
+  secondary:   '#0095C7', // Color 2: Para estados secundarios
+  background:  '#01021A', // Una versión más profunda del Color 5 (Lujo espacial)
+  surface:     '#03045E', // Color 5: Tarjetas que emergen del fondo
+  text:        '#F0F9FF', // Blanco azulado (Suave, no puro)
+  textLight:   '#0077B8', // Color 3: Azul medio para detalles
+  error:       '#FF4D4D',
+  placeholder: '#023C88', // Color 4
 };
 
-
-export let AppColors = LightColors;
+export let AppColors = DarkColors;
 
 export const updateAppColors = (scheme) => {
   AppColors = scheme === 'dark' ? DarkColors : LightColors;

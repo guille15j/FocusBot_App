@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, StyleSheet, TouchableOpacity, Platform, Dimensions, Text, useColorScheme } from 'react-native';
 import { useNavigationState } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { updateAppColors } from '../theme/theme';
+import { IconButton } from 'react-native-paper';
+import { AuthContext } from '../context/AuthContext';
 
 // Función auxiliar para detectar dimensiones (opcional, para mayor limpieza)
 const { width } = Dimensions.get('window');
@@ -46,6 +48,15 @@ export default function BottomNav({ navigation }) {
     navigation?.navigate(screenName);
   };
 
+  const { signOut } = useContext(AuthContext);
+
+  const ejecutarLogout = async () => {
+    await signOut();
+    console.log("Sesión cerrada");
+  };
+
+
+
   return (
     <View style={useSidebar ? styles.sidebarContainer : styles.bottomBarContainer}>
       <View style={useSidebar ? styles.sidebar : styles.bottomBar}>
@@ -68,6 +79,17 @@ export default function BottomNav({ navigation }) {
             </TouchableOpacity>
           );
         })}
+
+        {isWeb && 
+          <IconButton
+            mode = "contained"
+            onPress={ejecutarLogout}
+            icon="logout"
+            color="white" 
+            backgroundColor= {AppColors.error}
+            style={{ borderColor: AppColors.error }}
+          />
+        }
       </View>
     </View>
   );
@@ -80,6 +102,7 @@ const getStyles = (AppColors, useSidebar) => StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+    
   },
   bottomBar: {
     height: 70,
@@ -88,11 +111,17 @@ const getStyles = (AppColors, useSidebar) => StyleSheet.create({
     justifyContent: 'space-around',
     backgroundColor: AppColors.surface,
     paddingBottom: Platform.OS === 'ios' ? 20 : 10,
-    ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.05, shadowRadius: 4 },
-      android: { elevation: 8 },
-      web: { boxShadow: '0px -2px 4px rgba(0, 0, 0, 0.05)' },
-    }),
+
+    // ANDROID
+    elevation: 5,
+
+    // iOS
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    
+    
   },
   bottomBarBtn: {
     flex: 1,

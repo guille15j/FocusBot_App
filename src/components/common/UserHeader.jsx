@@ -8,7 +8,7 @@ import { AuthContext } from '../../context/AuthContext';
 const UserHeader = ({ user }) => {
   const scheme = useColorScheme();
   const AppColors = updateAppColors(scheme); // Colores reactivos al sistema
-  
+  const isWeb = Platform.OS === 'web';
   if (!user) return null;
 
   const { signOut } = useContext(AuthContext);
@@ -41,15 +41,16 @@ const UserHeader = ({ user }) => {
         </View>
 
         <View style={{ flex: 1 }} /> 
-
-        <IconButton
-          mode = "contained"
-          onPress={ejecutarLogout}
-          icon="logout"
-          color="white" 
-          backgroundColor= {AppColors.error}
-          style={{ borderColor: AppColors.error }}
-        />
+        {!isWeb && 
+          <IconButton
+            mode = "contained"
+            onPress={ejecutarLogout}
+            icon="logout"
+            color="white" 
+            backgroundColor= {AppColors.error}
+            style={{ borderColor: AppColors.error }}
+          />
+        }
       </View>
     </SafeAreaView>
   );
