@@ -4,25 +4,25 @@ import { useAppColors } from '../hooks/useAppColors';
 
 
 export const LightColors = {
-  primary:     '#0095C7', // Color 2: Azul vibrante (Enfoque activo)
-  secondary:   '#29B9E0', // Color 1: Cyan eléctrico (Acentos leves)
-  background:  '#F5F7FA', // Blanco gélido para limpieza absoluta
+  primary:     '#A8DADC', // Menta empolvado (Calma visual)
+  secondary:   '#BDB2FF', // Lavanda suave (Creatividad)
+  background:  '#FDFCFB', // Blanco pergamino (Lujo orgánico)
   surface:     '#FFFFFF', 
-  text:        '#03045E', // Color 5: El azul más profundo para el texto
-  textLight:   '#023C88', // Color 4: Azul marino para jerarquía secundaria
-  error:       '#D11149',
-  placeholder: '#7E9EC9', 
+  text:        '#4A4E69', // Gris malva oscuro (Elegante y legible)
+  textLight:   '#9A8C98', // Arena grisáceo
+  error:       '#E5989B', // Rosa coral pastel
+  placeholder: '#C9ADA7',
 };
 
 export const DarkColors = {
-  primary:     '#29B9E0', // Color 1: Ahora es el protagonista sobre el fondo oscuro
-  secondary:   '#0095C7', // Color 2: Para estados secundarios
-  background:  '#01021A', // Una versión más profunda del Color 5 (Lujo espacial)
-  surface:     '#03045E', // Color 5: Tarjetas que emergen del fondo
-  text:        '#F0F9FF', // Blanco azulado (Suave, no puro)
-  textLight:   '#0077B8', // Color 3: Azul medio para detalles
-  error:       '#FF4D4D',
-  placeholder: '#023C88', // Color 4
+  primary:     '#BEE1E6', // Azul tiza (Luz suave)
+  secondary:   '#E2ECE9', // Verde bruma
+  background:  '#1E1E24', // Negro carbón suave (No absoluto)
+  surface:     '#2D2D34', // Gris mineral
+  text:        '#F0EFEB', // Blanco lino (Cálido y relajado)
+  textLight:   '#ADACB5', // Gris seda
+  error:       '#FFB7B2', // Melocotón pastel
+  placeholder: '#5E5E66',
 };
 
 export let AppColors = DarkColors;

@@ -49,13 +49,14 @@ const UserHeader = ({ user }) => {
         <View style={{ flex: 1 }} /> 
         {!isWeb && 
           <IconButton
-            mode = "contained"
-            onPress={ejecutarLogout}
+            mode="contained"
             icon="logout"
-            color="white" 
-            backgroundColor= {AppColors.error}
-            style={{ borderColor: AppColors.error }}
+            size = {20}
+            onPress={ejecutarLogout}
+            iconColor={AppColors.primary}                
+            // style={{ backgroundColor: AppColors.error }}  
           />
+
         }
       </View>
     </SafeAreaView>
