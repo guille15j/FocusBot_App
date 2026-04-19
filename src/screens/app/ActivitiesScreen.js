@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, ScrollView, useColorScheme } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text, Searchbar,Chip, SegmentedButtons } from 'react-native-paper';
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
@@ -9,6 +9,7 @@ import { getglobalStyles, updateAppColors } from '../../theme/theme';
 import CustomAnimatedFAB from '../../components/common/CustomAnimatedFAB';
 import ActivitiesList from '../../components/activities/ActivitiesList';
 import ActivitiesGrid from '../../components/activities/ActivitiesGrid';
+import { SearchBar } from 'react-native-screens';
 
 export default function Activities() {
   const scheme = useColorScheme(); 
@@ -51,13 +52,40 @@ export default function Activities() {
   ];
 
 
+   const handleFabPress = () => {
+    console.log("¡Botón presionado!");
+  };
+
+
+
+  // PAra la barra de busqueda para buscar por actividades por nombre o cosas asi.
+  const [searchQuery, setSearchQuery] = React.useState('');
+
   return (
     <ScreenWrapper withScroll={false}>
       <View style ={(isWeb ? globalStyles.container_web : globalStyles.container_movil)}>
         <SafeAreaView style = {(isWeb ? {height: '100dvh'}: {height: '100%'})} >
+          <Text style={[globalStyles.tituloPagina, ]}>Actividades</Text>
+          <Searchbar
+            placeholder="Search"
+            onChangeText={setSearchQuery}
+            value={searchQuery}
+            style = {{marginHorizontal: 15, marginVertical: 15 }}
+          />
+          <View 
+            style = {{
+              flexDirection: 'row', 
+              gap: 5, 
+              flexWrap: 'wrap', 
+              marginHorizontal: 25,
+              marginBottom: 5,
+            }}>
+            <Chip icon="plus" onPress={() => console.log('Pressed')}>Organización</Chip>
+            <Chip icon="plus" onPress={() => console.log('Pressed')}>Estadísticas</Chip>
+          </View>
           
           <ScrollView onScroll={onScroll} scrollEventThrottle={16} ontentContainerStyle={{ paddingBottom: isWeb? 10 : 80}}>
-            <Text style={globalStyles.tituloPagina}>Actividades</Text>
+            
             
             <ActivitiesGrid 
               activities={activitiesData}
@@ -65,6 +93,7 @@ export default function Activities() {
               onActivityPress={() => console.log('Actividad pulsada')}
               AppColors={AppColors}
             />
+
 
             <ActivitiesGrid 
               activities={activitiesData}
@@ -106,7 +135,6 @@ export default function Activities() {
             isExtended={isExtended}
           />
 
-          
 
         </SafeAreaView>
       </View>

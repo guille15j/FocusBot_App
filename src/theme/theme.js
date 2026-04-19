@@ -199,7 +199,9 @@ export const getglobalStyles = (scheme) => {
     tituloPagina: {
       // fontSize: 20
       fontSize: 42,
-      fontStyle: 'italic'
+      alignItems: 'center',
+      marginHorizontal: 20, 
+      color: AppColors.primary
     }
   });
 };

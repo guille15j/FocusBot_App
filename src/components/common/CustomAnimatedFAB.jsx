@@ -27,11 +27,10 @@ const CustomAnimatedFAB = ({ icon, label, onPress, isExtended = true }) => {
       visible={true}
       animateFrom={'right'}
       iconMode={'dynamic'}
-      // Configuración temática para forzar el círculo del boton cuando este cerrado
-      
+     
       theme={{ 
         ...baseTheme,
-        roundness: 30, 
+        roundness: 30,  //Le oibligas para que sea un circulo si o si afectando directo al tema principal
         colors: { 
           ...baseTheme.colors,
           primary: AppColors.primary,
@@ -42,7 +41,7 @@ const CustomAnimatedFAB = ({ icon, label, onPress, isExtended = true }) => {
         globalStyles.fab, 
         { 
             borderRadius: 100, 
-            backgroundColor: AppColors.primary 
+            backgroundColor: AppColors.primary + 80
         }
       ]}
       color={AppColors.background}
