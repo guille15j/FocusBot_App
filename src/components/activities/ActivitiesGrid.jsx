@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, StyleSheet, useWindowDimensions, Pressable, Animated } from 'react-native';
+import { View, StyleSheet, useWindowDimensions, Pressable, Animated, Platform } from 'react-native';
 import { Text, IconButton } from 'react-native-paper';
 import ActivityCard from './ActivityCard';
 
@@ -20,23 +20,22 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
 
   const toggleSection = () => {
     if (isExpanded) {
-      // SECUENCIA DE SALIDA:
-      // 1. Ejecutar animación
+      // SALIDA
+      // animación
       Animated.timing(animatedValue, {
         toValue: 0,
         duration: 250,
-        useNativeDriver: true, // Ahora sí podemos usarlo para opacidad y escala
+        useNativeDriver: true,
       }).start(() => {
-        // 2. Al terminar, desmontar los componentes y actualizar estado
         setShouldRender(false);
       });
       setIsExpanded(false);
     } else {
-      // SECUENCIA DE ENTRADA:
-      // 1. Montar los componentes primero
+      // ENTRADA
+      // nontar los componentes primero
       setShouldRender(true);
       setIsExpanded(true);
-      // 2. Ejecutar animación
+      // simación
       Animated.timing(animatedValue, {
         toValue: 1,
         duration: 300,
@@ -49,14 +48,14 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
   const opacity = animatedValue;
   const translateY = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [-10, 0], // Efecto de deslizamiento sutil
+    outputRange: [-10, 0], // Efecto de deslizamiento
   });
   const rotateChevron = animatedValue.interpolate({
     inputRange: [0, 1],
     outputRange: ['-90deg', '0deg'],
   });
 
-  const numColumns = width < 700 ? 1 : width < 1100 ? 2 : 3;
+  const numColumns = width < 600 ? 1 : width < 1100 ? 2 : 3;
 
   return (
     <View style={styles.sectionContainer}>
@@ -66,7 +65,7 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
             {filterState}
           </Text>
           <View style={[styles.countBadge, { backgroundColor: AppColors.surfaceVariant }]}>
-            <Text style={{ fontSize: 10, color: AppColors.onSurfaceVariant, fontWeight: 'bold' }}>
+            <Text style={{ fontSize: 10, color: AppColors.textLight , fontWeight: 'bold' }}>
               {filteredData.length}
             </Text>
           </View>
@@ -77,7 +76,6 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
         </Animated.View>
       </Pressable>
 
-      {/* Usamos shouldRender para permitir que la animación termine antes de desmontar */}
       {shouldRender && (
         <Animated.View style={[styles.gridContainer, { opacity, transform: [{ translateY }] }]}>
           {filteredData.map((item) => (
@@ -98,7 +96,7 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
 };
 
 const styles = StyleSheet.create({
-  sectionContainer: { marginBottom: 4 },
+  sectionContainer: { marginBottom: 4, },
   headerPressable: {
     flexDirection: 'row',
     alignItems: 'center',

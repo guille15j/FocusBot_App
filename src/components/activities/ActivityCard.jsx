@@ -39,13 +39,14 @@ const ActivityCard = ({ activity, onPress }) => {
     <Card style={styles.card} onPress={onPress}>
       <View style={styles.mainContainer}>
         {/* Barra lateral de color según categoría */}
-        <View style={[styles.categoryIndicator, { backgroundColor: categoryInfo.color }]} />
+        {/* <View style={[styles.categoryIndicator, { backgroundColor: STATE_COLORS[activity.state] || AppColors.outline , elevation: 4}]} /> */}
+        <View style={[styles.categoryIndicator, { backgroundColor: categoryInfo.color || AppColors.outline }]} />
 
         <View style={styles.contentContainer}>
           {/* Fila Superior: Icono Categoría + Título + Estado */}
           <View style={styles.headerRow}>
-            <Surface style={[styles.iconBadge, { backgroundColor: categoryInfo.color + '20' }]}>
-              <MaterialCommunityIcons name={categoryInfo.icon} size={20} color={categoryInfo.color} />
+            <Surface style={[styles.iconBadge, { backgroundColor: categoryInfo.color + '60' }]}>
+              <MaterialCommunityIcons name={categoryInfo.icon} size={25} color={categoryInfo.color} />
             </Surface>
             
             <View style={{ flex: 1, marginLeft: 12 }}>
@@ -60,13 +61,14 @@ const ActivityCard = ({ activity, onPress }) => {
             <Surface style={[styles.stateBadge, { borderColor: STATE_COLORS[activity.state] || AppColors.outline }]}>
               <Text variant="labelSmall" style={{ color: STATE_COLORS[activity.state], fontWeight: 'bold' }}>
                 {activity.state}
+                 
               </Text>
             </Surface>
           </View>
 
           {/* Descripción */}
           {activity.description && (
-            <Text variant="bodyMedium" style={[styles.description, { color: AppColors.onSurfaceVariant }]} numberOfLines={2}>
+            <Text variant="bodyMedium" style={[styles.description, { color: AppColors.textLight }]} numberOfLines={2}>
               {activity.description}
             </Text>
           )}

@@ -1,6 +1,7 @@
 import { MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
 import { Platform, StyleSheet } from 'react-native';
 import { useAppColors } from '../hooks/useAppColors';
+import { useResponsiveLayout } from '../hooks/useResponsiveLayout';
 
 
 export const LightColors = {
@@ -31,6 +32,8 @@ export const updateAppColors = (scheme) => {
   AppColors = scheme === 'dark' ? DarkColors : LightColors;
   return AppColors;
 };
+
+const isWeb = useResponsiveLayout()
 
 
 export const getAppTheme = (scheme) => {
@@ -194,7 +197,9 @@ export const getglobalStyles = (scheme) => {
       borderRadius: 150
     },
     tituloPagina: {
-      fontSize: '5rem'
+      // fontSize: 20
+      fontSize: 42,
+      fontStyle: 'italic'
     }
   });
 };
