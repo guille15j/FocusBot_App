@@ -29,7 +29,7 @@ const ActivitiesList = ({ activities = [], onActivityPress, globalStyles }) => {
       >
         <FlatList
           data={activities}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.activity_id.toString()}
           renderItem={renderItem}
           ItemSeparatorComponent={() => <Divider style={styles.divider} />}
           scrollEnabled={!isWeb} // En web suele controlarlo el scroll general

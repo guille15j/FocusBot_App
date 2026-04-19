@@ -2,43 +2,58 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, IconButton, Avatar } from 'react-native-paper';
 
-
 const CATEGORIES = {
-  Deporte: { icon: 'dumbbell', color: '#FFD54F' },
-  Lectura: { icon: 'book-open-variant', color: '#FF8A65' },
-  Estudio: { icon: 'school', color: '#81C784' },
-  Descanso: { icon: 'weather-night', color: '#9575CD' },
-  Hogar: { icon: 'home', color: '#F06292' },
-  Otros: { icon: 'link-variant', color: '#BDBDBD' },
+  DEPORTES: { icon: 'dumbbell', color: '#FFD54F' },
+  DEPORTE: { icon: 'dumbbell', color: '#FFD54F' },
+  LECTURA: { icon: 'book-open-variant', color: '#FF8A65' },
+  ESTUDIOS: { icon: 'school', color: '#81C784' },
+  ESTUDIO: { icon: 'school', color: '#81C784' },
+  DESCANSO: { icon: 'weather-night', color: '#9575CD' },
+  HOGAR: { icon: 'home', color: '#F06292' },
+  OTRAS: { icon: 'link-variant', color: '#BDBDBD' },
+  OTRA: { icon: 'link-variant', color: '#BDBDBD' },
+};
+
+const STATE_COLORS = {
+  'EN CURSO': '#4FC3F7',
+  'PENDIENTE': '#FFB74D',
+  'COMPLETADO': '#81C784',
+  'CANCELADO': '#E57373',
+  'POSPUESTO': '#BA68C8',
 };
 
 const ActivityListTile = ({ item, onInfoPress, AppColors }) => {
-  const category = CATEGORIES[item.category] || CATEGORIES.Otros;
+  const rawKey = item?.category ? String(item.category).toUpperCase().trim() : 'OTRAS';
+  const category = CATEGORIES[rawKey] || CATEGORIES.OTRAS;
+
+  const rawState = item?.state ? String(item.state).toUpperCase().trim() : 'PENDIENTE';
+  const stateColor = STATE_COLORS[rawState] || AppColors.placeholder;
 
   return (
     <View style={styles.container}>
-      {/* Icono de Categoría */}
       <Avatar.Icon 
-        size={48} 
+        size={44} 
         icon={category.icon} 
         style={{ backgroundColor: category.color }} 
         color="white"
       />
-
       <View style={styles.textContainer}>
-        <Text variant="titleMedium" style={{ color: AppColors.text }}>
-          {item.name}
+        <Text variant="titleMedium" style={{ color: AppColors.text }} numberOfLines={1}>
+          {item?.title ?? 'Sin título'}
         </Text>
-        <Text variant="bodySmall" style={{ color: AppColors.placeholder }} numberOfLines={1}>
-          {item.description}
-        </Text>
+        <View style={styles.subtitleRow}>
+          <Text variant="labelSmall" style={{ color: stateColor, fontWeight: 'bold' }}>
+            {item?.state ?? 'PENDIENTE'} •{' '}
+          </Text>
+          <Text variant="bodySmall" style={{ color: AppColors.placeholder, flex: 1 }} numberOfLines={1}>
+            {item?.description ?? ''}
+          </Text>
+        </View>
       </View>
-
-      {/* Acción Derecha */}
       <IconButton
         icon="chevron-right"
         size={24}
-        onPress={() => onInfoPress(item)}
+        onPress={() => onInfoPress && onInfoPress(item)}
         iconColor={AppColors.primary}
       />
     </View>
@@ -46,17 +61,9 @@ const ActivityListTile = ({ item, onInfoPress, AppColors }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-  },
-  textContainer: {
-    flex: 1,
-    marginLeft: 16,
-    justifyContent: 'center',
-  },
+  container: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 16 },
+  textContainer: { flex: 1, marginLeft: 16, justifyContent: 'center' },
+  subtitleRow: { flexDirection: 'row', alignItems: 'center' }
 });
 
 export default ActivityListTile;
