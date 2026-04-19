@@ -45,9 +45,10 @@ const ActivitiesList = ({ activities = [], onActivityPress, globalStyles }) => {
 
 const styles = StyleSheet.create({
   mainContainer: {
-    width: '100%',
+    // width: '100%',
     alignItems: 'center',
     marginVertical: 10,
+    marginHorizontal: 20
   },
   surfaceList: {
     width: '100%', // Un poco de margen en móvil

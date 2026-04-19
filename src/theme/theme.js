@@ -16,7 +16,7 @@ export const LightColors = {
 };
 
 export const DarkColors = {
-  primary:     '#BEE1E6', // Azul tiza (Luz suave)
+  primary:     '#70d5e4', // Azul tiza (Luz suave)
   secondary:   '#E2ECE9', // Verde bruma
   background:  '#1E1E24', // Negro carbón suave (No absoluto)
   surface:     '#2D2D34', // Gris mineral
@@ -69,7 +69,7 @@ export const getglobalStyles = (scheme) => {
       minHeight: '100%'   
     },
     section:{
-      paddingHorizontal: 40,
+      paddingHorizontal: 20,
       paddingVertical: 20,
       margin: 20,
       maxHeight: 1000,
@@ -79,14 +79,15 @@ export const getglobalStyles = (scheme) => {
       overflow: 'hidden'
     },
     section_huge:{
-      paddingHorizontal: 0,
+      paddingHorizontal: 10,
       paddingVertical: 0,
-      // margin: 20,
+      marginHorizontal: 20,
       maxHeight: 1000,
       // minHeight: 300,
       borderRadius:20,
       backgroundColor: AppColors.secondary + 20,
       overflow: Platform.OS === 'web'? 'scroll' : 'visible',
+
     },
     logoutButton: {
       margin: 20,

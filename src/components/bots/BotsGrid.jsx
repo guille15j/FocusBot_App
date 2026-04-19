@@ -31,13 +31,15 @@ const GridBots = ({ data,  numColumns, AppColors, globalStyles}) => {
 
 const styles = StyleSheet.create({
     container:{
-        width: screenWidth - 50,
+        // width: screenWidth - 50,
         padding: 10,
         maxHeight: 500,
         // backgroundColor: AppColors.background,
         margin: 16,
         borderRadius: 16,
         // shadowColor: AppColors.primary,
+        flex:1,
+        flexGrow: 1
     },
 });
 

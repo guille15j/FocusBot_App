@@ -9,15 +9,9 @@ const BotCard = ({ item , AppColors, globalStyles}) => {
 
   const estadoConfig = {
     OFFLINE:    { color: '#757575', icono: 'robot-off', animar: false },
-    BOOTING:    { color: '#FF9800', icono: 'robot-confused', animar: true },
-    CONFIGURING:{ color: '#2196F3', icono: 'cog-sync', animar: true },
-    IDLE:       { color: '#32b100', icono: 'robot', animar: false },
-    FOCUSING:   { color: '#9C27B0', icono: 'target', animar: true },
-    PAUSED:     { color: '#FFC107', icono: 'pause-circle', animar: false },
-    BREAK:      { color: '#00BCD4', icono: 'coffee', animar: false },
-    FINISHED:   { color: '#3F51B5', icono: 'check-circle', animar: false },
-    ERROR:      { color: '#F44336', icono: 'alert-octagon', animar: false },
-  };
+    IDLE:       { color: '#32b100', icono: 'robot-happy', animar: false },
+    FOCUSING:   { color: '#9C27B0', icono: 'robot-angry', animar: true },
+ };
 
   const config = estadoConfig[item.status] || estadoConfig.ERROR;
 
@@ -34,13 +28,13 @@ const BotCard = ({ item , AppColors, globalStyles}) => {
               {...props} 
               icon={config.icono} 
               size={44} 
-              style={{ backgroundColor: AppColors.primary }} 
+              style={{ backgroundColor: config.color }} 
             />
-            <Badge 
+            {/* <Badge 
               visible 
               size={14} 
               style={[styles.badge, { backgroundColor: config.color }]} 
-            />
+            /> */}
           </View>
         )} 
       />
@@ -52,13 +46,13 @@ const BotCard = ({ item , AppColors, globalStyles}) => {
             </Text>
         </View>
 
-        <View style={styles.infoRow}>
+        {/* <View style={styles.infoRow}>
             <Text variant="labelSmall" style={styles.label}>Versión:</Text>
             <Text variant="bodySmall">{item.version}</Text>
-        </View>
+        </View> */}
 
         <Text variant="bodySmall" style={styles.syncText}>
-            Visto: {item.last_sync ? item.last_sync.split('T')[1].substring(0, 5) : '--:--'}
+            Sincronizado a {item.last_sync ? item.last_sync.split('T')[1].substring(0, 5) : '--:--'}
         </Text>
       </Card.Content>
 
@@ -99,7 +93,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   statusText: {
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: 'bold',
     letterSpacing: 1,
   },
@@ -111,7 +105,7 @@ const styles = StyleSheet.create({
   label: { color: '#757575' },
   syncText: {
     marginTop: 8,
-    fontSize: 9,
+    fontSize: 12,
     color: '#9e9e9e',
     textAlign: 'right',
   },

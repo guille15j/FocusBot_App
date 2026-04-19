@@ -53,7 +53,7 @@ export default function HomeScreen({ navigation }) {
     name: "FocusBot Beta",
     ssid: "FocusNet_Beta",
     mac_address: "00:1A:7D:DA:71:14",
-    status: "FOCUSING",
+    status: "OFFLINE",
     version: "1.2.3",
     last_sync: "2026-04-17T19:50:00",
   },
@@ -71,7 +71,7 @@ export default function HomeScreen({ navigation }) {
     name: "FocusBot Beta",
     ssid: "FocusNet_Beta",
     mac_address: "00:1A:7D:DA:71:14",
-    status: "FOCUSING",
+    status: "OFFLINE",
     version: "1.2.3",
     last_sync: "2026-04-17T19:50:00",
   },
@@ -80,13 +80,13 @@ export default function HomeScreen({ navigation }) {
     name: "FocusBot Beta",
     ssid: "FocusNet_Beta",
     mac_address: "00:1A:7D:DA:71:14",
-    status: "FOCUSING",
+    status: "IDLE",
     version: "1.2.3",
     last_sync: "2026-04-17T19:50:00",
   },
   ];
 
-    const activitiesData = [
+  const activitiesData = [
     {"activity_id": 1, "type_id": 1, "user_id": "U99", "bot_id": "B-Alpha", "title": "Entrenamiento Pierna", "description": "Sentadillas y Prensa", "init_date": "2026-04-19T08:00:00", "end_date": "2026-04-19T09:30:00", "state": "COMPLETADO", "category": "DEPORTES", "result": "SUCCESS"},
     {"activity_id": 2, "type_id": 2, "user_id": "U99", "bot_id": null, "title": "React Native Docs", "description": "Estudio de FlatList", "init_date": "2026-04-19T10:00:00", "end_date": "2026-04-19T12:00:00", "state": "EN CURSO", "category": "ESTUDIOS", "result": null},
     {"activity_id": 3, "type_id": 3, "user_id": "U99", "bot_id": "B-Zeta", "title": "Limpiar Cocina", "description": "Desinfectar superficies", "init_date": "2026-04-19T14:00:00", "end_date": "2026-04-19T15:00:00", "state": "PENDIENTE", "category": "HOGAR", "result": null},
@@ -132,45 +132,41 @@ export default function HomeScreen({ navigation }) {
               globalStyles={globalStyles}
             />
 
-            <View style={globalStyles.section}>
+            {/* <View style={globalStyles.section}>
               <Text variant="titleLarge" style={styles.sectionTitle}>
                 Resumen del día
               </Text>
               
               <View style={styles.statsGrid}>
-                {/* Tarjeta 1: Tiempo de Enfoque */}
                 <Card style={styles.statCard}>
                   <Card.Content style={styles.cardContent}>
                     <MaterialCommunityIcons name="timer-outline" size={24} color={AppColors.primary} />
-                    <Text variant="headlineSmall" style={styles.statValue}>5.4h</Text>
-                    <Text variant="labelSmall" style={styles.statLabel}>Enfoque</Text>
+                    <Text variant="headlineSmall" style={[styles.statValue, {color: AppColors.text}]}>5.4h</Text>
+                    <Text variant="labelSmall" style={[styles.statLabel, {color: AppColors.textLight}]}>Enfoque</Text>
                   </Card.Content>
                 </Card>
 
-                {/* Tarjeta 2: Tareas */}
                 <Card style={styles.statCard}>
                   <Card.Content style={styles.cardContent}>
                     <MaterialCommunityIcons name="check-all" size={24} color={AppColors.primary} />
-                    <Text variant="headlineSmall" style={styles.statValue}>12</Text>
-                    <Text variant="labelSmall" style={styles.statLabel}>Tareas</Text>
+                    <Text variant="headlineSmall" style={[styles.statValue, {color: AppColors.text}]}>12</Text>
+                    <Text variant="labelSmall" style={[styles.statLabel, {color: AppColors.textLight}]}>Tareas</Text>
                   </Card.Content>
                 </Card>
 
-                {/* Tarjeta 3: Bots Activos */}
                 <Card style={styles.statCard}>
                   <Card.Content style={styles.cardContent}>
                     <MaterialCommunityIcons name="robot" size={24} color={AppColors.primary} />
-                    <Text variant="headlineSmall" style={styles.statValue}>3</Text>
-                    <Text variant="labelSmall" style={styles.statLabel}>Bots ON</Text>
+                    <Text variant="headlineSmall" style={[styles.statValue, {color: AppColors.text}]}>3</Text>
+                    <Text variant="labelSmall" style={[styles.statLabel, {color: AppColors.textLight}]}>Bots ON</Text>
                   </Card.Content>
                 </Card>
 
-                {/* Tarjeta 4: Productividad */}
                 <Card style={styles.statCard}>
                   <Card.Content style={styles.cardContent}>
                     <MaterialCommunityIcons name="trending-up" size={24} color={AppColors.primary} />
-                    <Text variant="headlineSmall" style={styles.statValue}>85%</Text>
-                    <Text variant="labelSmall" style={styles.statLabel}>Eficiencia</Text>
+                    <Text variant="headlineSmall" style={[styles.statValue, {color: AppColors.text}]}>85%</Text>
+                    <Text variant="labelSmall" style={[styles.statLabel, {color: AppColors.textLight}]}>Eficiencia</Text>
                   </Card.Content>
                 </Card>
               </View>
@@ -179,9 +175,8 @@ export default function HomeScreen({ navigation }) {
                 Saber más
               </Button>
 
-            </View>
+            </View> */}
 
-            <View style ={globalStyles.section_huge}>
               <Text variant="titleLarge" style ={{textAlign: 'center'}}>
                 Actividades
               </Text>
@@ -191,9 +186,10 @@ export default function HomeScreen({ navigation }) {
                 onActivityPress={(activity) => console.log("Detalles de:", activity.title)}
                 globalStyles={globalStyles} 
               />
-            </View>
           </ScrollView>
-
+                
+              
+            
           <Portal>
             <FAB.Group
               open={open}
@@ -212,7 +208,7 @@ export default function HomeScreen({ navigation }) {
                   icon: 'calendar',
                   label: 'Nueva Actividad',
                   onPress: () => console.log('Configurar'),
-                  style: { backgroundColor: AppColors.secondary },
+                  style: { backgroundColor: AppColors.secondary},
                   color: AppColors.background
                 },
               ]}
@@ -248,12 +244,13 @@ const getStyles = (AppColors, isWeb) => StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
-    paddingHorizontal: 10,
+    // paddingHorizontal: 10,
+    gap: 10
   },
   statCard: {
     // En web 23% para que quepan 4 con espacio. En móvil 48% para que quepan 2.
     width: isWeb ? '23%' : '48%', 
-    marginBottom: 15,
+    // marginVertical: 5,
     backgroundColor: AppColors.surface,
     borderRadius: 16,
     // Sombra suave para que se vea moderno
