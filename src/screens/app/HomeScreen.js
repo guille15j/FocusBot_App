@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { View, StyleSheet, useColorScheme } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import { Text, Button, Card, Avatar, Surface, FAB, Portal } from 'react-native-paper';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
@@ -26,6 +27,7 @@ export default function HomeScreen({ navigation }) {
   
   // Obtenemos los datos del usuario y la función signOut del contexto
   const { user, signOut } = useContext(AuthContext);
+  const isFocused = useIsFocused(); // Detecta si la pantalla está activa -> para el FAB
   const [open, setOpen] = React.useState(false);
   
   // Función para cerrar sesión
@@ -189,7 +191,7 @@ export default function HomeScreen({ navigation }) {
           <Portal>
             <FAB.Group
               open={open}
-              visible
+              visible={isFocused}
               icon={open ? 'close' : 'plus'}
               actions={[
                 {

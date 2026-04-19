@@ -193,6 +193,9 @@ export const getglobalStyles = (scheme) => {
       bottom: 100, 
       borderRadius: 150
     },
+    tituloPagina: {
+      fontSize: '5rem'
+    }
   });
 };
 

@@ -86,11 +86,11 @@ export default function ResetScreen({ navigation }) {
 
   return (
     <LinearGradient
-              colors={[AppColors.primary, AppColors.background]}   // azul añil → blanco
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              style={{ flex: 1 }}
-            >
+      colors={[AppColors.background, AppColors.primary]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={{ flex: 1 }}
+    >
       <KeyboardAvoidingView 
         style={isWeb ?  globalStyles.authContainer_web : globalStyles.authContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
