@@ -85,6 +85,7 @@ export default function Activities() {
               filterState="COMPLETADO"
               onActivityPress={() => console.log('Actividad pulsada')}
               AppColors={AppColors}
+              opened={false}
             />
 
             <ActivitiesGrid 
@@ -92,6 +93,7 @@ export default function Activities() {
               filterState="CANCELADO"
               onActivityPress={() => console.log('Actividad pulsada')}
               AppColors={AppColors}
+              opened={false}
             />
           </ScrollView>
 
