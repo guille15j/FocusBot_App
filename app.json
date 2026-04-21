@@ -27,7 +27,6 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.guille15j.FocusApp_V01",
-
       "usesCleartextTraffic": true,
       "permissions": [
         "android.permission.INTERNET",
@@ -41,6 +40,9 @@
       "eas": {
         "projectId": "b6fc8304-142d-4e01-921a-670428dfc691"
       }
-    }
+    },
+    "plugins": [
+      "@react-native-community/datetimepicker"
+    ]
   }
 }
