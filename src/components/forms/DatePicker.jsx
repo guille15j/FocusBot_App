@@ -1,13 +1,28 @@
 import React, { useState } from 'react';
-import { View, Platform } from 'react-native';
-import { TextInput, Button } from 'react-native-paper';
+import { 
+  View, 
+  Platform, 
+  Text, 
+  Pressable, 
+  Modal, 
+  StyleSheet, 
+  Button as RNButton,
+  useColorScheme 
+} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
+// CORRECCIÓN DE RUTAS SEGÚN TU ESTRUCTURA
+import { updateAppColors } from '../../theme/theme'; 
+// Si no tienes un globalStyles.js específico en la raíz, 
+// puedes definir los estilos locales necesarios aquí mismo para evitar errores.
+
 const DatePicker = ({ label, mode = 'date', value, onChange }) => {
+  // Lógica de colores idéntica a ActivityCard
+  const scheme = useColorScheme();
+  const AppColors = updateAppColors(scheme);
+
   const [show, setShow] = useState(false);
   const [currentMode, setCurrentMode] = useState(mode);
-  
-  // Estado temporal para iOS (permite cancelar sin aplicar cambios)
   const [tempDate, setTempDate] = useState(value instanceof Date ? value : new Date());
 
   const handleOnChange = (event, selectedDate) => {
@@ -29,29 +44,22 @@ const DatePicker = ({ label, mode = 'date', value, onChange }) => {
         onChange(currentDate);
       }
     } else {
-      // En iOS solo actualizamos el valor temporal mientras el modal está abierto
       setTempDate(currentDate);
     }
   };
 
-    const showPicker = () => {
-        if (Platform.OS === 'ios') {
-            setTempDate(value instanceof Date ? value : new Date());
-            setCurrentMode(mode); // En iOS mantenemos el modo original (date o datetime)
-        }
-        
-        setShow(true);
+  const showPicker = () => {
+    if (Platform.OS === 'ios') {
+      setTempDate(value instanceof Date ? value : new Date());
+      setCurrentMode(mode);
+    }
+    setShow(true);
 
-        if (Platform.OS === 'android') {
-            if (mode === 'datetime') {
-                setCurrentMode('date'); // Android requiere paso a paso
-            } else {
-                setCurrentMode(mode);
-            }
-        }
-    };
+    if (Platform.OS === 'android' && mode === 'datetime') {
+      setCurrentMode('date');
+    }
+  };
 
-  // Confirmación manual para iOS
   const confirmIOS = () => {
     onChange(tempDate);
     setShow(false);
@@ -68,28 +76,47 @@ const DatePicker = ({ label, mode = 'date', value, onChange }) => {
 
   return (
     <View style={styles.container}>
-      {label && <Text style={globalStyles.label}>{label}</Text>}
+      {label && (
+        <Text style={[styles.label, { color: AppColors.text }]}>
+          {label}
+        </Text>
+      )}
       
       <Pressable 
         style={({ pressed }) => [
           styles.input, 
-          globalStyles.border_radius, 
-          pressed && styles.pressed
+          { 
+            borderColor: AppColors.outline || AppColors.primary,
+            backgroundColor: scheme === 'dark' ? '#1E1E1E' : 'white',
+            opacity: pressed ? 0.7 : 1 
+          }
         ]} 
         onPress={showPicker}
       >
-        <Text style={styles.textValue}>{formatDisplay(value)}</Text>
+        <Text style={{ color: AppColors.text, fontSize: 16 }}>
+          {formatDisplay(value)}
+        </Text>
       </Pressable>
 
-      {/* LÓGICA IOS: Envoltorio en Modal para evitar desbordamiento */}
+      {/* Lógica iOS */}
       {Platform.OS === 'ios' && (
         <Modal visible={show} transparent animationType="slide">
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
+            <View style={[styles.modalContent, { backgroundColor: scheme === 'dark' ? '#2C2C2C' : 'white' }]}>
               <View style={styles.modalHeader}>
-                <Button title="Cancelar" color={AppColors.error} onPress={() => setShow(false)} />
-                <Text style={styles.modalTitle}>Seleccionar</Text>
-                <Button title="Hecho" color={AppColors.primary} onPress={confirmIOS} />
+                <RNButton 
+                  title="Cancelar" 
+                  color={AppColors.error || '#FF5252'} 
+                  onPress={() => setShow(false)} 
+                />
+                <Text style={{ color: AppColors.text, fontWeight: 'bold', fontSize: 17 }}>
+                  Seleccionar
+                </Text>
+                <RNButton 
+                  title="Hecho" 
+                  color={AppColors.primary} 
+                  onPress={confirmIOS} 
+                />
               </View>
               <DateTimePicker
                 value={tempDate}
@@ -104,7 +131,7 @@ const DatePicker = ({ label, mode = 'date', value, onChange }) => {
         </Modal>
       )}
 
-      {/* LÓGICA ANDROID: Lanzamiento directo */}
+      {/* Lógica Android */}
       {Platform.OS === 'android' && show && (
         <DateTimePicker
           value={value instanceof Date ? value : new Date()}
@@ -120,50 +147,40 @@ const DatePicker = ({ label, mode = 'date', value, onChange }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 5,
+    marginVertical: 8,
     width: '100%',
+  },
+  label: {
+    fontSize: 14,
+    marginBottom: 8,
+    fontWeight: '500',
+    marginLeft: 4,
   },
   input: {
     height: 55,
     paddingHorizontal: 15,
-    borderWidth: 1,
-    borderColor: AppColors.primary, // Mantiene el color de tu tema
-    backgroundColor: 'white', 
+    borderWidth: 1.5,
+    borderRadius: 12, // Valor genérico si no usas globalStyles
     justifyContent: 'center',
-    marginTop: 5,
   },
-  pressed: {
-    backgroundColor: '#F9F9F9',
-    opacity: 0.8,
-  },
-  textValue: {
-    fontSize: 16,
-    color: AppColors.text,
-  },
-  // Estilos del Modal para iOS
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     paddingBottom: 40,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEE',
+    padding: 16,
+    borderBottomWidth: 0.5,
+    borderBottomColor: 'rgba(128,128,128,0.3)',
   },
-  modalTitle: {
-    fontWeight: 'bold',
-    color: AppColors.text,
-  }
 });
 
 export default DatePicker;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'; // 1. Añadido useState
-import { View, useColorScheme, ScrollView, Platform } from 'react-native';
+import { View, useColorScheme, ScrollView, Platform, KeyboardAvoidingView, } from 'react-native';
 // 2. Añadidos los componentes que faltaban de Paper
 import { 
   Text, 
@@ -18,8 +18,6 @@ import DatePicker from '../../components/forms/DatePicker';
 
 export default function ProfilePage({ navigation }) {
   const scheme = useColorScheme();
-  
-  // IMPORTANTE: updateAppColors devuelve el objeto de colores, lo llamamos 'colors'
   const colors = updateAppColors(scheme); 
   const globalStyles = getglobalStyles(scheme);
   const { isWeb } = useResponsiveLayout();
@@ -29,10 +27,15 @@ export default function ProfilePage({ navigation }) {
   const [lastName, setLastName] = useState('Pérez');
   const [nickname, setNickname] = useState('juanpi_99');
   const [phone, setPhone] = useState('+34 600 000 000');
+  const [email,setEmail] = useState('correo sacado del user');
   const [birthdate, setBirthdate] = useState(new Date('1995-05-15'));
-  const [bio, setBio] = useState('Usuario de FocusApp dedicado a la productividad.');
   const [severity, setSeverity] = useState('LEVE');
   const [loading, setLoading] = useState(false);
+  const [timezone, setTimezone] = useState('UTC');
+  const [name_detail, setNameDetail] = useState('TDA');
+  const [description_detail, setDescription] = useState('Descripción de lo que te pasa');
+  const [password, setPassword] = useState('Password123');
+  const [showPassword, setShowPassword] = useState(false);
 
   const ejecutarActualizacion = () => {
     setLoading(true);
@@ -49,7 +52,6 @@ export default function ProfilePage({ navigation }) {
               Perfil
             </Text>
           
-            {/* CABECERA: AVATAR */}
             <View style={{ alignItems: 'center', marginVertical: 30 }}>
               <View style={{ position: 'relative' }}>
                 <Avatar.Image
@@ -80,103 +82,136 @@ export default function ProfilePage({ navigation }) {
               </Text>
             </View>
 
-            {/* FORMULARIO: Usando tus estilos globales */}
-            <View style={[globalStyles.form, isWeb && { alignSelf: 'center' }]}>
-              
+            <KeyboardAvoidingView 
+              style={isWeb ?  globalStyles.authContainer_web : globalStyles.authContainer}
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
+
               <TextInput
-                label="Nombre"
-                mode="outlined"
+                label="First Name"
                 value={firstName}
                 onChangeText={setFirstName}
-                style={globalStyles.input}
-                outlineStyle={{ borderRadius: 15 }}
-              />
-
-              <TextInput
-                label="Apellidos"
                 mode="outlined"
+                style={globalStyles.input}
+                outlineStyle={{ borderRadius: 30 }}
+                left={<TextInput.Icon icon="account" />}
+              />
+              
+              <TextInput
+                label="Last Name"
                 value={lastName}
                 onChangeText={setLastName}
-                style={globalStyles.input}
-                outlineStyle={{ borderRadius: 15 }}
-              />
-
-              <TextInput
-                label="Nombre de usuario"
                 mode="outlined"
+                style={globalStyles.input}
+                outlineStyle={{ borderRadius: 30 }}
+                left={<TextInput.Icon icon="account-group" />}
+              />
+              
+              <TextInput
+                label="Nickname"
                 value={nickname}
                 onChangeText={setNickname}
+                mode="outlined"
+                autoCapitalize="none"
                 style={globalStyles.input}
-                outlineStyle={{ borderRadius: 15 }}
+                outlineStyle={{ borderRadius: 30 }}
                 left={<TextInput.Icon icon="at" />}
               />
-
-              <TextInput
-                label="Teléfono"
-                mode="outlined"
-                value={phone}
-                onChangeText={setPhone}
-                style={globalStyles.input}
-                outlineStyle={{ borderRadius: 15 }}
-                left={<TextInput.Icon icon="phone" />}
-              />
-
-              <DatePicker
-                label="Fecha de Nacimiento"
-                value={birthdate}
-                onChange={setBirthdate}
-              />
-
-              <TextInput
-                label="Biografía"
-                mode="outlined"
-                multiline
-                numberOfLines={3}
-                value={bio}
-                onChangeText={setBio}
-                style={globalStyles.input}
-                outlineStyle={{ borderRadius: 15 }}
-              />
-
-              <Text style={{ fontSize: 14, fontWeight: 'bold', marginVertical: 10, color: colors.textLight }}>
-                Prioridad
-              </Text>
               
-              <SegmentedButtons
-                value={severity}
-                onValueChange={setSeverity}
-                buttons={[
-                  { value: 'LEVE', label: 'Leve' },
-                  { value: 'MODERADO', label: 'Medio' },
-                  { value: 'URGENTE', label: 'Alto' },
-                ]}
-                style={{ marginBottom: 20 }}
+              <TextInput
+                label="Email"
+                value={email}
+                onChangeText={setEmail}
+                mode="outlined"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                style={globalStyles.input}
+                outlineStyle={{ borderRadius: 30 }}
+                left={<TextInput.Icon icon="email" />}
+              />
+              
+              <TextInput
+                label="Password"
+                value={password}
+                onChangeText={setPassword}
+                mode="outlined"
+                secureTextEntry={!showPassword}
+                style={globalStyles.input}
+                outlineStyle={{ borderRadius: 30 }}
+                left={<TextInput.Icon icon="lock" />}
+                right={
+                  <TextInput.Icon 
+                    icon={showPassword ? "eye-off" : "eye"} 
+                    onPress={() => setShowPassword(!showPassword)}
+                  />
+                }
               />
 
-              {/* BOTONERA GLOBAL */}
+              <TextInput
+                label = 'Timezone'
+                value = {timezone}
+                onChange = {setTimezone}
+                mode = "outlined"
+                style = {globalStyles.input}
+                outlineStyle = {{borderRadius: 30}}
+                left = {<TextInput.Icon icon="clock"/>}
+              />
+
+              <TextInput
+                label = 'Detalle'
+                value = {name_detail}
+                onChange= {setNameDetail}
+                mode = "outlined"
+                style = {globalStyles.input}
+                outlineStyle = {{borderRadius: 30}}
+                left = {<TextInput.ICon icon="text"/>}
+              />
+
+              <TextInput
+                label = 'Descripcion'
+                value = {description_detail}
+                onChange = {setDescription}
+                mode = "outlined"
+                style = {globalStyles.input}
+                outlineStyle = {{borderRadius: 30}}
+                left = {<TextInput.ICon icon="text"/>}
+              />
+
+              <TextInput
+                label = 'Severidad'
+                value = {severity}
+                onChange={setSeverity}                
+                mode = "outlined"
+                style = {globalStyles.input}
+                outlineStyle = {{borderRadius: 30}}
+                left = {<TextInput.ICon icon="text"/>}
+              />
+
+
+
               <View style={globalStyles.botonera}>
-                <Button 
-                  mode="contained" 
+                <Button
+                  mode="contained"
                   onPress={ejecutarActualizacion}
                   loading={loading}
                   disabled={loading}
                   style={[globalStyles.button, { flex: 1 }]}
+                  labelStyle={{ fontSize: 16, fontWeight: '600' }}
                 >
-                  Guardar
+                  Register
                 </Button>
                 
-                <Button 
-                  mode="outlined" 
-                  onPress={() => navigation?.goBack()}
+                <Button
+                  mode="outlined"
+                  onPress={()=> {}}
                   disabled={loading}
-                  textColor={colors.error}
-                  style={[globalStyles.buttonOutline, { flex: 1, borderColor: colors.error }]}
+                  style={[globalStyles.buttonOutline, { flex: 1 }]}
                 >
-                  Cancelar
+                  Cancel
                 </Button>
-              </View>
-            </View>
-        
+              </View>  
+              
+            </KeyboardAvoidingView>
           </ScrollView>
         </SafeAreaView>
       </View>
