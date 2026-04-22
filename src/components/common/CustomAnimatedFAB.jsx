@@ -1,21 +1,13 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useColorScheme, StyleSheet } from 'react-native';
 import { AnimatedFAB, MD2LightTheme, MD2DarkTheme } from 'react-native-paper';
-import { updateAppColors, getglobalStyles } from '../../theme/theme';
+import { getColors, getglobalStyles } from '../../theme/theme';
 
-/**
- * Componente FAB Animado personalizado.
- * @param {string} icon - Nombre del icono de MaterialCommunityIcons.
- * @param {string} label - Texto a mostrar cuando está extendido.
- * @param {function} onPress - Acción al presionar.
- * @param {boolean} isExtended - Estado controlado desde el ScrollView padre.
- */
 const CustomAnimatedFAB = ({ icon, label, onPress, isExtended = true }) => {
   const scheme = useColorScheme();
-  const AppColors = updateAppColors(scheme);
-  const globalStyles = getglobalStyles(scheme);
+  const colors = useMemo(() => getColors(scheme), [scheme]);
+  const globalStyles = useMemo(() => getglobalStyles(scheme), [scheme]);
 
-  // Forzamos MD2 para asegurar que el botón sea circular
   const baseTheme = scheme === 'dark' ? MD2DarkTheme : MD2LightTheme;
 
   return (
@@ -27,24 +19,23 @@ const CustomAnimatedFAB = ({ icon, label, onPress, isExtended = true }) => {
       visible={true}
       animateFrom={'right'}
       iconMode={'dynamic'}
-     
       theme={{ 
         ...baseTheme,
-        roundness: 30,  //Le oibligas para que sea un circulo si o si afectando directo al tema principal
+        roundness: 30,
         colors: { 
           ...baseTheme.colors,
-          primary: AppColors.primary,
-          accent: AppColors.primary 
+          primary: colors.primary,
+          accent: colors.primary 
         } 
       }}
       style={[
         globalStyles.fab, 
         { 
             borderRadius: 100, 
-            backgroundColor: AppColors.primary + 80
+            backgroundColor: colors.primary + 80
         }
       ]}
-      color={AppColors.background}
+      color={colors.background}
     />
   );
 };

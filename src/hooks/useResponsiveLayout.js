@@ -1,15 +1,17 @@
 import { Platform, Dimensions } from 'react-native';
 import { useState, useEffect } from 'react';
 
-/**
-* Hook personalizado para detectar el tipo de dispositivo y orientación
-* 
-* @returns {Object} - Información sobre la plataforma y dimensiones
-* 
-*/
-
 export const useResponsiveLayout = () => {
-  const width = Dimensions.get('window').width;
+  const [dimensions, setDimensions] = useState(Dimensions.get('window'));
+  
+  useEffect(() => {
+    const subscription = Dimensions.addEventListener('change', ({ window }) => {
+      setDimensions(window);
+    });
+    return () => subscription?.remove();
+  }, []);
+
+  const width = dimensions.width;
   const platform = Platform.OS;
   
   const isMobile = (

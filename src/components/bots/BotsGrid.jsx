@@ -1,47 +1,36 @@
 import React from 'react';
-import { FlatList, StyleSheet, Dimensions } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import BotCard from './BotCard';
-// import { AppColors } from '../../theme/theme';
 
-const screenWidth = Dimensions.get('window').width;
-
-
-const GridBots = ({ data,  numColumns, AppColors, globalStyles}) => {
-    
-    // this.AppColors = AppColors;
-
-   return (
+const GridBots = ({ data, numColumns, AppColors, globalStyles }) => {
+  return (
     <FlatList
-        style={[
-            styles.container, 
-            { 
-                backgroundColor: AppColors.surface, 
-                // shadowColor: AppColors.primary 
-            }
-        ]}
-        data={data}
-        renderItem={({ item }) => <BotCard item={item} AppColors={AppColors} globalStyles={globalStyles} />}
-        keyExtractor={item => item.bot_id}
-        numColumns={numColumns}
-        columnWrapperStyle={styles.columnWrapper}
-        
+      style={[
+        styles.container, 
+        { backgroundColor: AppColors.surface }
+      ]}
+      data={data}
+      renderItem={({ item }) => <BotCard item={item} AppColors={AppColors} globalStyles={globalStyles} />}
+      keyExtractor={item => item.bot_id}
+      numColumns={numColumns}
+      columnWrapperStyle={numColumns > 1 ? styles.columnWrapper : undefined}
+      scrollEnabled={false}
     />
   );
 };
 
 const styles = StyleSheet.create({
-    container:{
-        // width: screenWidth - 50,
-        padding: 10,
-        maxHeight: 500,
-        // backgroundColor: AppColors.background,
-        margin: 16,
-        borderRadius: 16,
-        // shadowColor: AppColors.primary,
-        flex:1,
-        flexGrow: 1
-    },
+  container: {
+    padding: 10,
+    maxHeight: 500,
+    margin: 16,
+    borderRadius: 16,
+    flex: 1,
+    flexGrow: 1
+  },
+  columnWrapper: {
+    justifyContent: 'space-between'
+  }
 });
-
 
 export default GridBots;

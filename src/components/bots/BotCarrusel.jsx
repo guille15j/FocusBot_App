@@ -1,29 +1,23 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { View, StyleSheet, FlatList, Dimensions, useColorScheme, Platform, Animated, TouchableOpacity } from 'react-native';
 import { IconButton, Surface, Text } from 'react-native-paper';
-import { updateAppColors } from '../../theme/theme';
+import { getColors } from '../../theme/theme';
 import BotCard from './BotCard';
 
-// Dimensiones base
 const { width: WINDOW_WIDTH } = Dimensions.get('window');
 
 const BotCarousel = ({ bots = [], onAddPress, globalStyles }) => {
   const scheme = useColorScheme();
-  const AppColors = updateAppColors(scheme);
+  const AppColors = useMemo(() => getColors(scheme), [scheme]);
   
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current; 
   const flatListRef = useRef(null);
   const isWeb = Platform.OS === 'web';
 
-  // --- LÓGICA DE DIMENSIONES DINÁMICAS ---
-  // En Web: 50% para la card, 25% espacio lateral para cada flecha.
-  // En Móvil: mantenemos el 85% para que se vea parte de la siguiente.
   const CARD_WIDTH = isWeb ? WINDOW_WIDTH * 0.5 : WINDOW_WIDTH * 0.85;
   const SPACING = 10;
   const FULL_ITEM_WIDTH = CARD_WIDTH + SPACING;
-  
-  // Posicionamos las flechas en el centro del espacio del 25% lateral
   const ARROW_OFFSET_WEB = -(WINDOW_WIDTH * 0.12); 
 
   const styles = getStyles(AppColors, CARD_WIDTH, SPACING, isWeb, ARROW_OFFSET_WEB);
@@ -36,7 +30,7 @@ const BotCarousel = ({ bots = [], onAddPress, globalStyles }) => {
         setCurrentIndex(1);
       }, 100);
     }
-  }, [CARD_WIDTH]); // Recalcular si cambia el tamaño - EN PROGRESO
+  }, [CARD_WIDTH]);
 
   const onScroll = Animated.event(
     [{ nativeEvent: { contentOffset: { x: scrollX } } }],
@@ -188,7 +182,6 @@ const getStyles = (AppColors, CARD_WIDTH, SPACING, isWeb, ARROW_OFFSET_WEB) => S
     position: 'relative',
     flexDirection: 'row',
     alignItems: 'center',
-    // El contenedor central ahora es el 50% en web para dejar aire a las flechas
     width: isWeb ? CARD_WIDTH : WINDOW_WIDTH,
     justifyContent: 'center',
   },
@@ -199,13 +192,10 @@ const getStyles = (AppColors, CARD_WIDTH, SPACING, isWeb, ARROW_OFFSET_WEB) => S
   cardContainer: {
     width: CARD_WIDTH,
     marginRight: SPACING,
-    // height: 240,
     justifyContent: 'center',
     elevation: 4
-    
   },
   addCard: {
-    // height: 200,
     margin: 8,
     borderRadius: 15,
     backgroundColor: AppColors.surface,

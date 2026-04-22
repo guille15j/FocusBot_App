@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import { 
   View, 
   Alert, 
@@ -16,17 +16,16 @@ import {
 } from 'react-native-paper';
 import { AuthContext } from '../../context/AuthContext';
 import { authStorage } from '../../core/authStorage';
-import { AppColors, getglobalStyles } from '../../theme/theme';
+import { getColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from "expo-linear-gradient";
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
-
-
-
 export default function RegisterScreen({ navigation }) {
-
-  const scheme = useColorScheme(); 
-  let globalStyles = getglobalStyles(scheme);
+  const scheme = useColorScheme();
+  const { isWeb } = useResponsiveLayout();
+  
+  const colors = useMemo(() => getColors(scheme), [scheme]);
+  const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
   
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -59,7 +58,6 @@ export default function RegisterScreen({ navigation }) {
       Alert.alert("Error", "El email es obligatorio");
       return false;
     }
-    // Validación básica de email
     if (!email.includes('@') || !email.includes('.')) {
       Alert.alert("Error", "Introduce un email válido");
       return false;
@@ -80,20 +78,16 @@ export default function RegisterScreen({ navigation }) {
   };
 
   const ejecutarRegistro = async () => {
-
     if (!validarFormulario()) {
       return;
     }
-
     setLoading(true);
     
     try {
       console.log("Registrando usuario:", email);
       
-      // Simulamos delay de servidor
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Datos que enviaríamos al backend
       const userData = {
         first_name: firstName,
         last_name: lastName,
@@ -105,7 +99,6 @@ export default function RegisterScreen({ navigation }) {
       
       console.log("Datos enviados:", userData);
       
-      // Simulamos respuesta exitosa del servidor
       const fakeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fake-register-token-67890";
       const fakeUser = {
         id: 2,
@@ -133,18 +126,16 @@ export default function RegisterScreen({ navigation }) {
   const volverAlLogin = () => {
     navigation.replace('Login');
   };
-  
-  const { isWeb } = useResponsiveLayout();
 
   return (
     <LinearGradient
-      colors={[AppColors.background, AppColors.primary]}
+      colors={[colors.background, colors.primary]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={{ flex: 1 }}
     >
       <KeyboardAvoidingView 
-        style={isWeb ?  globalStyles.authContainer_web : globalStyles.authContainer}
+        style={isWeb ? globalStyles.authContainer_web : globalStyles.authContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView 

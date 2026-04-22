@@ -1,8 +1,6 @@
+// theme.js - CORREGIDO
 import { MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
 import { Platform, StyleSheet } from 'react-native';
-import { useAppColors } from '../hooks/useAppColors';
-import { useResponsiveLayout } from '../hooks/useResponsiveLayout';
-
 
 export const LightColors = {
   primary:     '#A8DADC', // Menta empolvado (Calma visual)
@@ -26,19 +24,16 @@ export const DarkColors = {
   placeholder: '#5E5E66',
 };
 
-export let AppColors = DarkColors;
-
-export const updateAppColors = (scheme) => {
-  AppColors = scheme === 'dark' ? DarkColors : LightColors;
-  return AppColors;
+export const getColors = (scheme) => {
+  return scheme === 'dark' ? DarkColors : LightColors;
 };
 
-const isWeb = useResponsiveLayout()
-
+export const updateAppColors = (scheme) => {
+  return getColors(scheme);
+};
 
 export const getAppTheme = (scheme) => {
   const colors = scheme === 'dark' ? DarkColors : LightColors;
-
   const baseTheme = scheme === 'dark' ? MD3DarkTheme : MD3LightTheme;
   
   return {
@@ -55,45 +50,40 @@ export const getAppTheme = (scheme) => {
   };
 };
 
-
-export const getglobalStyles = (scheme) => {
-  updateAppColors(scheme);
+export const getglobalStyles = (scheme, isWeb = false) => {
+  const colors = getColors(scheme);
 
   return StyleSheet.create({
     container_web:{
-      backgroundColor: AppColors.background,
-      minHeight: '100dvh'
+      backgroundColor: colors.background,
+      minHeight: '100vh',
     },
     container_movil:{
-      backgroundColor: AppColors.background,
-      minHeight: '100%'   
+      backgroundColor: colors.background,
+      minHeight: '100%',   
     },
     section:{
       paddingHorizontal: 20,
       paddingVertical: 20,
       margin: 20,
       maxHeight: 1000,
-      // minHeight: 300,
       borderRadius:20,
-      backgroundColor: AppColors.secondary + 20,
-      overflow: 'hidden'
+      backgroundColor: colors.secondary + '20',
     },
     section_huge:{
       paddingHorizontal: 10,
       paddingVertical: 0,
       marginHorizontal: 20,
       maxHeight: 1000,
-      // minHeight: 300,
       borderRadius:20,
-      backgroundColor: AppColors.secondary + 20,
-      overflow: Platform.OS === 'web'? 'scroll' : 'visible',
-
+      backgroundColor: colors.secondary + '20',
+      overflow: Platform.OS === 'web' ? 'scroll' : 'visible',
     },
     logoutButton: {
       margin: 20,
       marginTop: 30,
-      marginBottom: 100, // Espacio para la barra inferior
-      borderColor: AppColors.error,
+      marginBottom: 100,
+      borderColor: colors.error,
       borderRadius: 30,
     },
     logoContainer: {
@@ -103,28 +93,26 @@ export const getglobalStyles = (scheme) => {
     logoContainer_name: {
       display: 'flex',
       flexDirection: "row"
-
     },
     logo_focus: {
       fontSize: 42,
       fontWeight: 'bold',
-      color: AppColors.primary,
+      color: colors.primary,
       marginBottom: 8,
     },
     logo_bot: {
       fontSize: 42,
       fontWeight: 'bold',
-      color: AppColors.text,
+      color: colors.text,
       marginBottom: 8,
     },
     logoSubtitle: {
       fontSize: 16,
-      color: AppColors.textLight,
+      color: colors.textLight,
     },
     authContainer: {
       flex: 1,
       display: 'flex',
-      // alignItems: 'center',
       justifyContent: 'center',
       paddingHorizontal: 24,
       backgroundColor: 'transparent',
@@ -138,7 +126,7 @@ export const getglobalStyles = (scheme) => {
       backgroundColor: 'transparent',
     },
     form: {
-      backgroundColor: AppColors.surface,
+      backgroundColor: colors.surface,
       borderRadius: 20,
       padding: 24,
       elevation: 4,
@@ -146,24 +134,22 @@ export const getglobalStyles = (scheme) => {
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.1,
       shadowRadius: 8,
-      maxWidth: '500px',
-      minWidth: '400px'
+      maxWidth: 500,
+      minWidth: 400,
     },
     input: {
-      backgroundColor: AppColors.surface,
+      backgroundColor: colors.surface,
       marginBottom: 12,
     },
     button: {
       marginTop: 12,
-      // paddingVertical: 6,
       borderRadius: 30,
-      backgroundColor: AppColors.primary,
+      backgroundColor: colors.primary,
     },
     buttonOutline: {
       marginTop: 12,
-      // paddingVertical: 6,
       borderRadius: 30,
-      borderColor: AppColors.primary,
+      borderColor: colors.primary,
     },
     linkContainer: {
       flexDirection: 'row',
@@ -171,7 +157,7 @@ export const getglobalStyles = (scheme) => {
       marginTop: 20,
     },
     link: {
-      color: AppColors.primary,
+      color: colors.primary,
       fontWeight: '600',
     },
     botonera: {
@@ -180,7 +166,7 @@ export const getglobalStyles = (scheme) => {
       marginTop: 16,
     },
     card: {
-      backgroundColor: AppColors.surface,
+      backgroundColor: colors.surface,
       borderRadius: 20,
       padding: 24,
       elevation: 4,
@@ -190,7 +176,7 @@ export const getglobalStyles = (scheme) => {
       shadowRadius: 8,
     },
     fab: { 
-      backgroundColor: AppColors.primary, 
+      backgroundColor: colors.primary, 
       position: 'absolute', 
       margin: 16, 
       right: 0, 
@@ -198,12 +184,10 @@ export const getglobalStyles = (scheme) => {
       borderRadius: 150
     },
     tituloPagina: {
-      // fontSize: 20
       fontSize: 42,
       alignItems: 'center',
       marginHorizontal: 20, 
-      color: AppColors.primary
+      color: colors.primary
     }
   });
 };
-

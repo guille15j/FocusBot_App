@@ -1,22 +1,17 @@
 import React from 'react';
-import { View, StyleSheet, useColorScheme } from 'react-native';
-import {Avatar, Badge, IconButton, Card, Text, Chip } from 'react-native-paper';
-// import {  getglobalStyles, updateAppColors } from '../../theme/theme';
+import { View, StyleSheet } from 'react-native';
+import { Avatar, Card, Text } from 'react-native-paper';
 
-
-const BotCard = ({ item , AppColors, globalStyles}) => {
-  // this.AppColors = AppColors
-
+const BotCard = ({ item, AppColors }) => {
   const estadoConfig = {
     OFFLINE:    { color: '#757575', icono: 'robot-off', animar: false },
     IDLE:       { color: '#32b100', icono: 'robot-happy', animar: false },
     FOCUSING:   { color: '#9C27B0', icono: 'robot-angry', animar: true },
- };
+  };
 
-  const config = estadoConfig[item.status] || estadoConfig.ERROR;
+  const config = estadoConfig[item.status] || estadoConfig.OFFLINE;
 
   return (
-
     <Card style={styles.card} elevation={3}>
       <Card.Title 
         title={item.name} 
@@ -30,11 +25,6 @@ const BotCard = ({ item , AppColors, globalStyles}) => {
               size={44} 
               style={{ backgroundColor: config.color }} 
             />
-            {/* <Badge 
-              visible 
-              size={14} 
-              style={[styles.badge, { backgroundColor: config.color }]} 
-            /> */}
           </View>
         )} 
       />
@@ -46,31 +36,10 @@ const BotCard = ({ item , AppColors, globalStyles}) => {
             </Text>
         </View>
 
-        {/* <View style={styles.infoRow}>
-            <Text variant="labelSmall" style={styles.label}>Versión:</Text>
-            <Text variant="bodySmall">{item.version}</Text>
-        </View> */}
-
         <Text variant="bodySmall" style={styles.syncText}>
             Sincronizado a {item.last_sync ? item.last_sync.split('T')[1].substring(0, 5) : '--:--'}
         </Text>
       </Card.Content>
-
-      {/* <Card.Actions>
-        <IconButton 
-            icon="play" 
-            mode="contained"
-            disabled={item.status !== 'IDLE' && item.status !== 'PAUSED'}
-            iconColor="white"
-            style={{ backgroundColor: (item.status === 'IDLE' || item.status === 'PAUSED') ? '#6200ee' : '#e0e0e0' }}
-            onPress={() => console.log("Start", item.bot_id)} 
-        />
-        <IconButton 
-            icon="stop" 
-            disabled={item.status !== 'FOCUSING' && item.status !== 'BREAK'}
-            onPress={() => console.log("Stop", item.bot_id)} 
-        />
-      </Card.Actions> */}
     </Card>
   );
 };
@@ -80,12 +49,10 @@ const styles = StyleSheet.create({
     flex: 1,
     margin: 8,
     borderRadius: 15,
-    // backgroundColor: AppColors.surface,
     overflow: 'hidden'
   },
   content: { marginTop: -4 },
   statusBadge: {
-    // backgroundColor: AppColors.background,
     paddingVertical: 2,
     paddingHorizontal: 8,
     borderRadius: 10,
@@ -97,25 +64,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 1,
   },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  label: { color: '#757575' },
   syncText: {
     marginTop: 8,
     fontSize: 12,
     color: '#9e9e9e',
     textAlign: 'right',
   },
-  badge: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    borderWidth: 2,
-    borderColor: 'white',
-  }
 });
 
 export default BotCard;

@@ -1,18 +1,18 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet, FlatList, useColorScheme, Platform } from 'react-native';
 import { Divider, Surface, Text } from 'react-native-paper';
-import { updateAppColors } from '../../theme/theme';
+import { getColors } from '../../theme/theme';
 import ActivityListTile from './ActivityListTile';
 
 const ActivitiesList = ({ activities = [], onActivityPress, globalStyles }) => {
   const scheme = useColorScheme();
-  const AppColors = updateAppColors(scheme);
+  const colors = useMemo(() => getColors(scheme), [scheme]);
   const isWeb = Platform.OS === 'web';
 
   const renderItem = ({ item }) => (
     <ActivityListTile 
       item={item} 
-      AppColors={AppColors} 
+      AppColors={colors} 
       onInfoPress={onActivityPress}
     />
   );
@@ -23,7 +23,7 @@ const ActivitiesList = ({ activities = [], onActivityPress, globalStyles }) => {
         style={[
           styles.surfaceList, 
           isWeb && styles.webWidth,
-          { backgroundColor: AppColors.surface }
+          { backgroundColor: colors.surface }
         ]} 
         elevation={1}
       >
@@ -32,7 +32,7 @@ const ActivitiesList = ({ activities = [], onActivityPress, globalStyles }) => {
           keyExtractor={(item) => item.activity_id.toString()}
           renderItem={renderItem}
           ItemSeparatorComponent={() => <Divider style={styles.divider} />}
-          scrollEnabled={!isWeb} // En web suele controlarlo el scroll general
+          scrollEnabled={false}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             <Text style={styles.emptyText}>No hay actividades registradas</Text>
@@ -45,20 +45,16 @@ const ActivitiesList = ({ activities = [], onActivityPress, globalStyles }) => {
 
 const styles = StyleSheet.create({
   mainContainer: {
-    // width: '100%',
     alignItems: 'center',
     marginVertical: 10,
     marginHorizontal: 20
   },
   surfaceList: {
-    width: '100%', // Un poco de margen en móvil
+    width: '100%',
     borderRadius: 15,
     overflow: 'hidden',
   },
-  webWidth: {
-    // width: '60%', // Más estrecho en web para no estirar los textos
-    // maxWidth: 800,
-  },
+  webWidth: {},
   listContent: {
     paddingVertical: 8,
   },

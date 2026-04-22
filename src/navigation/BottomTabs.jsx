@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { View, StyleSheet, TouchableOpacity, Platform, Dimensions, useColorScheme } from 'react-native';
 import { useNavigationState } from '@react-navigation/native';
 import { Drawer, IconButton, Surface } from 'react-native-paper';
-import { updateAppColors } from '../theme/theme';
+import { getColors } from '../theme/theme';
 import { AuthContext } from '../context/AuthContext';
 
 const { width } = Dimensions.get('window');
@@ -10,7 +10,7 @@ const isLargeScreen = width >= 768;
 
 export default function BottomNav({ navigation }) {
   const scheme = useColorScheme(); 
-  const AppColors = updateAppColors(scheme);
+  const colors = useMemo(() => getColors(scheme), [scheme]);
   
   const currentRouteName = useNavigationState((state) => {
     if (!state || !state.routes) return 'Home';
@@ -22,7 +22,7 @@ export default function BottomNav({ navigation }) {
   const useSidebar = isWeb && isLargeScreen;
   const { signOut } = useContext(AuthContext);
 
-  const styles = getStyles(AppColors, useSidebar);
+  const styles = getStyles(colors, useSidebar);
 
   let navItems = [    
     { name: 'Home', icon: 'home', iconOutline: 'home-outline' },
@@ -51,10 +51,7 @@ export default function BottomNav({ navigation }) {
   if (useSidebar) {
     return (
       <Surface style={styles.sidebarContainer} elevation={1}>
-        {/* Espaciador superior opcional para logo o avatar */}
         <View style={styles.sidebarHeader} />
-
-        {/* Sección Central de Navegación */}
         <View style={styles.centeredNav}>
           <Drawer.Section showDivider={false} style={styles.drawerSection}>
             {navItems.map((item) => {
@@ -62,36 +59,21 @@ export default function BottomNav({ navigation }) {
               return (
                 <Drawer.Item
                   key={item.name}
-                  label={item.name} // En sidebar colapsado solo mostramos icono
+                  label={item.name}
                   icon={isActive ? item.icon : item.iconOutline}
                   active={isActive}
                   onPress={() => handleNavigation(item.name)}
                   style={styles.drawerItem}
-                  activeColor={AppColors.background}
-                  rippleColor={AppColors.primary}
+                  activeColor={colors.background}
+                  rippleColor={colors.primary}
                 />
               );
             })}
           </Drawer.Section>
         </View>
-
         <View style={styles.sidebarFooter}>
-          <IconButton
-            icon="help"
-            // mode="contained"
-            // containerColor={AppColors.error}
-            // iconColor="white"
-            size={24}
-            // onPress={ejecutarLogout}
-          />
-          <IconButton
-            icon="logout"
-            // mode="contained"
-            // containerColor={AppColors.error}
-            // iconColor="white"
-            size={24}
-            onPress={ejecutarLogout}
-          />
+          <IconButton icon="help" size={24} />
+          <IconButton icon="logout" size={24} onPress={ejecutarLogout} />
         </View>
       </Surface>
     );
@@ -111,7 +93,7 @@ export default function BottomNav({ navigation }) {
             >
               <IconButton
                 icon={isActive ? item.icon : item.iconOutline}
-                iconColor={isActive ? AppColors.primary : AppColors.placeholder}
+                iconColor={isActive ? colors.primary : colors.placeholder}
                 size={24}
               />
             </TouchableOpacity>
@@ -122,7 +104,7 @@ export default function BottomNav({ navigation }) {
   );
 }
 
-const getStyles = (AppColors, useSidebar) => StyleSheet.create({
+const getStyles = (colors, useSidebar) => StyleSheet.create({
   sidebarContainer: {
     position: 'absolute',
     top: 0,
@@ -130,19 +112,19 @@ const getStyles = (AppColors, useSidebar) => StyleSheet.create({
     bottom: 0,
     width: 80,
     zIndex: 100,
-    backgroundColor: AppColors.surface,
+    backgroundColor: colors.surface,
     flexDirection: 'column',
-    justifyContent: 'space-between', // Separa Header, Centro y Footer
+    justifyContent: 'space-between',
     alignItems: 'center',
     borderRightWidth: 1,
-    borderRightColor: AppColors.outlineVariant || 'rgba(0,0,0,0.05)',
+    borderRightColor: colors.outlineVariant || 'rgba(0,0,0,0.05)',
   },
   sidebarHeader: {
     height: 60,
   },
   centeredNav: {
     flex: 1,
-    justifyContent: 'center', // Centra la navegación verticalmente
+    justifyContent: 'center',
     width: '100%',
   },
   drawerSection: {
@@ -161,14 +143,12 @@ const getStyles = (AppColors, useSidebar) => StyleSheet.create({
     width: '100%',
     alignItems: 'center',
   },
-
-  // ESTILOS MÓVIL (BOTTOM BAR)
   bottomBarContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: AppColors.surface,
+    backgroundColor: colors.surface,
   },
   bottomBar: {
     height: 70,

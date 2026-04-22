@@ -1,36 +1,31 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet, Platform } from 'react-native';
+import { View, ScrollView, StyleSheet, Platform, useColorScheme } from 'react-native';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
-import { AppColors } from '../../theme/theme';
+import { getColors } from '../../theme/theme';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const ScreenWrapper = ({ children, withScroll = true }) => {
   const { isWeb } = useResponsiveLayout();
   const insets = useSafeAreaInsets();
+  const scheme = useColorScheme();
+  const colors = getColors(scheme);
   const Container = withScroll ? ScrollView : View;
-
-  // Ajuste fino para móviles reales
-  const topInset = Platform.OS === "ios"
-    ? Math.min(insets.top, 0) // Evita exceso por Dynamic Island
-    : Math.max(insets.top- 50, 0); // Android mete más padding del necesario
-
-  const bottomInset = Platform.OS === "android"
-    ? Math.max(insets.bottom - 6, 0) // Ajuste por gestos
-    : insets.bottom;
 
   return (
     <View
       style={[
         styles.safeArea,
         {
-          paddingTop: isWeb ? 0 : topInset,
-          paddingBottom: isWeb ? 0 : bottomInset,
+          backgroundColor: colors.background,
+          paddingTop: isWeb ? 0 : insets.top,
+          paddingBottom: isWeb ? 0 : insets.bottom,
         }
       ]}
     >
       <Container
         style={isWeb ? styles.webPadding : styles.mobilePadding}
-        showsVerticalScrollIndicator={isWeb}
+        showsVerticalScrollIndicator={!isWeb}
+        contentContainerStyle={withScroll ? { flexGrow: 1 } : undefined}
       >
         {children}
       </Container>
@@ -40,11 +35,10 @@ export const ScreenWrapper = ({ children, withScroll = true }) => {
 
 const styles = StyleSheet.create({
   safeArea: { 
-    flex: 1, 
-    backgroundColor: AppColors.background,
+    flex: 1,
   },
   webPadding: { 
-    marginLeft: 80,
+    // El padding/margen para web se manejará en las pantallas o en el layout principal
   },
   mobilePadding: { 
     // Puedes añadir padding si quieres

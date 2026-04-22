@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   View, 
   Platform, 
@@ -10,16 +10,11 @@ import {
   useColorScheme 
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-
-// CORRECCIÓN DE RUTAS SEGÚN TU ESTRUCTURA
-import { updateAppColors } from '../../theme/theme'; 
-// Si no tienes un globalStyles.js específico en la raíz, 
-// puedes definir los estilos locales necesarios aquí mismo para evitar errores.
+import { getColors } from '../../theme/theme';
 
 const DatePicker = ({ label, mode = 'date', value, onChange }) => {
-  // Lógica de colores idéntica a ActivityCard
   const scheme = useColorScheme();
-  const AppColors = updateAppColors(scheme);
+  const AppColors = useMemo(() => getColors(scheme), [scheme]);
 
   const [show, setShow] = useState(false);
   const [currentMode, setCurrentMode] = useState(mode);
@@ -98,7 +93,6 @@ const DatePicker = ({ label, mode = 'date', value, onChange }) => {
         </Text>
       </Pressable>
 
-      {/* Lógica iOS */}
       {Platform.OS === 'ios' && (
         <Modal visible={show} transparent animationType="slide">
           <View style={styles.modalOverlay}>
@@ -131,7 +125,6 @@ const DatePicker = ({ label, mode = 'date', value, onChange }) => {
         </Modal>
       )}
 
-      {/* Lógica Android */}
       {Platform.OS === 'android' && show && (
         <DateTimePicker
           value={value instanceof Date ? value : new Date()}
@@ -160,7 +153,7 @@ const styles = StyleSheet.create({
     height: 55,
     paddingHorizontal: 15,
     borderWidth: 1.5,
-    borderRadius: 12, // Valor genérico si no usas globalStyles
+    borderRadius: 12,
     justifyContent: 'center',
   },
   modalOverlay: {

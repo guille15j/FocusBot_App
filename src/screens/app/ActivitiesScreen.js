@@ -1,23 +1,22 @@
-import React, { useState } from 'react';
-import { View, ScrollView, useColorScheme } from 'react-native';
-import { Text, Searchbar,Chip, SegmentedButtons } from 'react-native-paper';
+import React, { useState, useMemo } from 'react';
+import { View, ScrollView, useColorScheme, StyleSheet } from 'react-native';
+import { Text, Searchbar, Chip, SegmentedButtons } from 'react-native-paper';
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
-import { getglobalStyles, updateAppColors } from '../../theme/theme';
+import { getColors, getglobalStyles } from '../../theme/theme';
 
 import CustomAnimatedFAB from '../../components/common/CustomAnimatedFAB';
 import ActivitiesList from '../../components/activities/ActivitiesList';
 import ActivitiesGrid from '../../components/activities/ActivitiesGrid';
-import { SearchBar } from 'react-native-screens';
 
 export default function Activities() {
-  const scheme = useColorScheme(); 
-  let AppColors = updateAppColors(scheme);
-  let globalStyles = getglobalStyles(scheme);
+  const scheme = useColorScheme();
+  const { isWeb } = useResponsiveLayout();
+  
+  const colors = useMemo(() => getColors(scheme), [scheme]);
+  const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
   
   const [isExtended, setIsExtended] = useState(true);
-  const { isWeb } = useResponsiveLayout();
   const onScroll = ({ nativeEvent }) => {
     const currentScrollOffset = nativeEvent.contentOffset.y;
     setIsExtended(currentScrollOffset <= 0);
@@ -52,104 +51,76 @@ export default function Activities() {
   ];
 
 
-   const handleFabPress = () => {
-    console.log("¡Botón presionado!");
+  const handleFabPress = () => {
+     navigation.navigate('CreateActivity')
   };
 
-
-
-  // PAra la barra de busqueda para buscar por actividades por nombre o cosas asi.
   const [searchQuery, setSearchQuery] = React.useState('');
 
   return (
     <ScreenWrapper withScroll={false}>
-      <View style ={(isWeb ? globalStyles.container_web : globalStyles.container_movil)}>
-        <SafeAreaView style = {(isWeb ? {height: '100dvh'}: {height: '100%'})} >
-          <Text style={[globalStyles.tituloPagina, ]}>Actividades</Text>
-          <Searchbar
-            placeholder="Search"
-            onChangeText={setSearchQuery}
-            value={searchQuery}
-            style = {{marginHorizontal: 15, marginVertical: 15 }}
+      <View style={isWeb ? globalStyles.container_web : globalStyles.container_movil}>
+        <Text style={[globalStyles.tituloPagina]}>Actividades</Text>
+        <Searchbar
+          placeholder="Search"
+          onChangeText={setSearchQuery}
+          value={searchQuery}
+          style={{ marginHorizontal: 15, marginVertical: 15 }}
+        />
+        <View 
+          style={{
+            flexDirection: 'row', 
+            gap: 5, 
+            flexWrap: 'wrap', 
+            marginHorizontal: 25,
+            marginBottom: 5,
+          }}>
+          <Chip icon="plus" onPress={() => console.log('Pressed')}>Organización</Chip>
+          <Chip icon="plus" onPress={() => console.log('Pressed')}>Estadísticas</Chip>
+        </View>
+        
+        <ScrollView onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={{ paddingBottom: isWeb ? 10 : 80 }}>
+          <ActivitiesGrid 
+            activities={activitiesData}
+            filterState="EN CURSO"
+            onActivityPress={() => console.log('Actividad pulsada')}
+            AppColors={colors}
           />
-          <View 
-            style = {{
-              flexDirection: 'row', 
-              gap: 5, 
-              flexWrap: 'wrap', 
-              marginHorizontal: 25,
-              marginBottom: 5,
-            }}>
-            <Chip icon="plus" onPress={() => console.log('Pressed')}>Organización</Chip>
-            <Chip icon="plus" onPress={() => console.log('Pressed')}>Estadísticas</Chip>
-          </View>
-          
-          <ScrollView onScroll={onScroll} scrollEventThrottle={16} ontentContainerStyle={{ paddingBottom: isWeb? 10 : 80}}>
-            
-            
-            <ActivitiesGrid 
-              activities={activitiesData}
-              filterState="EN CURSO"
-              onActivityPress={() => console.log('Actividad pulsada')}
-              AppColors={AppColors}
-            />
-
-
-            <ActivitiesGrid 
-              activities={activitiesData}
-              filterState="PENDIENTE"
-              onActivityPress={() => console.log('Actividad pulsada')}
-              AppColors={AppColors}
-            />
-
-            <ActivitiesGrid 
-              activities={activitiesData}
-              filterState="POSPUESTO"
-              onActivityPress={() => console.log('Actividad pulsada')}
-              AppColors={AppColors}
-            />
-
-            <ActivitiesGrid 
-              activities={activitiesData}
-              filterState="COMPLETADO"
-              onActivityPress={() => console.log('Actividad pulsada')}
-              AppColors={AppColors}
-              opened={false}
-            />
-
-            <ActivitiesGrid 
-              activities={activitiesData}
-              filterState="CANCELADO"
-              onActivityPress={() => console.log('Actividad pulsada')}
-              AppColors={AppColors}
-              opened={false}
-            />
-          </ScrollView>
-
-          
-
-          <CustomAnimatedFAB 
-            icon="plus"
-            label="Añadir actividad"
-            onPress={() => console.log("Click!")}
-            isExtended={isExtended}
+          <ActivitiesGrid 
+            activities={activitiesData}
+            filterState="PENDIENTE"
+            onActivityPress={() => console.log('Actividad pulsada')}
+            AppColors={colors}
           />
+          <ActivitiesGrid 
+            activities={activitiesData}
+            filterState="POSPUESTO"
+            onActivityPress={() => console.log('Actividad pulsada')}
+            AppColors={colors}
+          />
+          <ActivitiesGrid 
+            activities={activitiesData}
+            filterState="COMPLETADO"
+            onActivityPress={() => console.log('Actividad pulsada')}
+            AppColors={colors}
+            opened={false}
+          />
+          <ActivitiesGrid 
+            activities={activitiesData}
+            filterState="CANCELADO"
+            onActivityPress={() => console.log('Actividad pulsada')}
+            AppColors={colors}
+            opened={false}
+          />
+        </ScrollView>
 
-
-        </SafeAreaView>
+        <CustomAnimatedFAB 
+          icon="plus"
+          label="Añadir actividad"
+          onPress={handleFabPress}
+          isExtended={isExtended}
+        />
       </View>
     </ScreenWrapper>
   );
 }
-
-const getStyles = (AppColors) => StyleSheet.create({
-  scrollContent: {
-    paddingBottom: 20,
-  },
-  card: {
-    marginHorizontal: 16,
-    marginBottom: 12,
-    backgroundColor: AppColors.surface,
-    elevation: 2,
-  },
-});

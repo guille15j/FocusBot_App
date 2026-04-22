@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
-import { View, useColorScheme, Platform,ScrollView } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, useColorScheme, ScrollView } from 'react-native';
 import { 
   Text, Avatar, TextInput, Surface, IconButton, Button, List, Divider 
 } from 'react-native-paper';
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
-import { getglobalStyles, updateAppColors } from '../../theme/theme';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { getColors, getglobalStyles } from '../../theme/theme';
 
 export default function ProfilePage({ navigation }) {
   const scheme = useColorScheme();
-  const colors = updateAppColors(scheme); 
-  const globalStyles = getglobalStyles(scheme);
   const { isWeb } = useResponsiveLayout();
+  
+  const colors = useMemo(() => getColors(scheme), [scheme]);
+  const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
 
-  // 1. ESTADOS (Todos los campos representados)
   const [firstName, setFirstName] = useState('Juan');
   const [lastName, setLastName] = useState('Pérez');
   const [nickname, setNickname] = useState('juanpi_99');
@@ -39,10 +38,8 @@ export default function ProfilePage({ navigation }) {
 
   return (
     <ScreenWrapper withScroll={true}>
-      <View style ={(isWeb ? globalStyles.container_web : globalStyles.container_movil)}>
-        {/* <ScrollView contentContainerStyle={{ paddingBottom: isWeb? 10 : 80}}> */}
-        <SafeAreaView style = {[(isWeb ? {height: '100dvh'}: {height: '100%'}), {alignItems: 'center'}]} >
-          
+      <View style={isWeb ? globalStyles.container_web : globalStyles.container_movil}>
+        <ScrollView contentContainerStyle={{ alignItems: 'center', paddingBottom: 20 }}>
           <Text style={[globalStyles.tituloPagina, { textAlign: 'center', marginTop: 20 }]}>
             Perfil
           </Text>
@@ -54,11 +51,10 @@ export default function ProfilePage({ navigation }) {
                 source={require('../../assets/avatar.png')} 
                 style={{ backgroundColor: colors.secondary + '40' }}
               />
-              {editar ?
-              (  <Surface style={{ position: 'absolute', right: 0, bottom: 0, backgroundColor: colors.primary, borderRadius: 20 }} elevation={4}>
+              {editar &&
+                <Surface style={{ position: 'absolute', right: 0, bottom: 0, backgroundColor: colors.primary, borderRadius: 20 }} elevation={4}>
                   <IconButton icon="pencil" size={20} iconColor={colors.surface} onPress={() => {}} />
                 </Surface>
-                ) : null
               }
             </View>
             <Text style={{ marginTop: 12, fontWeight: 'bold', color: colors.text, fontSize: 18 }}>
@@ -67,28 +63,23 @@ export default function ProfilePage({ navigation }) {
           </View>
 
           {editar ? (
-            <View style={[globalStyles.section, {minWidth: '50%'}]}>
-              {/* --- MODO EDICIÓN --- */}
+            <View style={[globalStyles.section, {minWidth: isWeb ? '50%' : '90%'}]}>
               <TextInput label="Nombre" value={firstName} onChangeText={setFirstName} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="account" />} />
               <TextInput label="Apellidos" value={lastName} onChangeText={setLastName} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="account-group" />} />
               <TextInput label="Usuario" value={nickname} onChangeText={setNickname} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="at" />} />
               <TextInput label="Email" value={email} onChangeText={setEmail} mode="outlined" keyboardType="email-address" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="email" />} />
-              
               <TextInput 
                 label="Contraseña" value={password} onChangeText={setPassword} mode="outlined" secureTextEntry={!showPassword} style={globalStyles.input} outlineStyle={{ borderRadius: 30 }}
                 left={<TextInput.Icon icon="lock" />}
                 right={<TextInput.Icon icon={showPassword ? "eye-off" : "eye"} onPress={() => setShowPassword(!showPassword)} />}
               />
-
               <TextInput label="Zona Horaria" value={timezone} onChangeText={setTimezone} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="clock" />} />
               <TextInput label="Detalle" value={name_detail} onChangeText={setNameDetail} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="information" />} />
-              
               <TextInput 
                 label="Descripción" value={description_detail} onChangeText={setDescription} mode="outlined" multiline numberOfLines={4} 
                 style={[globalStyles.input, { height: 100, paddingTop: 10 }]} outlineStyle={{ borderRadius: 20 }}
                 left={<TextInput.Icon icon="text-subject" />} 
               />
-              
               <TextInput label="Severidad" value={severity} onChangeText={setSeverity} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="alert-circle" />} />
 
               <View style={{ flexDirection: 'row', marginTop: 20, gap: 10 }}>
@@ -97,8 +88,7 @@ export default function ProfilePage({ navigation }) {
               </View>
             </View>
           ) : (
-            <View style={[globalStyles.section, {minWidth: '50%'}]}>
-              {/* --- MODO LECTURA --- */}
+            <View style={[globalStyles.section, {minWidth: isWeb ? '50%' : '90%'}]}>
               <Surface style={{ borderRadius: 20, padding: 10, backgroundColor: colors.surface }} elevation={1}>
                 <List.Item title="Nombre Completo" description={`${firstName} ${lastName}`} left={p => <List.Icon {...p} icon="account" />} />
                 <Divider />
@@ -123,9 +113,7 @@ export default function ProfilePage({ navigation }) {
               </Button>
             </View>
           )}
-          
-        </SafeAreaView>
-        {/* </ScrollView> */}
+        </ScrollView>
       </View>
     </ScreenWrapper>
   );

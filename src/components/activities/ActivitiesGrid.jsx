@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { View, StyleSheet, useWindowDimensions, Pressable, Animated, Platform } from 'react-native';
 import { Text, IconButton } from 'react-native-paper';
 import ActivityCard from './ActivityCard';
@@ -6,22 +6,21 @@ import ActivityCard from './ActivityCard';
 const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, opened = true }) => {
   const { width } = useWindowDimensions();
   
-  // Estados para controlar la visibilidad y el montaje
   const [isExpanded, setIsExpanded] = useState(opened);
-  const [shouldRender, setShouldRender] = useState(opened); // Controla el montaje real
+  const [shouldRender, setShouldRender] = useState(opened);
   
   const animatedValue = useRef(new Animated.Value(opened ? 1 : 0)).current;
 
-  const filteredData = Array.isArray(activities) 
-    ? activities.filter(a => a !== null && a.state?.toUpperCase() === filterState?.toUpperCase()) 
-    : [];
+  const filteredData = useMemo(() => {
+    return Array.isArray(activities) 
+      ? activities.filter(a => a !== null && a.state?.toUpperCase() === filterState?.toUpperCase()) 
+      : [];
+  }, [activities, filterState]);
 
   if (filteredData.length === 0) return null;
 
   const toggleSection = () => {
     if (isExpanded) {
-      // SALIDA
-      // animación
       Animated.timing(animatedValue, {
         toValue: 0,
         duration: 250,
@@ -31,11 +30,8 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
       });
       setIsExpanded(false);
     } else {
-      // ENTRADA
-      // nontar los componentes primero
       setShouldRender(true);
       setIsExpanded(true);
-      // simación
       Animated.timing(animatedValue, {
         toValue: 1,
         duration: 300,
@@ -44,11 +40,10 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
     }
   };
 
-  // Interpolaciones
   const opacity = animatedValue;
   const translateY = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [-10, 0], // Efecto de deslizamiento
+    outputRange: [-10, 0],
   });
   const rotateChevron = animatedValue.interpolate({
     inputRange: [0, 1],
@@ -64,7 +59,7 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
           <Text variant="labelLarge" style={[styles.stateTitle, { color: AppColors.text }]}>
             {filterState}
           </Text>
-          <View style={[styles.countBadge, { backgroundColor: AppColors.surfaceVariant }]}>
+          <View style={[styles.countBadge, { backgroundColor: AppColors.surfaceVariant || AppColors.surface }]}>
             <Text style={{ fontSize: 10, color: AppColors.textLight , fontWeight: 'bold' }}>
               {filteredData.length}
             </Text>

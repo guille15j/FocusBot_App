@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   View, 
   Alert, 
@@ -13,19 +13,18 @@ import {
   Text, 
   Surface 
 } from 'react-native-paper';
-import {  AppColors, getglobalStyles } from '../../theme/theme';
+import { getColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from "expo-linear-gradient";
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
-
-
 export default function ResetScreen({ navigation }) {
-
-    const scheme = useColorScheme(); 
-  let globalStyles = getglobalStyles(scheme);
+  const scheme = useColorScheme();
+  const { isWeb } = useResponsiveLayout();
   
-  // Estados
-  const [identifier, setIdentifier] = useState(''); // Puede ser email o username
+  const colors = useMemo(() => getColors(scheme), [scheme]);
+  const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
+  
+  const [identifier, setIdentifier] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,8 +32,6 @@ export default function ResetScreen({ navigation }) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const ejecutarReset = async () => {
-    
-    // Validación
     if (!identifier.trim()) {
       Alert.alert("Error", "Introduce tu email o nombre de usuario");
       return;
@@ -81,18 +78,16 @@ export default function ResetScreen({ navigation }) {
   const volverAlLogin = () => {
     navigation.replace('Login');
   };
-  
-  const { isWeb } = useResponsiveLayout();
 
   return (
     <LinearGradient
-      colors={[AppColors.background, AppColors.primary]}
+      colors={[colors.background, colors.primary]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={{ flex: 1 }}
     >
       <KeyboardAvoidingView 
-        style={isWeb ?  globalStyles.authContainer_web : globalStyles.authContainer}
+        style={isWeb ? globalStyles.authContainer_web : globalStyles.authContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={globalStyles.form} elevation={4}>
@@ -102,7 +97,7 @@ export default function ResetScreen({ navigation }) {
               <Text style={globalStyles.logo_focus}>Focus</Text>
               <Text style={globalStyles.logo_bot}>.Bot</Text>
             </View>
-            <Text style={globalStyles.logoSubtitle}>Create Account</Text>
+            <Text style={globalStyles.logoSubtitle}>Reset Password</Text>
           </View>
           
           <TextInput

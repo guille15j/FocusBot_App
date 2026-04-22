@@ -1,27 +1,25 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { List, Chip, Avatar, Text } from 'react-native-paper';
-// import { AppColors } from '../../theme/theme';
+import { List, Avatar, Text } from 'react-native-paper';
 
 const BotTile = ({ item, onPress, AppColors }) => {
-  // Configuramos el color y el icono según el estado del Bot
   const obtenerConfiguracion = (status) => {
     switch (status) {
       case 'IDLE':
       case 'FINISHED':
-        return { color: '#4CAF50', icon: 'robot-happy' }; // Verde
+        return { color: '#4CAF50', icon: 'robot-happy' };
       case 'FOCUSING':
       case 'BOOTING':
       case 'CONFIGURING':
-        return { color: '#2196F3', icon: 'robot' };      // Azul
+        return { color: '#2196F3', icon: 'robot' };
       case 'PAUSED':
       case 'BREAK':
-        return { color: '#FF9800', icon: 'robot-vacuum' }; // Naranja
+        return { color: '#FF9800', icon: 'robot-vacuum' };
       case 'ERROR':
       case 'OFFLINE':
-        return { color: '#F44336', icon: 'robot-dead' };   // Rojo
+        return { color: '#F44336', icon: 'robot-dead' };
       default:
-        return { color: '#757575', icon: 'robot-off' };    // Gris
+        return { color: '#757575', icon: 'robot-off' };
     }
   };
 
@@ -33,19 +31,15 @@ const BotTile = ({ item, onPress, AppColors }) => {
       titleStyle={styles.title}
       description={`ID: ${item.bot_id} • v${item.version}\nStatus: ${item.status}`}
       descriptionNumberOfLines={2}
-      
-      // Icono de la izquierda con el color del estado
       left={props => (
         <Avatar.Icon 
           {...props} 
           icon={config.icon} 
           size={48} 
           style={{ backgroundColor: AppColors.primary}} 
-          color= {AppColors.background}
+          color={AppColors.background}
         />
       )}
-      
-      // Contenido de la derecha (Hora y flecha)
       right={props => (
         <View style={styles.rightContainer}>
           <Text variant="labelSmall" style={styles.timeText}>
@@ -54,7 +48,6 @@ const BotTile = ({ item, onPress, AppColors }) => {
           <List.Icon {...props} icon="chevron-right" />
         </View>
       )}
-      
       onPress={() => onPress && onPress(item)}
       style={[styles.listItem, {backgroundColor: AppColors.surface}]}
     />
@@ -64,9 +57,7 @@ const BotTile = ({ item, onPress, AppColors }) => {
 const styles = StyleSheet.create({
   listItem: {
     paddingVertical: 8,
-    // backgroundColor: 'white',
     padding: 16,
-    
   },
   title: {
     fontWeight: 'bold',
@@ -78,7 +69,6 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   timeText: {
-    // color: '#999',
     marginBottom: 4,
   },
 });
