@@ -39,10 +39,11 @@ const styles = StyleSheet.create({
   },
   webPadding: { 
     // El padding/margen para web se manejará en las pantallas o en el layout princip
-    margin: 20,
+    marginVertical: 20,
     marginLeft: 80,
     height: '100dvh',
-    overflow: 'scroll'
+    overflow: 'scroll',
+
   },
   mobileAndroid: { 
     // Puedes añadir padding si quieres

@@ -97,6 +97,7 @@ export default function App() {
                   <Stack.Screen name="Bots" component={BotsPage} />
                   <Stack.Screen name="Profile" component={ProfileScreen} />
                   <Stack.Screen name="Records" component={HistoricalRecords} />
+                  {/* <Stack.Screen name="CreateActivity" component={CreateActivityScreen} /> */}
                 </>
               )}
             </Stack.Navigator>

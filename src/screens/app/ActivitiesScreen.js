@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, ScrollView, useColorScheme, StyleSheet } from 'react-native';
+import { View, ScrollView, useColorScheme, StyleSheet, Alert } from 'react-native';
 import { Text, Searchbar, Chip, SegmentedButtons } from 'react-native-paper';
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
@@ -8,8 +8,9 @@ import { getColors, getglobalStyles } from '../../theme/theme';
 import CustomAnimatedFAB from '../../components/common/CustomAnimatedFAB';
 import ActivitiesList from '../../components/activities/ActivitiesList';
 import ActivitiesGrid from '../../components/activities/ActivitiesGrid';
+import ActivityDetailModal from '../../components/activities/ActivityDetailModal';
 
-export default function Activities() {
+export default function Activities({ navigation }) {
   const scheme = useColorScheme();
   const { isWeb, platform } = useResponsiveLayout();
   
@@ -51,10 +52,45 @@ export default function Activities() {
   ];
 
   const handleFabPress = () => {
-     navigation.navigate('CreateActivity')
+     navigation.navigate('CreateActivity');
   };
 
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState(null);
+
+  const handleActivityPress = (activity) => {
+    setSelectedActivity(activity);
+    setDetailModalVisible(true);
+  };
+
+  const handleActionPress = (action, activity) => {
+    console.log('Accion:', action, 'Actividad:', activity);
+    setDetailModalVisible(false);
+  };
+
+  const handleEditPress = (activity) => {
+    setDetailModalVisible(false);
+    navigation.navigate('CreateActivity', { activity });
+  };
+
+  const handleDeletePress = (activity) => {
+    Alert.alert(
+      'Eliminar Actividad',
+      `Estas seguro de que deseas eliminar "${activity.title}"?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Eliminar', 
+          style: 'destructive',
+          onPress: () => {
+            setDetailModalVisible(false);
+            console.log('Actividad eliminada:', activity);
+          }
+        },
+      ]
+    );
+  };
 
   return (
     <ScreenWrapper withScroll={false}>
@@ -86,32 +122,32 @@ export default function Activities() {
           <ActivitiesGrid 
             activities={activitiesData}
             filterState="EN CURSO"
-            onActivityPress={() => console.log('Actividad pulsada')}
+            onActivityPress={handleActivityPress}
             AppColors={colors}
           />
           <ActivitiesGrid 
             activities={activitiesData}
             filterState="PENDIENTE"
-            onActivityPress={() => console.log('Actividad pulsada')}
+            onActivityPress={handleActivityPress}
             AppColors={colors}
           />
           <ActivitiesGrid 
             activities={activitiesData}
             filterState="POSPUESTO"
-            onActivityPress={() => console.log('Actividad pulsada')}
+            onActivityPress={handleActivityPress}
             AppColors={colors}
           />
           <ActivitiesGrid 
             activities={activitiesData}
             filterState="COMPLETADO"
-            onActivityPress={() => console.log('Actividad pulsada')}
+            onActivityPress={handleActivityPress}
             AppColors={colors}
             opened={false}
           />
           <ActivitiesGrid 
             activities={activitiesData}
             filterState="CANCELADO"
-            onActivityPress={() => console.log('Actividad pulsada')}
+            onActivityPress={handleActivityPress}
             AppColors={colors}
             opened={false}
           />
@@ -124,6 +160,15 @@ export default function Activities() {
           label="Añadir actividad"
           onPress={handleFabPress}
           isExtended={isExtended}
+        />
+
+        <ActivityDetailModal 
+          visible={detailModalVisible}
+          onDismiss={() => setDetailModalVisible(false)}
+          activity={selectedActivity}
+          onActionPress={handleActionPress}
+          onEditPress={handleEditPress}
+          onDeletePress={handleDeletePress}
         />
 
       </View>

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Avatar, Card, Text } from 'react-native-paper';
 
-const BotCard = ({ item, AppColors }) => {
+const BotCard = ({ item, AppColors, onClick }) => {
   const estadoConfig = {
     OFFLINE:    { color: '#757575', icono: 'robot-off', animar: false },
     IDLE:       { color: '#32b100', icono: 'robot-happy', animar: false },
@@ -12,7 +12,7 @@ const BotCard = ({ item, AppColors }) => {
   const config = estadoConfig[item.status] || estadoConfig.OFFLINE;
 
   return (
-    <Card style={styles.card} elevation={3}>
+    <Card style={styles.card} elevation={3} onPress={() => onClick(item)}>
       <Card.Title 
         title={item.name} 
         titleVariant="titleLarge"

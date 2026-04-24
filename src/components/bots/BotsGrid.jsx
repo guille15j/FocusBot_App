@@ -3,7 +3,7 @@ import { FlatList, StyleSheet } from 'react-native';
 import BotCard from './BotCard';
 // import { flingGestureHandlerProps } from 'react-native-gesture-handler/lib/typescript/handlers/FlingGestureHandler';
 
-const GridBots = ({ data, numColumns, AppColors, globalStyles }) => {
+const GridBots = ({ data, numColumns, AppColors, globalStyles, onPress }) => {
   
   if (numColumns <= 1) numColumns = 2;
   
@@ -14,7 +14,7 @@ const GridBots = ({ data, numColumns, AppColors, globalStyles }) => {
         // { backgroundColor: AppColors.surface }
       ]}
       data={data}
-      renderItem={({ item }) => <BotCard item={item} AppColors={AppColors} globalStyles={globalStyles} />}
+      renderItem={({ item }) => <BotCard item={item} AppColors={AppColors} globalStyles={globalStyles} onClick={onPress}/>}
       keyExtractor={item => item.bot_id}
       numColumns={numColumns}
       columnWrapperStyle={styles.columnWrapper}

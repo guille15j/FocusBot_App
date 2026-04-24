@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import { View, StyleSheet, TouchableOpacity, Platform, Dimensions, useColorScheme } from 'react-native';
-import { useNavigationState } from '@react-navigation/native';
+import { useNavigationState, getPathFromState } from '@react-navigation/native';
 import { Drawer, IconButton, Surface } from 'react-native-paper';
 import { getColors } from '../theme/theme';
 import { AuthContext } from '../context/AuthContext';
@@ -23,6 +23,8 @@ export default function BottomNav({ navigation }) {
   const { signOut } = useContext(AuthContext);
 
   const styles = getStyles(colors, useSidebar);
+
+  const isActivityRelated = currentRouteName === 'Activities' || currentRouteName === 'CreateActivity';
 
   let navItems = [    
     { name: 'Home', icon: 'home', iconOutline: 'home-outline' },
@@ -55,7 +57,8 @@ export default function BottomNav({ navigation }) {
         <View style={styles.centeredNav}>
           <Drawer.Section showDivider={false} style={styles.drawerSection}>
             {navItems.map((item) => {
-              const isActive = currentRouteName === item.name;
+              const isActive = item.name === 'Activities' ? isActivityRelated : currentRouteName === item.name;
+
               return (
                 <Drawer.Item
                   key={item.name}
@@ -83,30 +86,31 @@ export default function BottomNav({ navigation }) {
     <Surface style={styles.bottomBarContainer} elevation={4}>
       <View style={styles.bottomBar}>
         {navItems_app.map((item) => {
-          const isActive = currentRouteName === item.name;
+          const isActive = item.name === 'Activities' ? isActivityRelated : currentRouteName === item.name;
+
           return (
             <TouchableOpacity
-            key={item.name}
-            onPress={() => handleNavigation(item.name)}
-            style={styles.bottomBarBtn}
-            activeOpacity={0.7}
-          >
-            <View style={isActive ? styles.activeWrapper : null}>
-              <IconButton
-                icon={isActive ? item.icon : item.iconOutline}
-                iconColor={isActive ? colors.background : colors.placeholder}
-                size={isActive ? 30 : 25}
-                style={isActive ? styles.iconActive: styles.iconBase}
-              />
-            </View>
-          </TouchableOpacity>
+              key={item.name}
+              onPress={() => handleNavigation(item.name)}
+              style={styles.bottomBarBtn}
+              activeOpacity={0.7}
+            >
+              <View style={isActive ? styles.activeWrapper : null}>
+                <IconButton
+                  icon={isActive ? item.icon : item.iconOutline}
+                  iconColor={isActive ? colors.background : colors.placeholder}
+                  size={isActive ? 30 : 25}
+                  style={isActive ? styles.iconActive : styles.iconBase}
+                />
+              </View>
+            </TouchableOpacity>
           );
         })}
       </View>
     </Surface>
   );
 }
-   
+
 const getStyles = (colors, useSidebar) => StyleSheet.create({
   sidebarContainer: {
     position: 'absolute',
@@ -169,20 +173,18 @@ const getStyles = (colors, useSidebar) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  activeWrapper: {               
+  activeWrapper: {
     borderWidth: 10,
     borderColor: colors.surface,
     borderRadius: 100,
     backgroundColor: colors.surface,
-
   },
-
   iconBase: {
     backgroundColor: colors.surface,
     borderRadius: 100,
   },
-  iconActive:{
-    backgroundColor: colors.primary,    
+  iconActive: {
+    backgroundColor: colors.primary,
     borderRadius: 100,
   }
 });

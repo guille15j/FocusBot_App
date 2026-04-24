@@ -9,6 +9,7 @@ import { getColors, getglobalStyles } from '../../theme/theme'
 import GridBots from '../../components/bots/BotsGrid';
 import CustomAnimatedFAB from '../../components/common/CustomAnimatedFAB';
 import LinkBotModal from '../../components/bots/LinkBotModal';
+import EditBotModal from '../../components/bots/EditBotModal';
 
 export default function BotsPage() {
   const scheme = useColorScheme();
@@ -24,6 +25,9 @@ export default function BotsPage() {
   };
   
   const [linkModalVisible, setLinkModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedBot, setSelectedBot] = useState(null);
+
   const [isExtended, setIsExtended] = useState(true);
   const onScroll = ({ nativeEvent }) => {
     const currentScrollOffset = nativeEvent.contentOffset.y;
@@ -67,7 +71,12 @@ export default function BotsPage() {
           onScroll={onScroll} scrollEventThrottle={16} 
           style={{ flex: 1 }} // para que fucnione bn el fab custom debe de ocuapr todo lo posible
           contentContainerStyle={{ paddingBottom: isWeb ? 10 : (platform === 'ios' ? 40 : 65 )}}>
-            <GridBots numColumns={isWeb ? 5 : 1} data={filteredBots} AppColors={colors} globalStyles={globalStyles} />
+            <GridBots numColumns={isWeb ? 5 : 1} data={filteredBots} AppColors={colors} globalStyles={globalStyles} 
+              onPress={(bot) => {
+                setSelectedBot(bot);
+                setEditModalVisible(true);
+              }}
+            />
           </ScrollView>
         
         <CustomAnimatedFAB 
@@ -80,11 +89,16 @@ export default function BotsPage() {
         <LinkBotModal 
           visible={linkModalVisible}
           onDismiss={() => setLinkModalVisible(false)}
-          colors={colors}
-          globalStyles={globalStyles}
-          isWeb={isWeb}
         />
         
+        <EditBotModal 
+          visible={editModalVisible}
+          onDismiss={() => setEditModalVisible(false)}
+          colors={colors}
+          isWeb={isWeb}
+          bot={selectedBot}
+        />
+
       </View>
     </ScreenWrapper>
   );
