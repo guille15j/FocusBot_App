@@ -39,12 +39,12 @@ export default function ProfilePage({ navigation }) {
   return (
     <ScreenWrapper withScroll={true}>
       <View style={isWeb ? globalStyles.container_web : globalStyles.container_movil}>
-        <ScrollView contentContainerStyle={{ alignItems: 'center', paddingBottom: 20 }}>
-          <Text style={[globalStyles.tituloPagina, { textAlign: 'center', marginTop: 20 }]}>
+        {/* <ScrollView contentContainerStyle={{ alignItems: 'center', paddingBottom: 20 }}> */}
+          {/* <Text style={globalStyles.tituloPagina}>
             Perfil
-          </Text>
+          </Text> */}
         
-          <View style={{ alignItems: 'center', marginVertical: 30 }}>
+          <View style={{ alignItems: 'center', marginVertical: 20 }}>
             <View style={{ position: 'relative' }}>
               <Avatar.Image
                 size={110}
@@ -63,16 +63,12 @@ export default function ProfilePage({ navigation }) {
           </View>
 
           {editar ? (
-            <View style={[globalStyles.section, {minWidth: isWeb ? '50%' : '90%'}]}>
+            <View style={[ {marginHorizontal: isWeb ? '25%' : '10%', marginBottom: isWeb? 100 : 50}]}>
               <TextInput label="Nombre" value={firstName} onChangeText={setFirstName} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="account" />} />
               <TextInput label="Apellidos" value={lastName} onChangeText={setLastName} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="account-group" />} />
               <TextInput label="Usuario" value={nickname} onChangeText={setNickname} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="at" />} />
               <TextInput label="Email" value={email} onChangeText={setEmail} mode="outlined" keyboardType="email-address" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="email" />} />
-              <TextInput 
-                label="Contraseña" value={password} onChangeText={setPassword} mode="outlined" secureTextEntry={!showPassword} style={globalStyles.input} outlineStyle={{ borderRadius: 30 }}
-                left={<TextInput.Icon icon="lock" />}
-                right={<TextInput.Icon icon={showPassword ? "eye-off" : "eye"} onPress={() => setShowPassword(!showPassword)} />}
-              />
+              
               <TextInput label="Zona Horaria" value={timezone} onChangeText={setTimezone} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="clock" />} />
               <TextInput label="Detalle" value={name_detail} onChangeText={setNameDetail} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="information" />} />
               <TextInput 
@@ -83,12 +79,12 @@ export default function ProfilePage({ navigation }) {
               <TextInput label="Severidad" value={severity} onChangeText={setSeverity} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="alert-circle" />} />
 
               <View style={{ flexDirection: 'row', marginTop: 20, gap: 10 }}>
-                <Button mode="contained" onPress={ejecutarActualizacion} loading={loading} style={{ flex: 1, borderRadius: 30 }}>Guardar</Button>
+                <Button mode="contained" icon="content-save" onPress={ejecutarActualizacion} loading={loading} style={{ flex: 1, borderRadius: 30 }} textColor= {colors.background}>Guardar</Button>
                 <Button mode="outlined" onPress={() => setEditable(false)} style={{ flex: 1, borderRadius: 30 }}>Cancelar</Button>
               </View>
             </View>
           ) : (
-            <View style={[globalStyles.section, {minWidth: isWeb ? '50%' : '90%'}]}>
+            <View style={[ {marginHorizontal: isWeb ? '25%' : '10%', marginBottom: isWeb? 100 : 50}]}>
               <Surface style={{ borderRadius: 20, padding: 10, backgroundColor: colors.surface }} elevation={1}>
                 <List.Item title="Nombre Completo" description={`${firstName} ${lastName}`} left={p => <List.Icon {...p} icon="account" />} />
                 <Divider />
@@ -108,12 +104,13 @@ export default function ProfilePage({ navigation }) {
               <Button 
                 mode="contained" icon="pencil" onPress={() => setEditable(true)} 
                 style={{ marginTop: 30, borderRadius: 30 }}
+                textColor= {colors.background}
               >
                 Editar Perfil
               </Button>
             </View>
           )}
-        </ScrollView>
+        {/* </ScrollView> */}
       </View>
     </ScreenWrapper>
   );

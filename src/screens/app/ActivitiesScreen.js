@@ -11,7 +11,7 @@ import ActivitiesGrid from '../../components/activities/ActivitiesGrid';
 
 export default function Activities() {
   const scheme = useColorScheme();
-  const { isWeb } = useResponsiveLayout();
+  const { isWeb, platform } = useResponsiveLayout();
   
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
@@ -50,7 +50,6 @@ export default function Activities() {
     {"activity_id": 25, "type_id": 4, "user_id": "U99", "bot_id": "B-Alpha", "title": "Escuchar Vinilos", "description": "Jazz tarde", "init_date": "2026-04-19T17:00:00", "end_date": "2026-04-19T18:00:00", "state": "PENDIENTE", "category": "DESCANSO", "result": null}
   ];
 
-
   const handleFabPress = () => {
      navigation.navigate('CreateActivity')
   };
@@ -60,6 +59,7 @@ export default function Activities() {
   return (
     <ScreenWrapper withScroll={false}>
       <View style={isWeb ? globalStyles.container_web : globalStyles.container_movil}>
+        
         <Text style={[globalStyles.tituloPagina]}>Actividades</Text>
         <Searchbar
           placeholder="Search"
@@ -79,7 +79,10 @@ export default function Activities() {
           <Chip icon="plus" onPress={() => console.log('Pressed')}>Estadísticas</Chip>
         </View>
         
-        <ScrollView onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={{ paddingBottom: isWeb ? 10 : 80 }}>
+        <ScrollView 
+          onScroll={onScroll} scrollEventThrottle={16} 
+          style={{ flex: 1 }} // para que fucnione bn el fab custom debe de ocuapr todo lo posible
+          contentContainerStyle={{ paddingBottom: isWeb ? 10 : (platform === 'ios' ? 40 : 65 )}}>
           <ActivitiesGrid 
             activities={activitiesData}
             filterState="EN CURSO"
@@ -113,14 +116,18 @@ export default function Activities() {
             opened={false}
           />
         </ScrollView>
-
+        
+        
+        
         <CustomAnimatedFAB 
           icon="plus"
           label="Añadir actividad"
           onPress={handleFabPress}
           isExtended={isExtended}
         />
+
       </View>
+      
     </ScreenWrapper>
   );
 }

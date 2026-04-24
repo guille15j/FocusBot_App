@@ -135,7 +135,7 @@ export const getglobalStyles = (scheme, isWeb = false) => {
       shadowOpacity: 0.1,
       shadowRadius: 8,
       maxWidth: 500,
-      minWidth: 400,
+      minWidth: 300,
     },
     input: {
       backgroundColor: colors.surface,

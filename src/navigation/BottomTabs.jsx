@@ -86,24 +86,27 @@ export default function BottomNav({ navigation }) {
           const isActive = currentRouteName === item.name;
           return (
             <TouchableOpacity
-              key={item.name}
-              onPress={() => handleNavigation(item.name)}
-              style={styles.bottomBarBtn}
-              activeOpacity={0.7}
-            >
+            key={item.name}
+            onPress={() => handleNavigation(item.name)}
+            style={styles.bottomBarBtn}
+            activeOpacity={0.7}
+          >
+            <View style={isActive ? styles.activeWrapper : null}>
               <IconButton
                 icon={isActive ? item.icon : item.iconOutline}
-                iconColor={isActive ? colors.primary : colors.placeholder}
-                size={24}
+                iconColor={isActive ? colors.background : colors.placeholder}
+                size={isActive ? 30 : 25}
+                style={isActive ? styles.iconActive: styles.iconBase}
               />
-            </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
           );
         })}
       </View>
     </Surface>
   );
 }
-
+   
 const getStyles = (colors, useSidebar) => StyleSheet.create({
   sidebarContainer: {
     position: 'absolute',
@@ -149,6 +152,10 @@ const getStyles = (colors, useSidebar) => StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: colors.surface,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
   },
   bottomBar: {
     height: 70,
@@ -162,4 +169,20 @@ const getStyles = (colors, useSidebar) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  activeWrapper: {               
+    borderWidth: 10,
+    borderColor: colors.surface,
+    borderRadius: 100,
+    backgroundColor: colors.surface,
+
+  },
+
+  iconBase: {
+    backgroundColor: colors.surface,
+    borderRadius: 100,
+  },
+  iconActive:{
+    backgroundColor: colors.primary,    
+    borderRadius: 100,
+  }
 });

@@ -5,7 +5,7 @@ import { getColors } from '../../theme/theme';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const ScreenWrapper = ({ children, withScroll = true }) => {
-  const { isWeb } = useResponsiveLayout();
+  const { isWeb, platform } = useResponsiveLayout();
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
   const colors = getColors(scheme);
@@ -23,7 +23,7 @@ export const ScreenWrapper = ({ children, withScroll = true }) => {
       ]}
     >
       <Container
-        style={isWeb ? styles.webPadding : styles.mobilePadding}
+        style={isWeb ? styles.webPadding : (platform === 'ios' ? styles.mobileIos : styles.mobileAndroid)}
         showsVerticalScrollIndicator={!isWeb}
         contentContainerStyle={withScroll ? { flexGrow: 1 } : undefined}
       >
@@ -38,9 +38,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   webPadding: { 
-    // El padding/margen para web se manejará en las pantallas o en el layout principal
+    // El padding/margen para web se manejará en las pantallas o en el layout princip
+    margin: 20,
+    marginLeft: 80,
+    height: '100dvh',
+    overflow: 'scroll'
   },
-  mobilePadding: { 
+  mobileAndroid: { 
     // Puedes añadir padding si quieres
+    marginBottom: 70
   },
+  mobileIos: {
+    marginBottom: 36
+  }
 });

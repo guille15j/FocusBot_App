@@ -50,20 +50,36 @@ const ActivityListTile = ({ item, onInfoPress, AppColors }) => {
           </Text>
         </View>
       </View>
-      <IconButton
-        icon="chevron-right"
-        size={24}
-        onPress={() => onInfoPress && onInfoPress(item)}
-        iconColor={AppColors.primary}
-      />
+      
+        
+        <IconButton
+          icon= {rawState === 'EN CURSO' ? "pause": ( (rawState != 'COMPLETADO' && rawState != 'CANCELADO') ? "play" : "information")}
+          size={24}
+          onPress={() => onInfoPress && onInfoPress(item)}
+          iconColor={rawState === 'EN CURSO' ? AppColors.secondary: ( (rawState != 'COMPLETADO' && rawState != 'CANCELADO') ? AppColors.primary : AppColors.placeholder)}
+          disabled = {rawState === 'COMPLETADO' || rawState === 'CANCELADO'}
+        />
+      
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 16 },
-  textContainer: { flex: 1, marginLeft: 16, justifyContent: 'center' },
-  subtitleRow: { flexDirection: 'row', alignItems: 'center' }
+  container: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingVertical: 10, 
+    paddingHorizontal: 16 
+  },
+  textContainer: { 
+    flex: 1, 
+    marginLeft: 16, 
+    justifyContent: 'center' 
+  },
+  subtitleRow: { 
+    flexDirection: 'row', 
+    alignItems: 'center' 
+  }
 });
 
 export default ActivityListTile;

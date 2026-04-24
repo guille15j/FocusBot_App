@@ -32,7 +32,7 @@ const CustomAnimatedFAB = ({ icon, label, onPress, isExtended = true }) => {
         globalStyles.fab, 
         { 
             borderRadius: 100, 
-            backgroundColor: colors.primary + 80
+            backgroundColor: colors.primary 
         }
       ]}
       color={colors.background}

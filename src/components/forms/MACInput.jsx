@@ -1,26 +1,29 @@
 import React from 'react';
-import { TextInput, HelperText } from 'react-native-paper';
-import MaskedTextInput from 'react-native-masked-text'; // Asumo que usas esta librería
+import { View, StyleSheet } from 'react-native';
+import { TextInput } from 'react-native-paper';
 
-export default function MacAddressInput({ value, onChange, globalStyles }) {
+export default function MacAddressInput({ value, onChange }) {
+  const formatMac = (text) => {
+    const cleaned = text.replace(/[^0-9A-Fa-f]/g, '').slice(0, 12);
+    const parts = cleaned.match(/.{1,2}/g) || [];
+    return parts.join(':').toUpperCase();
+  };
+
+  const handleChange = (text) => {
+    const formatted = formatMac(text);
+    onChange(formatted);
+  };
+
   return (
     <TextInput
       label="Dirección MAC"
       mode="outlined"
       outlineStyle={{ borderRadius: 30 }}
-      style={globalStyles?.input}
-      value={value}               
-      onChangeText={onChange}
-      render={props => (
-        <MaskedTextInput
-          {...props}
-          type="custom"
-          options={{ mask: 'AA:AA:AA:AA:AA:AA' }}
-          value={value}
-          onChangeText={onChange}
-          autoCapitalize="characters"
-        />
-      )}
+      value={value}
+      onChangeText={handleChange}
+      autoCapitalize="characters"
+      maxLength={17}
+      placeholder="AA:BB:CC:DD:EE:FF"
     />
   );
 }

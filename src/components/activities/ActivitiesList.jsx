@@ -23,7 +23,7 @@ const ActivitiesList = ({ activities = [], onActivityPress, globalStyles }) => {
         style={[
           styles.surfaceList, 
           isWeb && styles.webWidth,
-          { backgroundColor: colors.surface }
+          { backgroundColor: colors.surface + 80 }
         ]} 
         elevation={1}
       >

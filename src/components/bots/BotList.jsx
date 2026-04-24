@@ -13,7 +13,7 @@ const ListaBots = ({ data, colors }) => {
     <View style={styles.container}>
       <Text variant="headlineMedium" style={styles.titulo}>Bots</Text>
       <FlatList
-        style={{ backgroundColor: colors.surface }}
+        style={{ backgroundColor: colors.surface + 80 }}
         data={data}
         renderItem={renderItems}
         keyExtractor={(item, index) => item.bot_id?.toString() ?? index.toString()}
