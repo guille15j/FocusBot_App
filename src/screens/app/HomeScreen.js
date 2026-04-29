@@ -63,9 +63,9 @@ export default function HomeScreen({ navigation }) {
   return (
     <ScreenWrapper withScroll={true}>
       <View style={isWeb ? globalStyles.container_web : globalStyles.container_movil}>
-        {!isWeb && <UserHeader user={{ first_name: 'Nombre', last_name: 'Apellido', user_id: '123' }} />}
+        {!isWeb && <UserHeader user={user || { first_name: 'Nombre', last_name: 'Apellido', email: 'invitado@focusbot.com' }} />}
         <View style={{ paddingBottom: isWeb ? 10 : 80 }}>
-          {isWeb && <UserHeader user={{ first_name: 'Nombre', last_name: 'Apellido', user_id: '123' }} />}
+          {isWeb && <UserHeader user={user || { first_name: 'Nombre', last_name: 'Apellido', email: 'invitado@focusbot.com' }} />}
           <BotCarousel 
             bots={botsData} 
             onAddPress={() => console.log("Añadir nuevo bot")}

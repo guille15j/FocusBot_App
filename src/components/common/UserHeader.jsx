@@ -27,7 +27,7 @@ const UserHeader = ({ user }) => {
             <Avatar.Image size={60} source={require('../../assets/avatar.png')} />
             <View>
               <Text style={styles.userName}>{user.first_name} {user.last_name}</Text>
-              <Text style={styles.userDetail}>{user.user_id}</Text>
+              <Text style={styles.userDetail}>{user.email || user.user_id}</Text>
             </View>
             <View style={{ flex: 1 }} />
             <IconButton mode="contained" icon="logout" size={20} onPress={ejecutarLogout} iconColor={colors.primary} />
@@ -77,10 +77,11 @@ const getStyles = (colors) => StyleSheet.create({
     marginLeft: 16
   },
   userDetail: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 12,
+    fontWeight: '400',
     color: colors.placeholder,
-    marginLeft: 16
+    marginLeft: 16,
+    maxWidth: 200,
   },
 });
 
