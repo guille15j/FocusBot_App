@@ -71,6 +71,7 @@ export default function HomeScreen({ navigation }) {
             onAddPress={() => console.log("Añadir nuevo bot")}
             onBotPress={(bot) => console.log("Seleccionado:", bot.name)}
             globalStyles={globalStyles}
+            addProp = {true}
           />
           <Text variant="titleLarge" style={{ textAlign: 'center', marginVertical:  20 }}>
             Actividades
