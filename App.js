@@ -12,6 +12,7 @@ import { getAppTheme } from './src/theme/theme';
 import LoginScreen from './src/screens/auth/LoginScreen';
 import RegisterScreen from './src/screens/auth/RegisterScreen';
 import ResetScreen from './src/screens/auth/ResetScreen';
+import VerifyScreen from './src/screens/auth/VerifyScreen'; 
 
 import HomeScreen from './src/screens/app/HomeScreen';
 import ActivitiesScreen from './src/screens/app/ActivitiesScreen';
@@ -88,6 +89,7 @@ export default function App() {
                   <Stack.Screen name="Login" component={LoginScreen} />
                   <Stack.Screen name="Register" component={RegisterScreen} />
                   <Stack.Screen name="Reset" component={ResetScreen} />
+                  <Stack.Screen name="Verify" component={VerifyScreen} />
                 </>
               ) : (
                 <>
