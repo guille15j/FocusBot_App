@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState, useContext, useMemo } from 'react';
-import { View, Alert, TouchableOpacity, KeyboardAvoidingView, Platform, useColorScheme } from 'react-native';
+import { View, Alert, TouchableOpacity, KeyboardAvoidingView, Platform, useColorScheme, ScrollView } from 'react-native';
 import { TextInput, Button, Text, Surface, Divider } from 'react-native-paper';
 import { AuthContext } from '../../context/AuthContext';
 import { authStorage } from '../../core/authStorage';
