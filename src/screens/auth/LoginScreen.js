@@ -1,4 +1,4 @@
-import { LinearGradient } from "expo-linear-gradient";
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState, useContext, useMemo } from 'react';
 import { View, Alert, TouchableOpacity, KeyboardAvoidingView, Platform, useColorScheme } from 'react-native';
 import { TextInput, Button, Text, Surface, Divider } from 'react-native-paper';
@@ -21,32 +21,38 @@ export default function LoginScreen({ navigation }) {
 
   const ejecutarLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert("Atención", "Por favor, introduce tu email/usuario y contraseña");
+      Alert.alert('Atención', 'Por favor, introduce tu email/usuario y contraseña');
       return;
     }
     setLoading(true);
     try {
-      console.log("Intentando login con:", email);
+      console.log('Intentando login con:', email);
       await new Promise(resolve => setTimeout(resolve, 1000));
-      const fakeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fake-jwt-token-12345";
+      const fakeToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fake-jwt-token-12345';
       const fakeUser = {
         id: 1,
-        first_name: "Usuario",
-        last_name: "Demo",
+        first_name: 'Usuario',
+        last_name: 'Demo',
         nickname: email.split('@')[0],
         email: email,
-        profile_img: "",
+        profile_img: '',
       };
       await authStorage.saveToken(fakeToken);
       await authStorage.saveUser(fakeUser);
       signIn(fakeToken, fakeUser);
-      Alert.alert("¡Bienvenido!", `Hola ${fakeUser.first_name}!`);
+      Alert.alert('¡Bienvenido!', `Hola ${fakeUser.first_name}!`);
     } catch (error) {
-      console.error("Error en login:", error);
-      Alert.alert("Error de acceso", "No se pudo iniciar sesión. Verifica tus credenciales.");
+      console.error('Error en login:', error);
+      Alert.alert('Error de acceso', 'No se pudo iniciar sesión. Verifica tus credenciales.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const ejecutarGoogleLogin = () => {
+    // Simulación de login con Google (solo maquetación)
+    console.log('Botón de Google presionado. Próximamente: integración OAuth2.');
+    Alert.alert('Google Login', 'La autenticación con Google estará disponible próximamente.');
   };
 
   const irARegistro = () => navigation.replace('Register');
@@ -55,25 +61,49 @@ export default function LoginScreen({ navigation }) {
   return (
     <LinearGradient colors={[colors.background, colors.primary]} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} style={{ flex: 1 }}>
       <KeyboardAvoidingView style={isWeb ? globalStyles.authContainer_web : globalStyles.authContainer} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <View style={globalStyles.form} elevation={4}>
-          <View style={globalStyles.logoContainer}>
-            <View style={globalStyles.logoContainer_name}>
-              <Text style={globalStyles.logo_focus}>Focus</Text>
-              <Text style={globalStyles.logo_bot}>.Bot</Text>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+          <View style={globalStyles.form} elevation={4}>
+            <View style={globalStyles.logoContainer}>
+              <View style={globalStyles.logoContainer_name}>
+                <Text style={globalStyles.logo_focus}>Focus</Text>
+                <Text style={globalStyles.logo_bot}>.Bot</Text>
+              </View>
+              <Text style={globalStyles.logoSubtitle}>Deep in your Focus</Text>
             </View>
-            <Text style={globalStyles.logoSubtitle}>Deep in your Focus</Text>
+            <TextInput label="Email o Usuario" value={email} onChangeText={setEmail} mode="outlined" keyboardType="email-address" autoCapitalize="none" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="account" />} />
+            <TextInput label="Contraseña" value={password} onChangeText={setPassword} mode="outlined" secureTextEntry={!showPassword} style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="lock" />} right={<TextInput.Icon icon={showPassword ? 'eye-off' : 'eye'} onPress={() => setShowPassword(!showPassword)} />} />
+            <TouchableOpacity onPress={irAReset} style={{ alignSelf: 'flex-end' }}>
+              <Text style={[globalStyles.link, { fontSize: 14 }]}>Recuperar Contraseña</Text>
+            </TouchableOpacity>
+            <View style={globalStyles.botonera}>
+              <Button mode="contained" onPress={ejecutarLogin} loading={loading} disabled={loading} style={[globalStyles.button, { flex: 1 }]} labelStyle={{ fontSize: 16, fontWeight: '600' }}>Sign in</Button>
+              <Button mode="outlined" onPress={irARegistro} disabled={loading} style={[globalStyles.buttonOutline, { flex: 1 }]} labelStyle={{ fontSize: 16 }}>Sign up</Button>
+            </View>
+
+            {/* Separador visual */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 20 }}>
+              <Divider style={{ flex: 1 }} />
+              <Text style={{ marginHorizontal: 12, color: colors.textLight, fontSize: 12, fontWeight: '600' }}>o</Text>
+              <Divider style={{ flex: 1 }} />
+            </View>
+
+            {/* Botón de Google */}
+            <Button
+              mode="outlined"
+              onPress={ejecutarGoogleLogin}
+              disabled={loading}
+              icon="google"
+              style={[
+                globalStyles.buttonOutline,
+                { borderColor: colors.textLight, borderWidth: 1.5 }
+              ]}
+              labelStyle={{ fontSize: 14, fontWeight: '600', color: colors.text }}
+              contentStyle={{ paddingVertical: 6 }}
+            >
+              Continuar con Google
+            </Button>
           </View>
-          <TextInput label="Email o Usuario" value={email} onChangeText={setEmail} mode="outlined" keyboardType="email-address" autoCapitalize="none" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="account" />} />
-          <TextInput label="Contraseña" value={password} onChangeText={setPassword} mode="outlined" secureTextEntry={!showPassword} style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="lock" />} right={<TextInput.Icon icon={showPassword ? "eye-off" : "eye"} onPress={() => setShowPassword(!showPassword)} />} />
-          <TouchableOpacity onPress={irAReset} style={{ alignSelf: 'center' }}>
-            <Text style={[globalStyles.link, { fontSize: 14 }]}>Recuperar Contraseña</Text>
-          </TouchableOpacity>
-          <View style={globalStyles.botonera}>
-            <Button mode="contained" onPress={ejecutarLogin} loading={loading} disabled={loading} style={[globalStyles.button, { flex: 1 }]} labelStyle={{ fontSize: 16, fontWeight: '600' }}>Sign in</Button>
-            <Button mode="outlined" onPress={irARegistro} disabled={loading} style={[globalStyles.buttonOutline, { flex: 1 }]} labelStyle={{ fontSize: 16 }}>Sign up</Button>
-          </View>
-        </View>
-        
+        </ScrollView>
       </KeyboardAvoidingView>
     </LinearGradient>
   );
