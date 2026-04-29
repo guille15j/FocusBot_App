@@ -5,13 +5,14 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  useColorScheme
+  useColorScheme,
 } from 'react-native';
 import {
   TextInput,
   Button,
   Text,
-  Surface
+  Surface,
+  HelperText,
 } from 'react-native-paper';
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -20,10 +21,10 @@ import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 export default function RegisterScreen({ navigation }) {
   const scheme = useColorScheme();
   const { isWeb } = useResponsiveLayout();
-  
+
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
-  
+
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [nickname, setNickname] = useState('');
@@ -31,75 +32,56 @@ export default function RegisterScreen({ navigation }) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [birthdate, setBirthdate] = useState('');
-  
+
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const notificar = (mensaje) => {
-  if (Platform.OS === 'web') {
-      // En web usamos el alert nativo del navegador
-      window.alert(mensaje);
-    } else {
-      // En móviles usamos el componente de React Native
-      Alert.alert('Atención', mensaje);
-    }
-};
+  // Estado para los mensajes de error
+  const [errors, setErrors] = useState({});
 
   const validarFormulario = () => {
-    if (!firstName.trim()) {
-      notificar('El nombre es obligatorio');
-      return false;
-    }
-    if (!lastName.trim()) {
-      notificar('Los apellidos son obligatorios');
-      return false;
-    }
-    if (!nickname.trim()) {
-      notificar('El nombre de usuario es obligatorio');
-      return false;
-    }
+    const nuevosErrores = {};
+
+    if (!firstName.trim()) nuevosErrores.firstName = 'El nombre es obligatorio';
+    if (!lastName.trim()) nuevosErrores.lastName = 'Los apellidos son obligatorios';
+    if (!nickname.trim()) nuevosErrores.nickname = 'El nombre de usuario es obligatorio';
     if (!email.trim()) {
-      notificar('El email es obligatorio');
-      return false;
-    }
-    if (!email.includes('@') || !email.includes('.')) {
-      notificar('Introduce un email válido');
-      return false;
+      nuevosErrores.email = 'El email es obligatorio';
+    } else if (!email.includes('@') || !email.includes('.')) {
+      nuevosErrores.email = 'Introduce un email válido';
     }
     if (!password) {
-      notificar('La contraseña es obligatoria');
-      return false;
+      nuevosErrores.password = 'La contraseña es obligatoria';
+    } else if (password.length < 6) {
+      nuevosErrores.password = 'La contraseña debe tener al menos 6 caracteres';
     }
-    if (password.length < 6) {
-      notificar('La contraseña debe tener al menos 6 caracteres');
-      return false;
+    if (!confirmPassword) {
+      nuevosErrores.confirmPassword = 'Confirma tu contraseña';
+    } else if (password !== confirmPassword) {
+      nuevosErrores.confirmPassword = 'Las contraseñas no coinciden';
     }
-    if (password !== confirmPassword) {
-      notificar('Las contraseñas no coinciden');
-      return false;
+
+    setErrors(nuevosErrores);
+    return Object.keys(nuevosErrores).length === 0;
+  };
+
+  // Borra el error de un campo al empezar a escribir
+  const handleChange = (setter, field) => (text) => {
+    setter(text);
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
-    return true;
   };
 
   const ejecutarRegistro = async () => {
-    console.log('hola');
+    if (!validarFormulario()) return;
 
-    if (!validarFormulario()) {
-      console.log('Error de validacion');
-      return;
-    }
     setLoading(true);
-    
     try {
-      // Simulación de registro exitoso (sin token)
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setLoading(true)
-      // Navegar a la pantalla de verificación con el email
-      // navigation.replace('Verify');
+      console.log('Registrando usuario:', email);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       navigation.navigate('Verify', { email: email.toLowerCase().trim() });
-      
     } catch (error) {
       console.error('Error en registro:', error);
       Alert.alert('Error de registro', 'No se pudo completar el registro');
@@ -119,17 +101,17 @@ export default function RegisterScreen({ navigation }) {
       end={{ x: 0, y: 1 }}
       style={{ flex: 1 }}
     >
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         style={isWeb ? globalStyles.authContainer_web : globalStyles.authContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         enabled={Platform.OS !== 'web'}
       >
-        <ScrollView 
+        <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+          keyboardShouldPersistTaps="handled"
         >
           <View style={globalStyles.form} elevation={4}>
-            
             <View style={globalStyles.logoContainer}>
               <View style={globalStyles.logoContainer_name}>
                 <Text style={globalStyles.logo_focus}>Focus</Text>
@@ -137,95 +119,126 @@ export default function RegisterScreen({ navigation }) {
               </View>
               <Text style={globalStyles.logoSubtitle}>Create Account</Text>
             </View>
-            
+
+            {/* First Name */}
             <TextInput
               label="First Name"
               value={firstName}
-              onChangeText={setFirstName}
+              onChangeText={handleChange(setFirstName, 'firstName')}
               mode="outlined"
               style={globalStyles.input}
               outlineStyle={{ borderRadius: 30 }}
               left={<TextInput.Icon icon="account" />}
+              error={!!errors.firstName}
             />
-            
+            <HelperText type="error" visible={!!errors.firstName}>
+              {errors.firstName}
+            </HelperText>
+
+            {/* Last Name */}
             <TextInput
               label="Last Name"
               value={lastName}
-              onChangeText={setLastName}
+              onChangeText={handleChange(setLastName, 'lastName')}
               mode="outlined"
               style={globalStyles.input}
               outlineStyle={{ borderRadius: 30 }}
               left={<TextInput.Icon icon="account-group" />}
+              error={!!errors.lastName}
             />
-            
+            <HelperText type="error" visible={!!errors.lastName}>
+              {errors.lastName}
+            </HelperText>
+
+            {/* Nickname */}
             <TextInput
               label="Nickname"
               value={nickname}
-              onChangeText={setNickname}
+              onChangeText={handleChange(setNickname, 'nickname')}
               mode="outlined"
               autoCapitalize="none"
               style={globalStyles.input}
               outlineStyle={{ borderRadius: 30 }}
               left={<TextInput.Icon icon="at" />}
+              error={!!errors.nickname}
             />
-            
+            <HelperText type="error" visible={!!errors.nickname}>
+              {errors.nickname}
+            </HelperText>
+
+            {/* Email */}
             <TextInput
               label="Email"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={handleChange(setEmail, 'email')}
               mode="outlined"
               keyboardType="email-address"
               autoCapitalize="none"
               style={globalStyles.input}
               outlineStyle={{ borderRadius: 30 }}
               left={<TextInput.Icon icon="email" />}
+              error={!!errors.email}
             />
-            
+            <HelperText type="error" visible={!!errors.email}>
+              {errors.email}
+            </HelperText>
+
+            {/* Password */}
             <TextInput
               label="Password"
               value={password}
-              onChangeText={setPassword}
+              onChangeText={handleChange(setPassword, 'password')}
               mode="outlined"
               secureTextEntry={!showPassword}
               style={globalStyles.input}
               outlineStyle={{ borderRadius: 30 }}
               left={<TextInput.Icon icon="lock" />}
               right={
-                <TextInput.Icon 
-                  icon={showPassword ? 'eye-off' : 'eye'} 
+                <TextInput.Icon
+                  icon={showPassword ? 'eye-off' : 'eye'}
                   onPress={() => setShowPassword(!showPassword)}
                 />
               }
+              error={!!errors.password}
             />
-            
+            <HelperText type="error" visible={!!errors.password}>
+              {errors.password}
+            </HelperText>
+
+            {/* Confirm Password */}
             <TextInput
               label="Confirm Password"
               value={confirmPassword}
-              onChangeText={setConfirmPassword}
+              onChangeText={handleChange(setConfirmPassword, 'confirmPassword')}
               mode="outlined"
               secureTextEntry={!showConfirmPassword}
               style={globalStyles.input}
               outlineStyle={{ borderRadius: 30 }}
               left={<TextInput.Icon icon="lock-check" />}
               right={
-                <TextInput.Icon 
-                  icon={showConfirmPassword ? 'eye-off' : 'eye'} 
+                <TextInput.Icon
+                  icon={showConfirmPassword ? 'eye-off' : 'eye'}
                   onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                 />
               }
+              error={!!errors.confirmPassword}
             />
-            
+            <HelperText type="error" visible={!!errors.confirmPassword}>
+              {errors.confirmPassword}
+            </HelperText>
+
+            {/* Birthdate */}
             <TextInput
               label="Birthdate (YYYY-MM-DD)"
               value={birthdate}
-              onChangeText={setBirthdate}
+              onChangeText={handleChange(setBirthdate, 'birthdate')}
               mode="outlined"
               placeholder="1990-01-01"
               style={globalStyles.input}
               outlineStyle={{ borderRadius: 30 }}
               left={<TextInput.Icon icon="calendar" />}
             />
-            
+
             <View style={globalStyles.botonera}>
               <Button
                 mode="contained"
@@ -237,7 +250,7 @@ export default function RegisterScreen({ navigation }) {
               >
                 Register
               </Button>
-              
+
               <Button
                 mode="outlined"
                 onPress={volverAlLogin}
@@ -246,7 +259,7 @@ export default function RegisterScreen({ navigation }) {
               >
                 Cancel
               </Button>
-            </View>            
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

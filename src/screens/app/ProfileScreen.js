@@ -1,16 +1,30 @@
 import React, { useState, useMemo } from 'react';
-import { View, useColorScheme, ScrollView } from 'react-native';
-import { 
-  Text, Avatar, TextInput, Surface, IconButton, Button, List, Divider 
+import { View, Pressable, useColorScheme } from 'react-native';
+import {
+  Text, Avatar, TextInput, Surface, IconButton, Button, List, Divider, HelperText, Menu
 } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { getColors, getglobalStyles } from '../../theme/theme';
 
+const SEVERITY_OPTIONS = [
+  { label: 'Leve', value: 'LEVE' },
+  { label: 'Medio', value: 'MEDIO' },
+  { label: 'Alto', value: 'ALTO' },
+];
+
+const TIMEZONE_OPTIONS = [
+  'UTC-12', 'UTC-11', 'UTC-10', 'UTC-9', 'UTC-8', 'UTC-7', 'UTC-6', 'UTC-5',
+  'UTC-4', 'UTC-3', 'UTC-2', 'UTC-1', 'UTC+0', 'UTC+1', 'UTC+2', 'UTC+3',
+  'UTC+4', 'UTC+5', 'UTC+6', 'UTC+7', 'UTC+8', 'UTC+9', 'UTC+10', 'UTC+11',
+  'UTC+12', 'UTC+13', 'UTC+14',
+];
+
 export default function ProfilePage({ navigation }) {
   const scheme = useColorScheme();
   const { isWeb } = useResponsiveLayout();
-  
+
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
 
@@ -18,99 +32,293 @@ export default function ProfilePage({ navigation }) {
   const [lastName, setLastName] = useState('Pérez');
   const [nickname, setNickname] = useState('juanpi_99');
   const [email, setEmail] = useState('juan.perez@example.com');
-  const [password, setPassword] = useState('Password123');
   const [timezone, setTimezone] = useState('UTC+1');
   const [name_detail, setNameDetail] = useState('TDA');
   const [description_detail, setDescription] = useState('Descripción detallada de la condición del usuario.');
   const [severity, setSeverity] = useState('LEVE');
-  
-  const [showPassword, setShowPassword] = useState(false);
+
   const [loading, setLoading] = useState(false);
-  const [editar, setEditable] = useState(false); 
+  const [editar, setEditable] = useState(false);
+
+  const [severityMenuVisible, setSeverityMenuVisible] = useState(false);
+  const [timezoneMenuVisible, setTimezoneMenuVisible] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const validarFormulario = () => {
+    const nuevosErrores = {};
+    if (!firstName.trim()) nuevosErrores.firstName = 'El nombre es obligatorio';
+    if (!lastName.trim()) nuevosErrores.lastName = 'Los apellidos son obligatorios';
+    if (!nickname.trim()) nuevosErrores.nickname = 'El nombre de usuario es obligatorio';
+    if (!email.trim() || !email.includes('@')) nuevosErrores.email = 'Introduce un email válido';
+    if (description_detail.length > 250) nuevosErrores.description = 'La descripción no puede superar los 250 caracteres';
+    setErrors(nuevosErrores);
+    return Object.keys(nuevosErrores).length === 0;
+  };
 
   const ejecutarActualizacion = () => {
+    if (!validarFormulario()) return;
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      setEditable(false); 
+      setEditable(false);
     }, 1000);
   };
+
+  const handleChange = (setter, field) => (text) => {
+    setter(text);
+    if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }));
+  };
+
+  const severityLabel = SEVERITY_OPTIONS.find(opt => opt.value === severity)?.label || severity;
 
   return (
     <ScreenWrapper withScroll={true}>
       <View style={isWeb ? globalStyles.container_web : globalStyles.container_movil}>
-        {/* <ScrollView contentContainerStyle={{ alignItems: 'center', paddingBottom: 20 }}> */}
-          {/* <Text style={globalStyles.tituloPagina}>
-            Perfil
-          </Text> */}
-        
-          <View style={{ alignItems: 'center', marginVertical: 20 }}>
-            <View style={{ position: 'relative' }}>
-              <Avatar.Image
-                size={110}
-                source={require('../../assets/avatar.png')} 
-                style={{ backgroundColor: colors.secondary + '40' }}
-              />
-              {editar &&
-                <Surface style={{ position: 'absolute', right: 0, bottom: 0, backgroundColor: colors.primary, borderRadius: 20 }} elevation={4}>
-                  <IconButton icon="pencil" size={20} iconColor={colors.surface} onPress={() => {}} />
-                </Surface>
-              }
-            </View>
-            <Text style={{ marginTop: 12, fontWeight: 'bold', color: colors.text, fontSize: 18 }}>
-              @{nickname}
-            </Text>
-          </View>
-
-          {editar ? (
-            <View style={[ {marginHorizontal: isWeb ? '25%' : '10%', marginBottom: isWeb? 100 : 50}]}>
-              <TextInput label="Nombre" value={firstName} onChangeText={setFirstName} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="account" />} />
-              <TextInput label="Apellidos" value={lastName} onChangeText={setLastName} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="account-group" />} />
-              <TextInput label="Usuario" value={nickname} onChangeText={setNickname} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="at" />} />
-              <TextInput label="Email" value={email} onChangeText={setEmail} mode="outlined" keyboardType="email-address" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="email" />} />
-              
-              <TextInput label="Zona Horaria" value={timezone} onChangeText={setTimezone} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="clock" />} />
-              <TextInput label="Detalle" value={name_detail} onChangeText={setNameDetail} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="information" />} />
-              <TextInput 
-                label="Descripción" value={description_detail} onChangeText={setDescription} mode="outlined" multiline numberOfLines={4} 
-                style={[globalStyles.input, { height: 100, paddingTop: 10 }]} outlineStyle={{ borderRadius: 20 }}
-                left={<TextInput.Icon icon="text-subject" />} 
-              />
-              <TextInput label="Severidad" value={severity} onChangeText={setSeverity} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="alert-circle" />} />
-
-              <View style={{ flexDirection: 'row', marginTop: 20, gap: 10 }}>
-                <Button mode="contained" icon="content-save" onPress={ejecutarActualizacion} loading={loading} style={{ flex: 1, borderRadius: 30 }} textColor= {colors.background}>Guardar</Button>
-                <Button mode="outlined" onPress={() => setEditable(false)} style={{ flex: 1, borderRadius: 30 }}>Cancelar</Button>
-              </View>
-            </View>
-          ) : (
-            <View style={[ {marginHorizontal: isWeb ? '25%' : '10%', marginBottom: isWeb? 100 : 50}]}>
-              <Surface style={{ borderRadius: 20, padding: 10, backgroundColor: colors.surface }} elevation={1}>
-                <List.Item title="Nombre Completo" description={`${firstName} ${lastName}`} left={p => <List.Icon {...p} icon="account" />} />
-                <Divider />
-                <List.Item title="Usuario" description={`@${nickname}`} left={p => <List.Icon {...p} icon="at" />} />
-                <Divider />
-                <List.Item title="Email" description={email} left={p => <List.Icon {...p} icon="email" />} />
-                <Divider />
-                <List.Item title="Zona Horaria" description={timezone} left={p => <List.Icon {...p} icon="clock" />} />
-                <Divider />
-                <List.Item title="Condición" description={name_detail} left={p => <List.Icon {...p} icon="medical-bag" />} />
-                <Divider />
-                <List.Item title="Descripción" description={description_detail} descriptionNumberOfLines={0} left={p => <List.Icon {...p} icon="text-subject" />} />
-                <Divider />
-                <List.Item title="Severidad" description={severity} left={p => <List.Icon {...p} icon="alert-octagon" />} />
+        <View style={{ alignItems: 'center', marginVertical: 20 }}>
+          <View style={{ position: 'relative' }}>
+            <Avatar.Image
+              size={110}
+              source={require('../../assets/avatar.png')}
+              style={{ backgroundColor: colors.secondary + '40' }}
+            />
+            {editar && (
+              <Surface style={{ position: 'absolute', right: 0, bottom: 0, backgroundColor: colors.primary, borderRadius: 20 }} elevation={4}>
+                <IconButton icon="pencil" size={20} iconColor={colors.surface} onPress={() => {}} />
               </Surface>
+            )}
+          </View>
+          <Text style={{ marginTop: 12, fontWeight: 'bold', color: colors.text, fontSize: 18 }}>
+            @{nickname}
+          </Text>
+        </View>
 
-              <Button 
-                mode="contained" icon="pencil" onPress={() => setEditable(true)} 
-                style={{ marginTop: 30, borderRadius: 30 }}
-                textColor= {colors.background}
+        {editar ? (
+          <View style={{ marginHorizontal: isWeb ? '25%' : '10%', marginBottom: isWeb ? 100 : 50 }}>
+            {/* Nombre */}
+            <TextInput
+              label="Nombre"
+              value={firstName}
+              onChangeText={handleChange(setFirstName, 'firstName')}
+              mode="outlined"
+              style={globalStyles.input}
+              outlineStyle={{ borderRadius: 30 }}
+              left={<TextInput.Icon icon="account" />}
+              error={!!errors.firstName}
+            />
+            <HelperText type="error" visible={!!errors.firstName}>{errors.firstName}</HelperText>
+
+            {/* Apellidos */}
+            <TextInput
+              label="Apellidos"
+              value={lastName}
+              onChangeText={handleChange(setLastName, 'lastName')}
+              mode="outlined"
+              style={globalStyles.input}
+              outlineStyle={{ borderRadius: 30 }}
+              left={<TextInput.Icon icon="account-group" />}
+              error={!!errors.lastName}
+            />
+            <HelperText type="error" visible={!!errors.lastName}>{errors.lastName}</HelperText>
+
+            {/* Usuario */}
+            <TextInput
+              label="Usuario"
+              value={nickname}
+              onChangeText={handleChange(setNickname, 'nickname')}
+              mode="outlined"
+              style={globalStyles.input}
+              outlineStyle={{ borderRadius: 30 }}
+              left={<TextInput.Icon icon="at" />}
+              error={!!errors.nickname}
+            />
+            <HelperText type="error" visible={!!errors.nickname}>{errors.nickname}</HelperText>
+
+            {/* Email */}
+            <TextInput
+              label="Email"
+              value={email}
+              onChangeText={handleChange(setEmail, 'email')}
+              mode="outlined"
+              keyboardType="email-address"
+              style={globalStyles.input}
+              outlineStyle={{ borderRadius: 30 }}
+              left={<TextInput.Icon icon="email" />}
+              error={!!errors.email}
+            />
+            <HelperText type="error" visible={!!errors.email}>{errors.email}</HelperText>
+
+            {/* Dropdown de Zona Horaria (ahora con estilo TextInput) */}
+            <Menu
+              visible={timezoneMenuVisible}
+              onDismiss={() => setTimezoneMenuVisible(false)}
+              anchor={
+                <Pressable onPress={() => setTimezoneMenuVisible(true)}>
+                  <View pointerEvents="none">
+                    <TextInput
+                      label="Zona Horaria"
+                      value={timezone}
+                      mode="outlined"
+                      editable={false}
+                      style={globalStyles.input}
+                      outlineStyle={{ borderRadius: 30 }}
+                      left={<TextInput.Icon icon="clock" />}
+                      right={<TextInput.Icon icon="menu-down" />}
+                    />
+                  </View>
+                </Pressable>
+              }
+            >
+              {TIMEZONE_OPTIONS.map((zone) => (
+                <Menu.Item
+                  key={zone}
+                  title={zone}
+                  onPress={() => {
+                    setTimezone(zone);
+                    setTimezoneMenuVisible(false);
+                  }}
+                  leadingIcon={() => (
+                    <MaterialCommunityIcons
+                      name={zone === timezone ? 'radiobox-marked' : 'radiobox-blank'}
+                      size={20}
+                      color={colors.primary}
+                    />
+                  )}
+                />
+              ))}
+            </Menu>
+
+            {/* Detalle */}
+            <TextInput
+              label="Detalle"
+              value={name_detail}
+              onChangeText={setNameDetail}
+              mode="outlined"
+              style={globalStyles.input}
+              outlineStyle={{ borderRadius: 30 }}
+              left={<TextInput.Icon icon="information" />}
+            />
+
+            {/* Dropdown de Severidad (ahora con estilo TextInput) */}
+            <Menu
+              visible={severityMenuVisible}
+              onDismiss={() => setSeverityMenuVisible(false)}
+              anchor={
+                <Pressable onPress={() => setSeverityMenuVisible(true)}>
+                  <View pointerEvents="none">
+                    <TextInput
+                      label="Severidad"
+                      value={severityLabel}
+                      mode="outlined"
+                      editable={false}
+                      style={globalStyles.input}
+                      outlineStyle={{ borderRadius: 30 }}
+                      left={<TextInput.Icon icon="alert-circle" />}
+                      right={<TextInput.Icon icon="menu-down" />}
+                    />
+                  </View>
+                </Pressable>
+              }
+            >
+              {SEVERITY_OPTIONS.map((option) => (
+                <Menu.Item
+                  key={option.value}
+                  title={option.label}
+                  onPress={() => {
+                    setSeverity(option.value);
+                    setSeverityMenuVisible(false);
+                  }}
+                  leadingIcon={() => (
+                    <MaterialCommunityIcons
+                      name={option.value === severity ? 'radiobox-marked' : 'radiobox-blank'}
+                      size={20}
+                      color={colors.primary}
+                    />
+                  )}
+                />
+              ))}
+            </Menu>
+
+            {/* Descripción */}
+            <TextInput
+              label="Descripción"
+              value={description_detail}
+              onChangeText={handleChange(setDescription, 'description')}
+              mode="outlined"
+              multiline
+              numberOfLines={4}
+              maxLength={250}
+              style={[globalStyles.input, { height: 100, paddingTop: 10 }]}
+              outlineStyle={{ borderRadius: 20 }}
+              left={<TextInput.Icon icon="view-headline" />}
+              error={!!errors.description}
+              right={
+                <TextInput.Affix
+                  text={`${description_detail.length}/250`}
+                  textStyle={{ fontSize: 12, color: description_detail.length > 250 ? colors.error : colors.textLight }}
+                />
+              }
+            />
+            <HelperText type={errors.description ? 'error' : 'info'} visible={!!errors.description || description_detail.length > 240}>
+              {errors.description
+                ? errors.description
+                : description_detail.length >= 250
+                  ? 'Has alcanzado el límite de caracteres'
+                  : `${250 - description_detail.length} caracteres restantes`}
+            </HelperText>
+
+            
+
+            {/* Botones */}
+            <View style={{ flexDirection: 'row', marginTop: 20, gap: 10 }}>
+              <Button
+                mode="contained"
+                icon="content-save"
+                onPress={ejecutarActualizacion}
+                loading={loading}
+                style={{ flex: 1, borderRadius: 30 }}
+                textColor={colors.background}
               >
-                Editar Perfil
+                Guardar
+              </Button>
+              <Button
+                mode="outlined"
+                onPress={() => { setEditable(false); setErrors({}); }}
+                style={{ flex: 1, borderRadius: 30 }}
+              >
+                Cancelar
               </Button>
             </View>
-          )}
-        {/* </ScrollView> */}
+          </View>
+        ) : (
+          <View style={{ marginHorizontal: isWeb ? '25%' : '10%', marginBottom: isWeb ? 100 : 50 }}>
+            <Surface style={{ borderRadius: 20, padding: 10, backgroundColor: colors.surface }} elevation={1}>
+              <List.Item title="Nombre Completo" description={`${firstName} ${lastName}`} left={p => <List.Icon {...p} icon="account" />} />
+              <Divider />
+              <List.Item title="Usuario" description={`@${nickname}`} left={p => <List.Icon {...p} icon="at" />} />
+              <Divider />
+              <List.Item title="Email" description={email} left={p => <List.Icon {...p} icon="email" />} />
+              <Divider />
+              <List.Item title="Zona Horaria" description={timezone} left={p => <List.Icon {...p} icon="clock" />} />
+              <Divider />
+              <List.Item title="Condición" description={name_detail} left={p => <List.Icon {...p} icon="medical-bag" />} />
+              <Divider />
+              <List.Item title="Grado" description={severityLabel} left={p => <List.Icon {...p} icon="alert-octagon" />} />
+              <Divider />
+              <List.Item title="Descripción" description={description_detail} descriptionNumberOfLines={0} left={p => <List.Icon {...p} icon="view-headline" />} />
+              
+            </Surface>
+
+            <Button
+              mode="contained"
+              icon="pencil"
+              onPress={() => setEditable(true)}
+              style={{ marginTop: 30, borderRadius: 30 }}
+              textColor={colors.background}
+            >
+              Editar Perfil
+            </Button>
+          </View>
+        )}
       </View>
     </ScreenWrapper>
   );
