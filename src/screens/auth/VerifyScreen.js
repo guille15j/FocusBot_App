@@ -17,7 +17,7 @@ import { getColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
-export default function VerifyScreen({ navigation, route }) {
+export default function VerifyScreen({ navigation, route = 'coreo' }) {
   const scheme = useColorScheme();
   const { isWeb } = useResponsiveLayout();
   const colors = useMemo(() => getColors(scheme), [scheme]);

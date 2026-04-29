@@ -36,56 +36,68 @@ export default function RegisterScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Ya no necesitamos AuthContext ni authStorage
+  const notificar = (mensaje) => {
+  if (Platform.OS === 'web') {
+      // En web usamos el alert nativo del navegador
+      window.alert(mensaje);
+    } else {
+      // En móviles usamos el componente de React Native
+      Alert.alert('Atención', mensaje);
+    }
+};
 
   const validarFormulario = () => {
     if (!firstName.trim()) {
-      Alert.alert('Error', 'El nombre es obligatorio');
+      notificar('El nombre es obligatorio');
       return false;
     }
     if (!lastName.trim()) {
-      Alert.alert('Error', 'Los apellidos son obligatorios');
+      notificar('Los apellidos son obligatorios');
       return false;
     }
     if (!nickname.trim()) {
-      Alert.alert('Error', 'El nombre de usuario es obligatorio');
+      notificar('El nombre de usuario es obligatorio');
       return false;
     }
     if (!email.trim()) {
-      Alert.alert('Error', 'El email es obligatorio');
+      notificar('El email es obligatorio');
       return false;
     }
     if (!email.includes('@') || !email.includes('.')) {
-      Alert.alert('Error', 'Introduce un email válido');
+      notificar('Introduce un email válido');
       return false;
     }
     if (!password) {
-      Alert.alert('Error', 'La contraseña es obligatoria');
+      notificar('La contraseña es obligatoria');
       return false;
     }
     if (password.length < 6) {
-      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres');
+      notificar('La contraseña debe tener al menos 6 caracteres');
       return false;
     }
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Las contraseñas no coinciden');
+      notificar('Las contraseñas no coinciden');
       return false;
     }
     return true;
   };
 
   const ejecutarRegistro = async () => {
+    console.log('hola');
+
     if (!validarFormulario()) {
+      console.log('Error de validacion');
       return;
     }
     setLoading(true);
     
     try {
       // Simulación de registro exitoso (sin token)
-      console.log('Registrando usuario:', email);
+
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      setLoading(true)
       // Navegar a la pantalla de verificación con el email
+      // navigation.replace('Verify');
       navigation.navigate('Verify', { email: email.toLowerCase().trim() });
       
     } catch (error) {
@@ -110,6 +122,7 @@ export default function RegisterScreen({ navigation }) {
       <KeyboardAvoidingView 
         style={isWeb ? globalStyles.authContainer_web : globalStyles.authContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        enabled={Platform.OS !== 'web'}
       >
         <ScrollView 
           showsVerticalScrollIndicator={false}
