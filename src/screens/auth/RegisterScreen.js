@@ -1,23 +1,20 @@
-import React, { useState, useContext, useMemo } from 'react';
-import { 
-  View, 
-  Alert, 
-  ScrollView,           
+import React, { useState, useMemo } from 'react';
+import {
+  View,
+  Alert,
+  ScrollView,
   KeyboardAvoidingView,
   Platform,
-  TouchableOpacity,
   useColorScheme
 } from 'react-native';
-import { 
-  TextInput, 
-  Button, 
-  Text, 
-  Surface 
+import {
+  TextInput,
+  Button,
+  Text,
+  Surface
 } from 'react-native-paper';
-import { AuthContext } from '../../context/AuthContext';
-import { authStorage } from '../../core/authStorage';
 import { getColors, getglobalStyles } from '../../theme/theme';
-import { LinearGradient } from "expo-linear-gradient";
+import { LinearGradient } from 'expo-linear-gradient';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 export default function RegisterScreen({ navigation }) {
@@ -39,39 +36,39 @@ export default function RegisterScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { signIn } = useContext(AuthContext);
+  // Ya no necesitamos AuthContext ni authStorage
 
   const validarFormulario = () => {
     if (!firstName.trim()) {
-      Alert.alert("Error", "El nombre es obligatorio");
+      Alert.alert('Error', 'El nombre es obligatorio');
       return false;
     }
     if (!lastName.trim()) {
-      Alert.alert("Error", "Los apellidos son obligatorios");
+      Alert.alert('Error', 'Los apellidos son obligatorios');
       return false;
     }
     if (!nickname.trim()) {
-      Alert.alert("Error", "El nombre de usuario es obligatorio");
+      Alert.alert('Error', 'El nombre de usuario es obligatorio');
       return false;
     }
     if (!email.trim()) {
-      Alert.alert("Error", "El email es obligatorio");
+      Alert.alert('Error', 'El email es obligatorio');
       return false;
     }
     if (!email.includes('@') || !email.includes('.')) {
-      Alert.alert("Error", "Introduce un email válido");
+      Alert.alert('Error', 'Introduce un email válido');
       return false;
     }
     if (!password) {
-      Alert.alert("Error", "La contraseña es obligatoria");
+      Alert.alert('Error', 'La contraseña es obligatoria');
       return false;
     }
     if (password.length < 6) {
-      Alert.alert("Error", "La contraseña debe tener al menos 6 caracteres");
+      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres');
       return false;
     }
     if (password !== confirmPassword) {
-      Alert.alert("Error", "Las contraseñas no coinciden");
+      Alert.alert('Error', 'Las contraseñas no coinciden');
       return false;
     }
     return true;
@@ -84,40 +81,16 @@ export default function RegisterScreen({ navigation }) {
     setLoading(true);
     
     try {
-      console.log("Registrando usuario:", email);
-      
+      // Simulación de registro exitoso (sin token)
+      console.log('Registrando usuario:', email);
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      const userData = {
-        first_name: firstName,
-        last_name: lastName,
-        nickname: nickname,
-        email: email.toLowerCase().trim(),
-        birth_date: birthdate || null,
-        password: password,
-      };
-      
-      console.log("Datos enviados:", userData);
-      
-      const fakeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fake-register-token-67890";
-      const fakeUser = {
-        id: 2,
-        first_name: firstName,
-        last_name: lastName,
-        nickname: nickname,
-        email: email,
-      };
-      
-      await authStorage.saveToken(fakeToken);
-      await authStorage.saveUser(fakeUser);
-
-      signIn(fakeToken, fakeUser);
-      
-      Alert.alert("¡Registro exitoso!", `Bienvenido/a ${firstName}!`);
+      // Navegar a la pantalla de verificación con el email
+      navigation.navigate('Verify', { email: email.toLowerCase().trim() });
       
     } catch (error) {
-      console.error("Error en registro:", error);
-      Alert.alert("Error de registro", "No se pudo completar el registro");
+      console.error('Error en registro:', error);
+      Alert.alert('Error de registro', 'No se pudo completar el registro');
     } finally {
       setLoading(false);
     }
@@ -206,7 +179,7 @@ export default function RegisterScreen({ navigation }) {
               left={<TextInput.Icon icon="lock" />}
               right={
                 <TextInput.Icon 
-                  icon={showPassword ? "eye-off" : "eye"} 
+                  icon={showPassword ? 'eye-off' : 'eye'} 
                   onPress={() => setShowPassword(!showPassword)}
                 />
               }
@@ -223,7 +196,7 @@ export default function RegisterScreen({ navigation }) {
               left={<TextInput.Icon icon="lock-check" />}
               right={
                 <TextInput.Icon 
-                  icon={showConfirmPassword ? "eye-off" : "eye"} 
+                  icon={showConfirmPassword ? 'eye-off' : 'eye'} 
                   onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                 />
               }
