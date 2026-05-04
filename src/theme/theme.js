@@ -3,25 +3,25 @@ import { MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
 import { Platform, StyleSheet } from 'react-native';
 
 export const LightColors = {
-  primary:     '#A8DADC', // Menta empolvado (Calma visual)
-  secondary:   '#BDB2FF', // Lavanda suave (Creatividad)
-  background:  '#FDFCFB', // Blanco pergamino (Lujo orgánico)
-  surface:     '#FFFFFF', 
-  text:        '#4A4E69', // Gris malva oscuro (Elegante y legible)
-  textLight:   '#9A8C98', // Arena grisáceo
-  error:       '#E5989B', // Rosa coral pastel
-  placeholder: '#948b89',
+  "primary": "#2E7D7A",
+  "secondary": "#7FD1C8",
+  "background": "#F4F7F7",
+  "surface": "#FFFFFF",
+  "text": "#1F2A2E",
+  "textLight": "#6B7C85",
+  "error": "#E85C5C",
+  "placeholder": "#AAB8BE"
 };
 
 export const DarkColors = {
-  primary:     '#70d5e4', // Azul tiza (Luz suave)
-  secondary:   '#E2ECE9', // Verde bruma
-  background:  '#1E1E24', // Negro carbón suave (No absoluto)
-  surface:     '#2D2D34', // Gris mineral
-  text:        '#F0EFEB', // Blanco lino (Cálido y relajado)
-  textLight:   '#ADACB5', // Gris seda
-  error:       '#FFB7B2', // Melocotón pastel
-  placeholder: '#5E5E66',
+  "primary": "#4DB6AC",
+  "secondary": "#2E7D7A",
+  "background": "#0F1416",
+  "surface": "#172025",
+  "text": "#E6F1F0",
+  "textLight": "#9BB3B1",
+  "error": "#FF7A7A",
+  "placeholder": "#5F7A78"
 };
 
 export const getColors = (scheme) => {
