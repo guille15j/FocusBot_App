@@ -1,13 +1,12 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState, useContext, useMemo } from 'react';
-import { View, Alert, TouchableOpacity, KeyboardAvoidingView, Platform, useColorScheme, ScrollView } from 'react-native';
+import { View, Alert, TouchableOpacity, KeyboardAvoidingView, Platform, useColorScheme, ScrollView, Animated } from 'react-native';
 import { TextInput, Button, Text, Surface, Divider } from 'react-native-paper';
 import { AuthContext } from '../../context/AuthContext';
 import { authStorage } from '../../core/authStorage';
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
-import {AuthService} from '../../services/apiService';
-import AnimatedWithChildren from 'react-native/types_generated/Libraries/Animated/nodes/AnimatedWithChildren';
+import {AuthService} from '../../api/apiService';
 
 export default function LoginScreen({ navigation }) {
   const scheme = useColorScheme();

@@ -38,7 +38,7 @@ export default function App() {
   const navigationRef = React.useRef();
 
   const authActions = useMemo(() => ({
-    signIn: (token, userData) => {
+    signIn: async (token, userData) => {
       console.log("Iniciando sesión con token:", token);
       try{
         await authStorage.saveToken(token);

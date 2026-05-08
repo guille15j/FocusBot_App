@@ -17,7 +17,7 @@ import {
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
-import { AuthService } from '../../services/apiService';
+import { AuthService } from '../../api/apiService';
 
 export default function RegisterScreen({ navigation }) {
   const scheme = useColorScheme();

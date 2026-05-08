@@ -11,7 +11,7 @@ import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { getColors, getglobalStyles } from '../../theme/theme';
 
 import { AuthContext } from '../../context/AuthContext';
-import { UserService } from '../../services/apiService';
+import { UserService } from '../../api/apiService';
 
 const SEVERITY_OPTIONS = [
   { label: 'Leve', value: 'LEVE' },
@@ -67,7 +67,7 @@ export default function ProfilePage({ navigation }) {
     return Object.keys(nuevosErrores).length === 0;
   };
 
-  const ejecutarActualizacion = () => {
+  const ejecutarActualizacion = async () => {
     if (!validarFormulario()) return;
     setLoading(true);
 
@@ -144,7 +144,7 @@ export default function ProfilePage({ navigation }) {
               source={
                 profileImg 
                   ? { uri: profileImg } 
-                  : require('../../assets/default-avatar.png') // Imagen por defecto
+                  : require('../../assets/avatar.png') // Imagen por defecto
               }
               style={{ backgroundColor: colors.surfaceVariant + 40}}
             />

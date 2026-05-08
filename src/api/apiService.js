@@ -1,4 +1,4 @@
-const API_URL = 'http://88.0.69.82:5000/';
+const API_URL = 'http://83.36.5.17:5000/';
 
 import { authStorage } from '../core/authStorage';
 

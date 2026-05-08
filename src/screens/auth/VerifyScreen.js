@@ -16,7 +16,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
-import {AuthService} from '../../services/apiService';
+import {AuthService} from '../../api/apiService';
 
 export default function VerifyScreen({ navigation, route = 'coreo' }) {
   const scheme = useColorScheme();

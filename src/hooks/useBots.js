@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useIsFocused } from '@react-navigation/native';
-import { BotService } from '../services/apiService';
+import { BotService } from '../api/apiService';
 
 export const useBots = (autoRefresh = false, intervalMs = 45000) => {
     const [bots, setBots] = useState([]);

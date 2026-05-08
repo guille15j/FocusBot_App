@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useIsFocused } from '@react-navigation/native';
-import { ActivityService } from '../services/apiService';
+import { ActivityService } from '../api/apiService';
 
 export const useActivities = (autoRefresh = false, intervalMs = 30000) => {
     const [activities, setActivities] = useState([]);

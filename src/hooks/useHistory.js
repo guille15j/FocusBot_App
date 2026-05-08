@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { HistoryService } from '../services/apiService';
+import { HistoryService } from '../api/apiService';
 
 export const useHistory = () => {
     const [history, setHistory] = useState([]);
