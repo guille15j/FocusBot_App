@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useContext } from 'react';
 import { View, Pressable, useColorScheme } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+
 import {
   Text, Avatar, TextInput, Surface, IconButton, Button, List, Divider, HelperText, Menu
 } from 'react-native-paper';
@@ -104,6 +106,28 @@ export default function ProfilePage({ navigation }) {
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }));
   };
 
+  const seleccionarImagen = async () => {
+    // Pedir permisos
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permiso denegado', 'Necesitamos acceso a tus fotos para cambiar el perfil.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true, // Permite recortar la imagen a cuadrado
+      aspect: [1, 1],
+      quality: 0.7, // Comprimimos un poco para no saturar el LargeText innecesariamente
+      base64: true, // CRITICAL: Esto genera el string que necesita tu backend
+    });
+
+    if (!result.canceled) {
+      const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
+      setProfileImg(base64Image); // Actualizamos el estado local
+    }
+  };
+
   const severityLabel = SEVERITY_OPTIONS.find(opt => opt.value === severity)?.label || severity;
 
   return (
@@ -112,13 +136,22 @@ export default function ProfilePage({ navigation }) {
         <View style={{ alignItems: 'center', marginVertical: 20 }}>
           <View style={{ position: 'relative' }}>
             <Avatar.Image
-              size={110}
-              source={require('../../assets/avatar.png')}
-              style={{ backgroundColor: colors.secondary + '40' }}
+              size={120}
+              /* IMPORTANTE: Aquí ocurre la "decodificación". 
+                Al pasarle el string Base64 en el objeto { uri: ... }, 
+                React Native lo renderiza automáticamente como imagen.
+              */
+              source={
+                profileImg 
+                  ? { uri: profileImg } 
+                  : require('../../assets/default-avatar.png') // Imagen por defecto
+              }
+              style={{ backgroundColor: colors.surfaceVariant + 40}}
             />
             {editar && (
+              // Cambbiar imagen de perfil
               <Surface style={{ position: 'absolute', right: 0, bottom: 0, backgroundColor: colors.primary, borderRadius: 20 }} elevation={4}>
-                <IconButton icon="pencil" size={20} iconColor={colors.surface} onPress={() => {}} />
+                <IconButton icon="pencil" size={20} iconColor={colors.surface} onPress={seleccionarImagen} />
               </Surface>
             )}
           </View>
