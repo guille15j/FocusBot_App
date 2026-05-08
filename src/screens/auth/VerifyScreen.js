@@ -16,6 +16,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import {AuthService} from '../../services/apiService';
 
 export default function VerifyScreen({ navigation, route = 'coreo' }) {
   const scheme = useColorScheme();
@@ -39,36 +40,35 @@ export default function VerifyScreen({ navigation, route = 'coreo' }) {
 
     setLoading(true);
     try {
-      // Simulación de verificación exitosa
-      console.log('Verificando código:', code, 'para email:', email);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await AuthService.verify(email, code);
 
-      // Datos simulados de la respuesta del backend
-      const fakeToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fake-jwt-token-verificado';
-      const fakeUser = {
-        id: 2,
-        first_name: 'Usuario',
-        last_name: 'Verificado',
-        nickname: email.split('@')[0],
-        email: email,
-      };
+      if (resposne && response.token){
+        Alert.alert('¡Bienvenido!', 'Cuenta Verificada con éxito');
 
-      // Llamamos al contexto de autenticación para guardar sesión
-      signIn(fakeToken, fakeUser);
-
-      Alert.alert('¡Verificación exitosa!', 'Tu cuenta ha sido activada.');
+        await signUp(response.token, response.user);
+      }else{
+        //en caso de que haya error y el servidor no mande el token del usuario
+        Alert.alert('Verificado', 'Cuenta Verificada con éxito. Ya puedes iniciar sesión');
+        navigation.navigate('Login');
+      }
+      
     } catch (error) {
-      console.error('Error en verificación:', error);
-      Alert.alert('Error', 'Código inválido o expirado.');
+      Alert.alert('Error de verificación', error.message || 'Código incorrecto o expirado');
     } finally {
       setLoading(false);
     }
   };
 
-  const reenviarCodigo = () => {
-    // Simulación de reenvío
-    console.log('Reenviando código a:', email);
-    Alert.alert('Código reenviado', 'Revisa tu bandeja de entrada.');
+  const reenviarCodigo = async () => {
+    setLoading(true);
+    try {
+      await AuthService.resendCode(email);
+      Alert.alert('Enviado', 'Se ha enviado un nuevo código a tu correo.');
+    } catch (error) {
+      Alert.alert('Error', error.message || 'No se pudo reenviar el código');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const volverAlLogin = () => {
