@@ -53,11 +53,27 @@ export const useActivities = (autoRefresh = false, intervalMs = 30000) => {
         }
     };
 
+    const deleteActivity = async (activityId) => {
+        try {
+            // Llamamos al servicio API que ya tienes definido en apiService.js
+            await ActivityService.deleteActivity(activityId);
+            
+            // Actualizamos el estado local de forma reactiva
+            // Filtramos el array para quitar la actividad borrada sin recargar de la DB
+            setActivities((prev) => prev.filter((act) => act.activity_id !== activityId));
+            
+        } catch (err) {
+            setError(err.message);
+            throw err; // Re-lanzamos para que la UI pueda mostrar un Alert si falla
+        }
+    };
+
     return {
         activities,
         loading,
         error,
         refresh: () => fetchActivities(true),
-        updateActivityState
+        updateActivityState,
+        deleteActivity,
     };
 };
