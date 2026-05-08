@@ -6,6 +6,8 @@ import { AuthContext } from '../../context/AuthContext';
 import { authStorage } from '../../core/authStorage';
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import {AuthService} from '../../services/apiService';
+import AnimatedWithChildren from 'react-native/types_generated/Libraries/Animated/nodes/AnimatedWithChildren';
 
 export default function LoginScreen({ navigation }) {
   const scheme = useColorScheme();
@@ -24,26 +26,18 @@ export default function LoginScreen({ navigation }) {
       Alert.alert('Atención', 'Por favor, introduce tu email/usuario y contraseña');
       return;
     }
+
     setLoading(true);
+
     try {
-      console.log('Intentando login con:', email);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const fakeToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fake-jwt-token-12345';
-      const fakeUser = {
-        id: 1,
-        first_name: 'Usuario',
-        last_name: 'Demo',
-        nickname: email.split('@')[0],
-        email: email,
-        profile_img: '',
-      };
-      await authStorage.saveToken(fakeToken);
-      await authStorage.saveUser(fakeUser);
-      signIn(fakeToken, fakeUser);
-      Alert.alert('¡Bienvenido!', `Hola ${fakeUser.first_name}!`);
+      const response = await AuthService.login(email,password);
+      
+      if (response && response.token){
+        await signIn(response.token, response.user);
+      }
+
     } catch (error) {
-      console.error('Error en login:', error);
-      Alert.alert('Error de acceso', 'No se pudo iniciar sesión. Verifica tus credenciales.');
+      Alert.alert('Error de acceso', error.message || 'Credenciales incorrectas');
     } finally {
       setLoading(false);
     }

@@ -40,8 +40,14 @@ export default function App() {
   const authActions = useMemo(() => ({
     signIn: (token, userData) => {
       console.log("Iniciando sesión con token:", token);
-      setUserToken(token);
-      setUser(userData);
+      try{
+        await authStorage.saveToken(token);
+        await authStorage.saveUser(userData);
+        setUserToken(token);
+        setUser(userData);
+      }catch(e){
+        console.error("Error en el proceso de incio de sesion: ",e);
+      }
     },
     signOut: async () => {
       console.log("Cerrando sesión...");
@@ -49,6 +55,16 @@ export default function App() {
       await authStorage.deleteUser();
       setUser(null);
       setUserToken(null);
+    },
+    signUp: async (token, userData) => {
+      try {
+        await authStorage.saveToken(token);
+        await authStorage.saveUser(userData);
+        setUserToken(token);
+        setUser(userData);
+      } catch (e) {
+        console.error("Error al guardar datos tras registro:", e);
+      }
     },
     userToken,
     user,
