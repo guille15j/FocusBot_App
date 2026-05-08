@@ -17,6 +17,7 @@ import {
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import { AuthService } from '../../services/apiService';
 
 export default function RegisterScreen({ navigation }) {
   const scheme = useColorScheme();
@@ -78,13 +79,24 @@ export default function RegisterScreen({ navigation }) {
     if (!validarFormulario()) return;
 
     setLoading(true);
+
     try {
-      console.log('Registrando usuario:', email);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      navigation.navigate('Verify', { email: email.toLowerCase().trim() });
+      const userData = {
+        first_name: firstName,
+        last_name: lastName,
+        nickname: nickname,
+        email: email.toLocaleLowerCase(),
+        password: password,
+        birth_date: birthdate, //Para que no se rompa el back debe ser YYYY-MM-DD en formato
+      };
+      
+      const response = await AuthService.register(userData);
+
+
+      Alert.alert('Éxito', 'Usuario registrado. Revisa tu correo para el código de verificación.');
+      navigation.navigate('Verify', { email: email.toLowerCase() });
     } catch (error) {
-      console.error('Error en registro:', error);
-      Alert.alert('Error de registro', 'No se pudo completar el registro');
+      Alert.alert('Error de registro', error.message || 'No se pudo completar el registro');
     } finally {
       setLoading(false);
     }
