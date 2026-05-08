@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useContext } from 'react';
 import { View, Pressable, useColorScheme } from 'react-native';
 import {
   Text, Avatar, TextInput, Surface, IconButton, Button, List, Divider, HelperText, Menu
@@ -7,6 +7,9 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { getColors, getglobalStyles } from '../../theme/theme';
+
+import { AuthContext } from '../../context/AuthContext';
+import { UserService } from '../../services/apiService';
 
 const SEVERITY_OPTIONS = [
   { label: 'Leve', value: 'LEVE' },
@@ -22,20 +25,27 @@ const TIMEZONE_OPTIONS = [
 ];
 
 export default function ProfilePage({ navigation }) {
+  const { user, signIn } = useContext(AuthContext);
   const scheme = useColorScheme();
   const { isWeb } = useResponsiveLayout();
 
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
 
-  const [firstName, setFirstName] = useState('Juan');
-  const [lastName, setLastName] = useState('Pérez');
-  const [nickname, setNickname] = useState('juanpi_99');
-  const [email, setEmail] = useState('juan.perez@example.com');
-  const [timezone, setTimezone] = useState('UTC+1');
-  const [name_detail, setNameDetail] = useState('TDA');
-  const [description_detail, setDescription] = useState('Descripción detallada de la condición del usuario.');
-  const [severity, setSeverity] = useState('LEVE');
+  // Campos básicos de identidad
+  const [firstName, setFirstName] = useState(user?.first_name || '');
+  const [lastName, setLastName] = useState(user?.last_name || '');
+  const [nickname, setNickname] = useState(user?.nickname || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  // Imagen de perfil (Base64 / LargeText)
+  const [profileImg, setProfileImg] = useState(user?.profile_img || null);
+  // Preferencias y localización
+  const [timezone, setTimezone] = useState(user?.timezone || 'UTC+0');
+  // Detalles médicos / Condición (campos específicos de tu DB)
+  const [name_detail, setNameDetail] = useState(user?.name_detail || '');
+  const [description_detail, setDescriptionDetail] = useState(user?.description_detail || '');
+  const [severity, setSeverity] = useState(user?.severity || 'LEVE');
 
   const [loading, setLoading] = useState(false);
   const [editar, setEditable] = useState(false);
@@ -58,10 +68,35 @@ export default function ProfilePage({ navigation }) {
   const ejecutarActualizacion = () => {
     if (!validarFormulario()) return;
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+
+    try{
+      const datosActualizados = {
+        // Datos validados por el validador lambda en updateUserPatch
+        first_name: firstName,
+        last_name: lastName,
+        nickname: nickname,
+        email: email.toLowerCase(),
+        phone: phone,
+        profile_img: profileImg, // El string Base64 se guarda directamente
+        timezone: timezone,
+        
+        // Detalles adicionales de la condición médica
+        name_detail: name_detail,
+        description_detail: description_detail,
+        severity: severity, // Envía el valor del ENUM (LEVE, MEDIO, ALTO)
+      };
+
+      const response = await UserService.updateUser(datosActualizados);
+
+      await signIn(user.token, {...user, ...datosActualizados}); //Actualizamos los datos que teniamos por los neuvos dentrod e la aplicacion
       setEditable(false);
-    }, 1000);
+      Alert.alert("Éxito", "Perfil actualizado correctamente");
+    
+    }catch (error){
+      Alert.alert("Error", error.message || "No se pudieron guardar los cambios");
+    }finally{
+      setLoading(false);
+    }
   };
 
   const handleChange = (setter, field) => (text) => {
