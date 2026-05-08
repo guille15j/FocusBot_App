@@ -16,6 +16,8 @@ import {
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from "expo-linear-gradient";
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import { AuthService } from '../../services/apiService';
+
 
 export default function ResetScreen({ navigation }) {
   const scheme = useColorScheme();
@@ -52,16 +54,18 @@ export default function ResetScreen({ navigation }) {
     setLoading(true);
     
     try {
-      console.log("Solicitando reset de contraseña para:", identifier);
       
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const response = await AuthService.resetPassword({
+        identifier: identifier.trim(),
+        password: newPassword
+      });
       
       Alert.alert(
         "Contraseña actualizada", 
         "Tu contraseña ha sido cambiada correctamente.",
         [
           { 
-            text: "Ir al Login", 
+            text: "Iniciar Sesión", 
             onPress: () => navigation.replace('Login') 
           }
         ]
@@ -69,7 +73,7 @@ export default function ResetScreen({ navigation }) {
       
     } catch (error) {
       console.error("Error en reset:", error);
-      Alert.alert("Error", "No se pudo restablecer la contraseña");
+      Alert.alert("Error", error.message || "No se pudo restablecer la contraseña");
     } finally {
       setLoading(false);
     }
