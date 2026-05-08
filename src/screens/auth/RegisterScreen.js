@@ -82,20 +82,22 @@ export default function RegisterScreen({ navigation }) {
 
     try {
       const userData = {
-        first_name: firstName,
-        last_name: lastName,
-        nickname: nickname,
-        email: email.toLocaleLowerCase(),
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        nickname: nickname.trim(),
+        email: email.trim().toLowerCase(),
         password: password,
-        birth_date: birthdate, //Para que no se rompa el back debe ser YYYY-MM-DD en formato
+        birth_date: birthdate, // Validado por tu DatePicker (YYYY-MM-DD)
+        // timezone se omite intencionadamente para usar el default del server
       };
-      
-      const response = await AuthService.register(userData);
 
+      // IMPORTANTE: Asegúrate de que AuthService.register esté recibiendo esto
+      const response = await AuthService.register(userData);
 
       Alert.alert('Éxito', 'Usuario registrado. Revisa tu correo para el código de verificación.');
       navigation.navigate('Verify', { email: email.toLowerCase() });
     } catch (error) {
+      console.log("Detalle del error 422:", error);
       Alert.alert('Error de registro', error.message || 'No se pudo completar el registro');
     } finally {
       setLoading(false);

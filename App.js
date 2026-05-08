@@ -119,7 +119,12 @@ export default function App() {
                 </>
               )}
             </Stack.Navigator>
-            {userToken && navigationRef.current && <BottomNav navigation={navigationRef.current} />}
+            {userToken && 
+              <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 9999 }}> 
+              {/* para que este por enci¡ma de todos los componentes y sea pulsable aunque no se haya seguido un beun flujo de renderizado */}
+                <BottomNav navigation={navigationRef.current} />
+              </View>
+            }
           </NavigationContainer>
         </PaperProvider>
       </SafeAreaProvider>

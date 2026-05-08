@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useContext } from 'react';
-import { View, Pressable, useColorScheme } from 'react-native';
+import { View, Pressable, useColorScheme, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 import {
@@ -11,6 +11,7 @@ import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { getColors, getglobalStyles } from '../../theme/theme';
 
 import { AuthContext } from '../../context/AuthContext';
+import { authStorage } from '../../core/authStorage';
 import { UserService } from '../../api/apiService';
 
 const SEVERITY_OPTIONS = [
@@ -71,32 +72,47 @@ export default function ProfilePage({ navigation }) {
     if (!validarFormulario()) return;
     setLoading(true);
 
-    try{
+    try {
       const datosActualizados = {
-        // Datos validados por el validador lambda en updateUserPatch
         first_name: firstName,
         last_name: lastName,
         nickname: nickname,
         email: email.toLowerCase(),
         phone: phone,
-        profile_img: profileImg, // El string Base64 se guarda directamente
+        profile_img: profileImg,
         timezone: timezone,
-        
-        // Detalles adicionales de la condición médica
         name_detail: name_detail,
         description_detail: description_detail,
-        severity: severity, // Envía el valor del ENUM (LEVE, MEDIO, ALTO)
+        severity: severity,
+      };
+      
+      console.log('1. Enviando a servidor...');
+      await UserService.updateUser(datosActualizados);
+      
+      console.log('2. Obteniendo token...');
+      const tokenActual = await authStorage.getToken();
+      
+      // IMPORTANTE: Creamos el objeto nuevo asegurándonos de no enviar undefined
+      const usuarioParaContexto = {
+        ...user, // Mantenemos lo que ya había (como el user_id)
+        ...datosActualizados
       };
 
-      const response = await UserService.updateUser(datosActualizados);
-
-      await signIn(user.token, {...user, ...datosActualizados}); //Actualizamos los datos que teniamos por los neuvos dentrod e la aplicacion
+      console.log('3. Actualizando Contexto con:', usuarioParaContexto.nickname);
+      
+      // Llamamos al signIn
+      await signIn(tokenActual, usuarioParaContexto); 
+      
+      console.log('4. ¡Contexto actualizado! Cerrando edición...');
+      
+      // SI LLEGA AQUÍ, SE CERRARÁ EL MODO EDICIÓN
       setEditable(false);
       Alert.alert("Éxito", "Perfil actualizado correctamente");
     
-    }catch (error){
-      Alert.alert("Error", error.message || "No se pudieron guardar los cambios");
-    }finally{
+    } catch (error) {
+      console.error("ERROR CRÍTICO EN ACTUALIZACIÓN:", error);
+      Alert.alert("Error", "Ocurrió un fallo al sincronizar los datos locales.");
+    } finally {
       setLoading(false);
     }
   };
@@ -107,24 +123,26 @@ export default function ProfilePage({ navigation }) {
   };
 
   const seleccionarImagen = async () => {
-    // Pedir permisos
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permiso denegado', 'Necesitamos acceso a tus fotos para cambiar el perfil.');
+      Alert.alert('Permiso denegado', 'Necesitamos acceso a tus fotos.');
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true, // Permite recortar la imagen a cuadrado
+      mediaTypes: ['images'], // Cambiado de deprecated ImagePicker.MediaTypeOptions.Images
+      allowsEditing: true,
       aspect: [1, 1],
-      quality: 0.7, // Comprimimos un poco para no saturar el LargeText innecesariamente
-      base64: true, // CRITICAL: Esto genera el string que necesita tu backend
+      quality: 0.2, // Calidad baja para asegurar que el string Base64 no se bloquee
+      base64: true,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled && result.assets && result.assets[0].base64) {
       const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
-      setProfileImg(base64Image); // Actualizamos el estado local
+      console.log('Imagen seleccionada. Longitud base64:', base64Image.length); // DEBUG VITAL
+      setProfileImg(base64Image);
+    } else if (!result.canceled) {
+        console.warn("La imagen no contiene datos Base64");
     }
   };
 
@@ -310,7 +328,7 @@ export default function ProfilePage({ navigation }) {
             <TextInput
               label="Descripción"
               value={description_detail}
-              onChangeText={handleChange(setDescription, 'description')}
+              onChangeText={handleChange(setDescriptionDetail, 'description')}
               mode="outlined"
               multiline
               numberOfLines={4}

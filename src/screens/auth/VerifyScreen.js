@@ -40,19 +40,22 @@ export default function VerifyScreen({ navigation, route = 'coreo' }) {
 
     setLoading(true);
     try {
+      // 1. Llamada al servicio (asegúrate de que en AuthService envías 'codigo: code')
       const response = await AuthService.verify(email, code);
 
-      if (resposne && response.token){
+      // 2. Corregido el typo 'resposne'
+      if (response && response.token) {
         Alert.alert('¡Bienvenido!', 'Cuenta Verificada con éxito');
 
-        await signUp(response.token, response.user);
-      }else{
-        //en caso de que haya error y el servidor no mande el token del usuario
+        // 3. Corregido signUp -> signIn (que es lo que extraes del Contexto)
+        await signIn(response.token, response.user);
+      } else {
         Alert.alert('Verificado', 'Cuenta Verificada con éxito. Ya puedes iniciar sesión');
         navigation.navigate('Login');
       }
       
     } catch (error) {
+      // Aquí el error.message ya funcionará bien con el fetchApi corregido
       Alert.alert('Error de verificación', error.message || 'Código incorrecto o expirado');
     } finally {
       setLoading(false);

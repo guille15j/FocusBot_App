@@ -25,17 +25,22 @@ async function fetchApi(endpoint, method = 'GET', body = null) {
 
     try {
         const respuesta = await fetch(url, options);
+        
+        // Leemos el cuerpo UNA SOLA VEZ
         const data = await respuesta.json().catch(() => null);
 
         if (!respuesta.ok) {
-            console.error(`Status: ${respuesta.status} en la URL: ${url}`);
-            const errorData = await respuesta.json().catch(() => ({ message: "Error no JSON" }));
-            throw new Error(errorData.message || `Error ${respuesta.status}`);
+            // El servidor devolvió un error (400, 422, 500, etc.)
+            // Mostramos el mensaje que viene del backend o el status si no hay mensaje
+            const mensajeError = data?.message || data?.error || `Error ${respuesta.status}`;
+            console.error(`Error en ${url}:`, mensajeError);
+            throw new Error(mensajeError);
         }
 
         return data;
 
     } catch (error) {
+        // Este catch ahora sí recibirá el mensaje real del servidor
         throw error;
     }
 }
@@ -45,15 +50,15 @@ export const AuthService = {
     // Nombre_Func : (parametros) => fetchApi(Configuracion),
     login: (identifier, password) => fetchApi('auth/login', 'POST', { identifier, password }),
     register: (userData) => fetchApi('auth/register', 'POST', userData),
-    verify: (email, code) => fetchApi('auth/verify', 'POST', { email, code }),
+    verify: (email, codigo) => fetchApi('auth/verify', 'POST', { email, codigo }),
     resendCode: (email) => fetchApi('auth/resend-code', 'POST', { email }),
-    resetPassword: (data) => fetchApi('auth/reset-password', 'POST', data),
+    resetPassword: (data) => fetchApi('auth/change/password', 'POST', data),
 
 };
 
 export const UserService = {
     getUser: () => fetchApi('users/user', 'GET'),
-    updateUser: (userData) => fetchApi('users/user', 'PATCH', userData),
+    updateUser: (userData) => fetchApi('users/update', 'PATCH', userData),
 }
 
 export const BotService = {

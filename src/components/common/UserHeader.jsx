@@ -11,6 +11,14 @@ const UserHeader = ({ user }) => {
   const { signOut } = useContext(AuthContext);
 
   if (!user) return null;
+  else {
+    console.log("--- DEBUG FOTO ---");
+    console.log("¿Existe objeto user?:", !!user);
+    console.log("¿Tiene profile_img?:", !!user?.profile_img);
+    console.log("Longitud del string:", user?.profile_img?.length);
+    console.log("Comienzo del string:", user?.profile_img?.substring(0, 50));
+    console.log("------------------");
+  }
 
   const ejecutarLogout = async () => {
     await signOut();
@@ -34,7 +42,7 @@ const UserHeader = ({ user }) => {
             />
             <View>
               <Text style={styles.userName}>{user.first_name} {user.last_name}</Text>
-              <Text style={styles.userDetail}>{user.email || user.user_id}</Text>
+              <Text style={styles.userDetail}>{'#'+ user.nickname || user.email}</Text>
             </View>
             <View style={{ flex: 1 }} />
             <IconButton mode="contained" icon="logout" size={20} onPress={ejecutarLogout} iconColor={colors.primary} />
