@@ -24,7 +24,14 @@ const UserHeader = ({ user }) => {
       <View style={styles.userContainer}>
         {!isWeb && (
           <>
-            <Avatar.Image size={60} source={require('../../assets/avatar.png')} />
+            <Avatar.Image 
+              size={isWeb ? 100 : 60} 
+              source={
+                user.profile_img 
+                  ? { uri: user.profile_img } // Si existe Base64 en la DB, úsalo
+                  : require('../../assets/avatar.png') // Si no, usa el fallback actual
+              } 
+            />
             <View>
               <Text style={styles.userName}>{user.first_name} {user.last_name}</Text>
               <Text style={styles.userDetail}>{user.email || user.user_id}</Text>
