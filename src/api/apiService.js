@@ -43,19 +43,33 @@ async function fetchApi(endpoint, method = 'GET', body = null) {
 // Agrupaciones de endpoints por "objetos" para mayor control y legibilidad
 export const AuthService = {
     // Nombre_Func : (parametros) => fetchApi(Configuracion),
-    login : (identifier, password) => fetchApi('auth/login', 'POST', { identifier, password }),
+    login: (identifier, password) => fetchApi('auth/login', 'POST', { identifier, password }),
     register: (userData) => fetchApi('auth/register', 'POST', userData),
+    verify: (email, code) => fetchApi('auth/verify', 'POST', { email, code }),
+    resendCode: (email) => fetchApi('auth/resend-code', 'POST', { email }),
+    resetPassword: (data) => fetchApi('auth/reset-password', 'POST', data),
+
 };
 
 export const UserService = {
-    getUSer: () => fetchApi('users/user', 'GET')
+    getUser: () => fetchApi('users/user', 'GET'),
+    updateUser: (userData) => fetchApi('users/user', 'PATCH', userData),
 }
 
 export const BotService = {
-    getBots: () => fetchApi('bot/getByUser','GET',null),
-    linkBot: (mac, name) => fetchApi('bot/pair', 'POST', {mac_address: mac, custom_name: name}),
+    getBots: () => fetchApi('bots/', 'GET'),
+    linkBot: (mac_address, custom_name) => fetchApi('bots/link', 'POST', { mac_address, custom_name }),
+    editBot: (botId, data) => fetchApi(`bots/${botId}`, 'PATCH', data),
+    deleteBot: (botId) => fetchApi(`bots/${botId}`, 'DELETE'),
 };
 
 export const ActivityService = {
+    getActivities: () => fetchApi('activities/', 'GET'),
+    createActivity: (activityData) => fetchApi('activities/', 'POST', activityData),
+    updateState: (activityId, newState) => fetchApi(`activities/${activityId}/state`, 'PATCH', { state: newState }),
+};
 
+export const HistoryService = {
+    getRecords: () => fetchApi('history/', 'GET'),
+    calculateRecord: (init_date, end_date) => fetchApi('history/', 'POST', { init_date_range: init_date, end_date_range: end_date }),
 };
