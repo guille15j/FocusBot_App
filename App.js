@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { authStorage } from './src/core/authStorage';
 import { AuthContext } from './src/context/AuthContext';
+import { BotProvider } from './src/context/BotContext';
 import { getAppTheme } from './src/theme/theme';
 
 import LoginScreen from './src/screens/auth/LoginScreen';
@@ -96,6 +97,7 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={authActions}>
+      <BotProvider>
       <SafeAreaProvider>
         <PaperProvider theme={theme}>         
           <NavigationContainer ref={navigationRef}>
@@ -128,6 +130,7 @@ export default function App() {
           </NavigationContainer>
         </PaperProvider>
       </SafeAreaProvider>
+      </BotProvider>
     </AuthContext.Provider>
   );
 }
