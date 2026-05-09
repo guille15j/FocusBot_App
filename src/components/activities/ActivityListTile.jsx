@@ -45,9 +45,7 @@ const ActivityListTile = ({ item, onInfoPress, AppColors }) => {
           <Text variant="labelSmall" style={{ color: stateColor, fontWeight: 'bold' }}>
             {item?.state ?? 'PENDIENTE'} •{' '}
           </Text>
-          <Text variant="bodySmall" style={{ color: AppColors.placeholder, flex: 1 }} numberOfLines={1}>
-            {item?.description ?? ''}
-          </Text>
+          
         </View>
       </View>
       

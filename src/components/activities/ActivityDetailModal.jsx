@@ -143,14 +143,7 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
             )}
           </View>
 
-          {activity.description ? (
-            <Surface style={[styles.descriptionCard, { backgroundColor: colors.background }]}>
-              <Text style={[styles.sectionTitle, { color: colors.textLight }]}>Descripcion</Text>
-              <Text style={[styles.descriptionText, { color: colors.text }]}>
-                {activity.description}
-              </Text>
-            </Surface>
-          ) : null}
+          
 
           <View style={styles.infoGrid}>
             <Surface style={[styles.infoCard, { backgroundColor: colors.background }]}>

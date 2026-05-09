@@ -27,22 +27,22 @@ export const ActivityProvider = ({ children }) => {
     const addFullActivity = async (payload, selectedBot) => {
         setLoading(true);
         try {
-            // A. Crear el Tipo
+            // Crear el Tipo
             const typeData = {
-                name_type: payload.title,
+                name_type: payload.config.name_type,
                 work_duration: parseInt(payload.config.work_duration, 10) || 0,
                 short_break: parseInt(payload.config.short_break, 10) || 0,
                 long_break: parseInt(payload.config.long_break, 10) || 0,
                 cycles_before_long: parseInt(payload.config.cycles_before_long, 10) || 0
             };
+            //esperamos respuesta
             const typeResponse = await ActivityService.createType(typeData);
 
-            // B. Crear la Actividad
+            //Crear la Actividad
             const activityPayload = {
                 type_id: typeResponse.id,
                 bot_id: payload.bot_id,
                 title: payload.title,
-                description: payload.description,
                 category: payload.category,
                 init_date: payload.init_date,
                 end_date: payload.end_date,
@@ -50,24 +50,13 @@ export const ActivityProvider = ({ children }) => {
             };
             const response = await ActivityService.createActivity(activityPayload);
 
-            // C. ACTUALIZACIÓN MANUAL INMEDIATA
-            // Construimos el objeto tal cual lo espera el resto de la app
-            const newActivity = {
-                ...response, // ID y user_id del servidor
-                title: payload.title,
-                description: payload.description,
-                state: 'PENDIENTE',
-                category: payload.category,
-                type: { ...typeData, type_id: typeResponse.id },
-                bot: selectedBot ? {
-                    bot_id: selectedBot.bot_id,
-                    name: selectedBot.custom_name,
-                    status: selectedBot.status
-                } : null
-            };
+            if (response) {
+                //si la respuesta existe es porque es correcta porque sino el fucnion fetch APi lanza error
+                //Actuializamos antres de que tengamos que esperar a que se recarge la app por si sola para merjorar el feedback a los usuarios
+            }
 
             // Sincronizamos el estado de React sin llamar a la API
-            setActivities(prev => [newActivity, ...prev]);
+            // setActivities(prev => [newActivity, ...prev]);
             
             return response;
         } catch (err) {

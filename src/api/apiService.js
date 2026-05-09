@@ -32,7 +32,7 @@ async function fetchApi(endpoint, method = 'GET', body = null) {
         if (!respuesta.ok) {
             // El servidor devolvió un error (400, 422, 500, etc.)
             // Mostramos el mensaje que viene del backend o el status si no hay mensaje
-            const mensajeError = data?.message || data?.error || `Error ${respuesta.status}`;
+            const mensajeError =  data?.error  || data?.message ||`Error ${respuesta.status}`;
             console.error(`Error en ${url}:`, mensajeError);
             throw new Error(mensajeError);
         }

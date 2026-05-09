@@ -65,22 +65,15 @@ export default function LoginScreen({ navigation }) {
             </View>
             <TextInput label="Email o Usuario" value={email} onChangeText={setEmail} mode="outlined" keyboardType="email-address" autoCapitalize="none" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="account" />} />
             <TextInput label="Contraseña" value={password} onChangeText={setPassword} mode="outlined" secureTextEntry={!showPassword} style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="lock" />} right={<TextInput.Icon icon={showPassword ? 'eye-off' : 'eye'} onPress={() => setShowPassword(!showPassword)} />} />
-            <TouchableOpacity onPress={irAReset} style={globalStyles.linkContainer}>
-              <Text style={[globalStyles.link, { fontSize: 14 }]}>¿Has olvidado la contraseña?</Text>
-            </TouchableOpacity>
-            <View style={globalStyles.botonera}>
-              <Button mode="contained" onPress={ejecutarLogin} loading={loading} disabled={loading} style={[globalStyles.button, { flex: 1 }]} buttonColor={colors.primary} textColor={colors.background} labelStyle={{ fontSize: 16, fontWeight: '600' }}>Sign in</Button>
-              <Button mode="outlined" onPress={irARegistro} disabled={loading} style={[globalStyles.buttonOutline, { flex: 1 }]} labelStyle={{ fontSize: 16 }}>Sign up</Button>
-            </View>
+            
+            {/* <View style={globalStyles.botonera}> */}
+              <TouchableOpacity onPress={irAReset} style={globalStyles.linkContainer}>
+                <Text style={[globalStyles.link, { fontSize: 14 }]}>¿Has olvidado la contraseña?</Text>
+              </TouchableOpacity>
+              {/* </View> */}
 
-            {/* Separador visual */}
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 20 }}>
-              <Divider style={{ flex: 1 }} />
-              <Text style={{ marginHorizontal: 12, color: colors.textLight, fontSize: 12, fontWeight: '600' }}>o</Text>
-              <Divider style={{ flex: 1 }} />
-            </View>
-
-            {/* Botón de Google */}
+            <Button icon="login" mode="contained" onPress={ejecutarLogin} loading={loading} disabled={loading} style={[globalStyles.button, { flex: 1 }]} buttonColor={colors.primary} textColor={colors.background} labelStyle={{ fontSize: 16, fontWeight: '600' }}>Iniciar sesión</Button>
+            
             <Button
               mode="outlined"
               onPress={ejecutarGoogleLogin}
@@ -95,6 +88,19 @@ export default function LoginScreen({ navigation }) {
             >
               Continuar con Google
             </Button>
+
+            {/* Separador visual */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 20 }}>
+              <Divider style={{ flex: 1 }} />
+              <Text style={{ marginHorizontal: 12, color: colors.textLight, fontSize: 12, fontWeight: '600' }}>o</Text>
+              <Divider style={{ flex: 1 }} />
+            </View>
+
+            {/* Botón de Google */}
+            
+
+              <Button icon='account-plus' mode="outlined" onPress={irARegistro} disabled={loading} style={[globalStyles.buttonOutline, { flex: 1 }]} labelStyle={{ fontSize: 16 }}>Registrarse</Button>
+
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

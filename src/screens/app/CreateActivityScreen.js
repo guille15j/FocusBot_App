@@ -55,16 +55,15 @@ export default function CreateActivityScreen({ navigation, route }) {
   const { addFullActivity, loading } = useContext(ActivityContext);
   const isEditing = activity !== null;
 
-  const [selectedBot, setSelectedBot] = useState(activity?.bot_id || null);
-  const [title, setTitle] = useState(activity?.title || '');
-  const [description, setDescription] = useState(activity?.description || '');
-  const [category, setCategory] = useState(activity?.category || '');
-  const [activityType, setActivityType] = useState('POMODORO');
+  const [selectedBot, setSelectedBot] = useState(activity?.bot_id || null);     // id bot
+  const [title, setTitle] = useState(activity?.title || '');                    // titulo actividad
+  const [category, setCategory] = useState(activity?.category || '');           // Categoria enumerador en bbdd
+  const [activityType, setActivityType] = useState('POMODORO');                 // titulo tipo de actividad
   
-  const [audioProfile, setAudioProfile] = useState('ninguno');
-  const [audioMenuVisible, setAudioMenuVisible] = useState(false);
+  const [audioProfile, setAudioProfile] = useState('ninguno');                  // confiugracion de audio - extra_data en bbdd
+  const [audioMenuVisible, setAudioMenuVisible] = useState(false);              
 
-  const [focusTime, setFocusTime] = useState('25');
+  const [focusTime, setFocusTime] = useState('25');                             
   const [shortBreak, setShortBreak] = useState('5');
   const [longBreak, setLongBreak] = useState('15');
   const [cyclesBeforeLong, setCyclesBeforeLong] = useState('4');
@@ -98,34 +97,41 @@ export default function CreateActivityScreen({ navigation, route }) {
     }
 
     try {
+      // añadimos ya el audio que a extra data ya que no necesita verificacion
       const extra_data = { audio: audioProfile };
+
+      // filtro de tipo de actividad para añadir a extradata algo si le toca tmepo es el unico que no mete nada
       if (activityType === 'POMODORO') {
         extra_data.total_ciclos = parseInt(totalCycles, 10);
       } else if (activityType === 'HITO') {
         extra_data.hitos = hitos.map(h => h.nombre).filter(n => n.trim() !== '');
       }
 
+      //configuramos el payload-mensaje que le vamos a amndar a al fucnion para que cree el cuerpo de la fucnion
       const payload = {
-        title: title.trim(),
-        description: description.trim(),
-        bot_id: selectedBot,
-        category: category,
-        init_date: null,
-        end_date: null,
-        config: {
-          work_duration: activityType === 'TEMPORIZADOR' 
-            ? (parseInt(timerHours || 0) * 60 + parseInt(timerMinutes || 0)) 
-            : parseInt(focusTime || 25),
-          short_break: parseInt(shortBreak || 5),
-          long_break: parseInt(longBreak || 15),
+        title: title.trim(),  //titulo de la actividad
+        bot_id: selectedBot,  //id del bot a usar
+        category: category,   //enumerador de la cateogira
+        init_date: null,      //se rellenan luego
+        end_date: null,       // se rellenena luego
+        config: {             //parametros del activity type
+          name_type: activityType,
+          work_duration:      // es especial si es de tipo temporizador porque hay que parsear los dos campos
+          activityType === 'TEMPORIZADOR' ? (parseInt(timerHours || 0) * 60 + parseInt(timerMinutes || 0)) 
+            : parseInt(focusTime || 0), //si no estan rellenos es posible que sea porque no se usan y es necesario que esten a cero
+          short_break: parseInt(shortBreak || 0),
+          long_break: parseInt(longBreak || 0),
           cycles_before_long: parseInt(cyclesBeforeLong || 4),
         },
         extra_data: extra_data
       };
 
       const botObjeto = bots.find(b => b.bot_id === selectedBot);
+      
       await addFullActivity(payload, botObjeto);
       navigation.goBack();
+
+      
     } catch (error) {
       Alert.alert('Error', error.message || 'Error al guardar');
     }
@@ -215,7 +221,7 @@ export default function CreateActivityScreen({ navigation, route }) {
                 <View style={styles.stepperRow}>
                   <Text style={{ color: colors.text, fontWeight: '500' }}>Ciclos Totales</Text>
                   <View style={styles.stepper}>
-                    <IconButton icon="minus" size={18} onPress={() => setTotalCycles(Math.max(1, totalCycles - 1))} />
+                    <IconButton icon="minus" size={18} onPress={() => setTotalCycles(Math.max(0, totalCycles - 1))} />
                     <Text style={{ fontWeight: 'bold', fontSize: 16, minWidth: 25, textAlign: 'center' }}>{totalCycles}</Text>
                     <IconButton icon="plus" size={18} onPress={() => setTotalCycles(totalCycles + 1)} />
                   </View>
@@ -240,7 +246,7 @@ export default function CreateActivityScreen({ navigation, route }) {
                   </Surface>
                 ))}
                 {hitos.length < 10 && (
-                  <Button icon="plus" mode="outlined" onPress={addHito} style={{ marginTop: 5, borderRadius: 20 }}>Añadir nuevo Hi</Button>
+                  <Button icon="plus" mode="outlined" onPress={addHito} style={{ marginTop: 5, borderRadius: 20 }}>Hito</Button>
                 )}
               </View>
             )}
@@ -254,7 +260,7 @@ export default function CreateActivityScreen({ navigation, route }) {
           </View>
 
 
-          <Button mode="contained" onPress={handleSave} loading={loading} style={globalStyles.button} icon='playlist-plus'>Crear</Button>
+          <Button mode="contained" onPress={handleSave} loading={loading} style={[globalStyles.button, { flex: 1 }]} buttonColor={colors.primary} textColor={colors.background} icon='playlist-plus'>Crear</Button>
 
 
         </ScrollView>
@@ -283,8 +289,8 @@ const styles = StyleSheet.create({
   dropdownContent: { flexDirection: 'row', alignItems: 'center' },
   pomodoroGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   gridInput: { width: '47%', height: 50 },
-  stepperRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 18, paddingHorizontal: 5 },
-  stepper: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.05)', borderRadius: 20, paddingHorizontal: 4 },
+  stepperRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 18, paddingHorizontal: 5},
+  stepper: { flexDirection: 'row', alignItems: 'center', borderRadius: 20, paddingHorizontal: 4 },
   hitoCard: { padding: 12, borderRadius: 16, marginBottom: 12, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2 },
   hitoHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   timerRow: { flexDirection: 'row', gap: 10 },

@@ -59,11 +59,7 @@ const ActivityCard = ({ activity, onPress }) => {
             </Surface>
           </View>
 
-          {activity.description && (
-            <Text variant="bodyMedium" style={[styles.description, { color: AppColors.textLight }]} numberOfLines={2}>
-              {activity.description}
-            </Text>
-          )}
+          
 
           <View style={styles.footerRow}>
             <View style={styles.timeInfo}>

@@ -35,8 +35,7 @@ export default function Activities({ navigation }) {
   const actividadesFiltradas = useMemo(() => {
     if (!searchQuery) return activities;
     return activities.filter(act => 
-      act.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      act.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      act.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [searchQuery, activities]);
 

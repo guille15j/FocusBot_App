@@ -139,7 +139,7 @@ export const getglobalStyles = (scheme, isWeb = false) => {
     },
     input: {
       backgroundColor: colors.surface,
-      marginBottom: 12,
+      marginBottom: 5,
     },
     button: {
       marginTop: 12,
