@@ -124,7 +124,7 @@ export default function App() {
               )}
             </Stack.Navigator>
             {userToken && 
-              <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 9999 }}> 
+              <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 999 }}> 
               {/* para que este por enci¡ma de todos los componentes y sea pulsable aunque no se haya seguido un beun flujo de renderizado */}
                 <BottomNav navigation={navigationRef.current} />
               </View>

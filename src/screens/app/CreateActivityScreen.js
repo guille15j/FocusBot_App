@@ -52,24 +52,26 @@ export default function CreateActivityScreen({ navigation, route }) {
 
   const activity = route?.params?.activity || null;
   const { bots } = useContext(BotContext);
-  const { addFullActivity, loading } = useContext(ActivityContext);
+  const { addFullActivity, updateActivity, loading } = useContext(ActivityContext);
   const isEditing = activity !== null;
 
   const [selectedBot, setSelectedBot] = useState(activity?.bot_id || null);     // id bot
   const [title, setTitle] = useState(activity?.title || '');                    // titulo actividad
   const [category, setCategory] = useState(activity?.category || '');           // Categoria enumerador en bbdd
-  const [activityType, setActivityType] = useState('POMODORO');                 // titulo tipo de actividad
+  const [activityType, setActivityType] = useState(activity?.type.name_type ||'POMODORO');  // titulo tipo de actividad
   
-  const [audioProfile, setAudioProfile] = useState('ninguno');                  // confiugracion de audio - extra_data en bbdd
+  const [audioProfile, setAudioProfile] = useState(activity?.extra_data.audio || 'ninguno');                  // confiugracion de audio - extra_data en bbdd
   const [audioMenuVisible, setAudioMenuVisible] = useState(false);              
 
-  const [focusTime, setFocusTime] = useState('25');                             
-  const [shortBreak, setShortBreak] = useState('5');
-  const [longBreak, setLongBreak] = useState('15');
-  const [cyclesBeforeLong, setCyclesBeforeLong] = useState('4');
-  const [totalCycles, setTotalCycles] = useState(0); 
+  const [focusTime, setFocusTime] = useState(activity?.type.work_duration.toString() || '25');                             
+  const [shortBreak, setShortBreak] = useState(activity?.type.short_break.toString() || '5');
+  const [longBreak, setLongBreak] = useState(activity?.type.long_break.toString() || '15');
+  const [cyclesBeforeLong, setCyclesBeforeLong] = useState(activity?.type.cycles_before_long.toString() || '4');
+  const [totalCycles, setTotalCycles] = useState(activity?.extra_data.total_ciclos || 0); 
 
-  const [hitos, setHitos] = useState([{ nombre: '' }]);
+  const [hitos, setHitos] = useState(
+  activity?.extra_data?.hitos?.map(hito => ({ nombre: hito })) || [{ nombre: '' }]
+);
 
   const [timerHours, setTimerHours] = useState('0');
   const [timerMinutes, setTimerMinutes] = useState('25');
@@ -137,6 +139,50 @@ export default function CreateActivityScreen({ navigation, route }) {
     }
   };
 
+  const handleEdit = async () => {
+    if (!title.trim() || !selectedBot || !category || !activityType) {
+      Alert.alert('Error', 'Por favor, rellena los campos obligatorios.');
+      return;
+    }
+
+    try {
+      // añadimos ya el audio que a extra data ya que no necesita verificacion
+      const extra_data = { audio: audioProfile };
+
+      // filtro de tipo de actividad para añadir a extradata algo si le toca tmepo es el unico que no mete nada
+      if (activityType === 'POMODORO') {
+        extra_data.total_ciclos = parseInt(totalCycles, 10);
+      } else if (activityType === 'HITO') {
+        extra_data.hitos = hitos.map(h => h.nombre).filter(n => n.trim() !== '');
+      }
+
+      //configuramos el payload-mensaje que le vamos a amndar a al fucnion para que cree el cuerpo de la fucnion
+      const payload = {
+        title: title.trim(),  //titulo de la actividad
+        bot_id: selectedBot,  //id del bot a usar
+        category: category,   //enumerador de la cateogira
+        config: {             //parametros del activity type
+          name_type: activityType,
+          work_duration:      // es especial si es de tipo temporizador porque hay que parsear los dos campos
+          activityType === 'TEMPORIZADOR' ? 
+            (parseInt(timerHours || 0) * 60 + parseInt(timerMinutes || 0)) 
+            : parseInt(focusTime || 0), //si no estan rellenos es posible que sea porque no se usan y es necesario que esten a cero
+          short_break: parseInt(shortBreak || 0),
+          long_break: parseInt(longBreak || 0),
+          cycles_before_long: parseInt(cyclesBeforeLong || 4),
+        },
+        extra_data: extra_data
+      };
+      
+      await updateActivity(activity.activity_id, payload);
+      navigation.goBack();
+
+      
+    } catch (error) {
+      Alert.alert('Error', error.message || 'Error al actualizar la actividad');
+    }
+  };
+
   return (
     <ScreenWrapper withScroll={true}>
       <View style={[isWeb ? globalStyles.container_web : globalStyles.container_movil, { flex: 1 }]}>
@@ -160,6 +206,7 @@ export default function CreateActivityScreen({ navigation, route }) {
 
           <TextInput label="Título de la actividad" mode="outlined" outlineStyle={{ borderRadius: 30 }} style={globalStyles.input} value={title} onChangeText={setTitle} />
 
+          {/* categoria */}
           <View style={styles.dropdownRow}>
             <View style={{ flex: 1 }}>
               <Text style={[styles.label, { color: colors.textLight }]}>CATEGORÍA</Text>
@@ -176,11 +223,17 @@ export default function CreateActivityScreen({ navigation, route }) {
                 ))}
               </Menu>
             </View>
-
+            
+            {/* audioo */}
             <View style={{ flex: 1 }}>
               <Text style={[styles.label, { color: colors.textLight }]}>AUDIO AMBIENTE</Text>
               <Menu visible={audioMenuVisible} onDismiss={() => setAudioMenuVisible(false)} anchor={
-                <TouchableRipple onPress={() => setAudioMenuVisible(true)} style={[styles.dropdown, { backgroundColor: selectedAudio ? selectedAudio.color + '15' : colors.surface, borderColor: selectedAudio ? selectedAudio.color : colors.placeholder + '40' }]}>
+                <TouchableRipple 
+                  onPress={() => setAudioMenuVisible(true)} 
+                  style={[styles.dropdown, { 
+                    backgroundColor: selectedAudio ? selectedAudio.color + '15' : colors.surface, 
+                    borderColor: selectedAudio ? selectedAudio.color : colors.placeholder + '40' }]}
+                >
                   <View style={styles.dropdownContent}>
                     <MaterialCommunityIcons name={selectedAudio?.icon} size={20} color={selectedAudio?.color} style={{ marginRight: 8 }} />
                     <Text style={{ color: selectedAudio?.color || colors.placeholder, fontWeight: '600' }}>{selectedAudio?.label || 'Sin sonido'}</Text>
@@ -194,6 +247,7 @@ export default function CreateActivityScreen({ navigation, route }) {
             </View>
           </View>
 
+          {/* tipo */}
           <Text style={[styles.label, { color: colors.textLight, marginTop: 24 }]}>TIPO DE ACTIVIDAD</Text>
           <Menu visible={typeMenuVisible} onDismiss={() => setTypeMenuVisible(false)} anchor={
             <TouchableRipple onPress={() => setTypeMenuVisible(true)} style={[styles.dropdown, { height: 55, borderColor: selectedType?.color || colors.placeholder + '40' }]}>
@@ -260,7 +314,7 @@ export default function CreateActivityScreen({ navigation, route }) {
           </View>
 
 
-          <Button mode="contained" onPress={handleSave} loading={loading} style={[globalStyles.button, { flex: 1 }]} buttonColor={colors.primary} textColor={colors.background} icon='playlist-plus'>Crear</Button>
+          <Button mode="contained" onPress={activity ? handleEdit :handleSave} loading={loading} style={[globalStyles.button, { flex: 1 }]} buttonColor={colors.primary} textColor={colors.background} icon='playlist-plus'>Crear</Button>
 
 
         </ScrollView>

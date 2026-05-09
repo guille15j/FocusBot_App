@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, ScrollView, useColorScheme, StyleSheet, Alert } from 'react-native';
-import { Text, Searchbar, Chip, SegmentedButtons } from 'react-native-paper';
+import { Text, Searchbar, Chip, SegmentedButtons, Icon } from 'react-native-paper';
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { getColors, getglobalStyles } from '../../theme/theme';
@@ -93,7 +93,8 @@ export default function Activities({ navigation }) {
         <ScrollView onScroll={onScroll} scrollEventThrottle={16} style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: isWeb ? 10 : (platform === 'ios' ? 40 : 65) }}>
           {activities.length === 0 && !loading ? (
             <View style={{ padding: 50, alignItems: 'center' }}>
-              <Text variant="bodyLarge" style={{ color: colors.outline, textAlign: 'center' }}>
+              <Icon source="robot-happy" size={100} />
+              <Text variant="bodyLarge" style={{ color: colors.text, textAlign: 'center' }}>
                 No hay actividades.{"\n"}¡Crea la primera pulsando el botón +!
               </Text>
             </View>
