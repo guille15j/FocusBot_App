@@ -46,9 +46,9 @@ const BotCard = ({ item, AppColors, onClick }) => {
 
 const styles = StyleSheet.create({
   card: {
-    flex: 1,
+    // flex: 1,
     margin: 8,
-    borderRadius: 15,
+    borderRadius: 33,
     overflow: 'hidden'
   },
   content: { marginTop: -4 },

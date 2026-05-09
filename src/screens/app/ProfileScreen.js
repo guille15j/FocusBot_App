@@ -28,7 +28,7 @@ const TIMEZONE_OPTIONS = [
 ];
 
 export default function ProfilePage({ navigation }) {
-  const { user, signIn } = useContext(AuthContext);
+  const { user, signIn, signOut } = useContext(AuthContext);
   const scheme = useColorScheme();
   const { isWeb } = useResponsiveLayout();
 
@@ -56,6 +56,11 @@ export default function ProfilePage({ navigation }) {
   const [severityMenuVisible, setSeverityMenuVisible] = useState(false);
   const [timezoneMenuVisible, setTimezoneMenuVisible] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const ejecutarLogout = async () => {
+    await signOut();
+    console.log("Sesión cerrada");
+  };
 
   const validarFormulario = () => {
     const nuevosErrores = {};
@@ -398,10 +403,18 @@ export default function ProfilePage({ navigation }) {
               mode="contained"
               icon="pencil"
               onPress={() => setEditable(true)}
-              style={{ marginTop: 30, borderRadius: 30 }}
+              style={globalStyles.button}
               textColor={colors.background}
             >
               Editar Perfil
+            </Button>
+            <Button
+              mode="outlined"
+              icon="logout"
+              onPress={() => ejecutarLogout() }
+              style={globalStyles.buttonOutline}
+            >
+              Cerrar Sesion
             </Button>
           </View>
         )}

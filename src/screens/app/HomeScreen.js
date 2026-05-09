@@ -1,39 +1,34 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { View, StyleSheet, useColorScheme } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
-import { Text, FAB, Portal } from 'react-native-paper';
-import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
+import { Text, FAB, Portal, ActivityIndicator } from 'react-native-paper';
+
 import { getColors, getglobalStyles } from '../../theme/theme';
-import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
-import UserHeader from '../../components/common/UserHeader';
-import BotCarousel from '../../components/bots/BotCarrusel';
-import ActivitiesList from '../../components/activities/ActivitiesList';
-import {  ActivityIndicator } from 'react-native-paper';
+
+import UserHeader         from '../../components/common/UserHeader';
+import BotCarousel        from '../../components/bots/BotCarrusel';
+import ActivitiesList     from '../../components/activities/ActivitiesList';
+import LinkBotModal       from '../../components/bots/LinkBotModal';
+import { ScreenWrapper }  from '../../components/layout/ScreenWrapper';
 
 //CUSTOM HOOKS
-import { useActivities } from '../../hooks/useActivities';
+import { useActivities }        from '../../hooks/useActivities';
+import { useResponsiveLayout }  from '../../hooks/useResponsiveLayout';
 
 //CONTEXTOS
-import { AuthContext } from '../../context/AuthContext';
-import { BotContext } from '../../context/BotContext';
-
-const BOTS_DATA = [
-  { bot_id: "BOT001", name: "FocusBot Alpha", ssid: "FocusNet_Alpha", mac_address: "00:1A:7D:DA:71:13", status: "IDLE", version: "1.2.3", last_sync: "2026-04-17T19:45:00" },
-  { bot_id: "BOT002", name: "FocusBot Beta", ssid: "FocusNet_Beta", mac_address: "00:1A:7D:DA:71:14", status: "OFFLINE", version: "1.2.3", last_sync: "2026-04-17T19:50:00" },
-  { bot_id: "BOT003", name: "FocusBot Gamma", ssid: "FocusNet_Gamma", mac_address: "00:1A:7D:DA:71:15", status: "FOCUSING", version: "1.2.3", last_sync: "2026-04-17T19:55:00" },
-  { bot_id: "BOT004", name: "FocusBot Delta", ssid: "FocusNet_Delta", mac_address: "00:1A:7D:DA:71:16", status: "IDLE", version: "1.2.4", last_sync: "2026-04-17T20:00:00" },
-  { bot_id: "BOT005", name: "FocusBot Epsilon", ssid: "FocusNet_Epsilon", mac_address: "00:1A:7D:DA:71:17", status: "OFFLINE", version: "1.2.4", last_sync: "2026-04-17T20:05:00" },
-];
+import { AuthContext }  from '../../context/AuthContext';
+import { BotContext }   from '../../context/BotContext';
 
 export default function HomeScreen({ navigation }) {
   const scheme = useColorScheme();
   const { isWeb } = useResponsiveLayout();
+  const [linkModalVisible, setLinkModalVisible] = useState(false);
   
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
 
   const { user, signOut } = useContext(AuthContext);
-  const { bots, loading: loadingBots } = useContext(BotContext);
+   const { bots, loading: loadingBots, linkNewBot, updateBot, deleteBot } = useContext(BotContext);
 
   const isFocused = useIsFocused();
   const [open, setOpen] = React.useState(false);
@@ -90,6 +85,13 @@ export default function HomeScreen({ navigation }) {
             />
           )}
         </View>
+
+        <LinkBotModal 
+          visible={linkModalVisible}
+          onDismiss={() => setLinkModalVisible(false)}
+          onLink={linkNewBot}
+        />
+
       </View>
       <Portal>
         <FAB.Group
@@ -100,14 +102,14 @@ export default function HomeScreen({ navigation }) {
             {
               icon: 'robot',
               label: 'Nuevo Bot',
-              onPress: () => console.log('Crear bot'),
+              onPress: () => setLinkModalVisible(true),
               style: { backgroundColor: colors.secondary,},
               color: colors.background,
             },
             {
               icon: 'calendar',
               label: 'Nueva Actividad',
-              onPress: () => console.log('Configurar'),
+              onPress: () => navigation.navigate('CreateActivity'),
               style: { backgroundColor: colors.secondary, marginBottom: isWeb ? 10: 100 },
               color: colors.background,
               labelStyle: {marginBottom: isWeb ? 10: 100 }

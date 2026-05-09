@@ -26,7 +26,6 @@ const BotCarousel = ({ bots = [], onAddPress, onIndexChange, addProp = false }) 
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef(null);
 
-  // 1. DATA: Fuente de verdad única
   const data = useMemo(() => {
     const safeBots = Array.isArray(bots) ? bots : [];
     if (safeBots.length === 0 && !addProp) {
@@ -35,17 +34,17 @@ const BotCarousel = ({ bots = [], onAddPress, onIndexChange, addProp = false }) 
     return addProp ? [{ isAddButton: true }, ...safeBots] : safeBots;
   }, [bots, addProp]);
 
-  // 2. Lógica de posicionamiento inicial
+  //osicionamiento inicial
   useEffect(() => {
     // Si hay botón de añadir (idx 0) y hay al menos un bot (idx 1)
     if (addProp && data.length > 1) {
-      setTimeout(() => {
-        scrollToIndex(1);
-      }, 100); // Pequeño delay para asegurar el layout del FlatList
-    }
-  }, [addProp]); // Solo se ejecuta al montar o si cambia la prop de añadir
 
-  // 3. Notificación de índice al padre
+      scrollToIndex(1);
+
+    }
+  }, [addProp]);
+
+  // NOtificar del indez para poder manejar el id del bot para la selccion
   useEffect(() => {
     if (onIndexChange && data[currentIndex] && !data[currentIndex].isEmpty && !data[currentIndex].isAddButton) {
       onIndexChange(data[currentIndex]);
@@ -63,7 +62,7 @@ const BotCarousel = ({ bots = [], onAddPress, onIndexChange, addProp = false }) 
   };
 
   const renderItem = ({ item }) => {
-    // ESTADO VACÍO
+    // Si no hay datos
     if (item.isEmpty) {
       return (
         <View style={{ width: FULL_ITEM_WIDTH, alignItems: 'center' }}>
@@ -79,11 +78,11 @@ const BotCarousel = ({ bots = [], onAddPress, onIndexChange, addProp = false }) 
       );
     }
 
-    // BOTÓN DE AÑADIR
+    // Si tenemos que meter el botnn de add
     if (item.isAddButton) {
       return (
         <View style={{ width: FULL_ITEM_WIDTH, alignItems: 'center' }}>
-          <TouchableOpacity style={localStyles.cardContainer} onPress={onAddPress}>
+          <TouchableOpacity style={[localStyles.cardContainer, { justifyContent: 'center'}]} onPress={onAddPress}>
             <Surface style={[localStyles.card, localStyles.addCard, { backgroundColor: AppColors.surface }]}>
               <IconButton icon="plus" size={40} iconColor={AppColors.primary} />
               <Text style={{ color: AppColors.primary, fontWeight: 'bold' }}>Vincular Bot</Text>
@@ -93,10 +92,10 @@ const BotCarousel = ({ bots = [], onAddPress, onIndexChange, addProp = false }) 
       );
     }
 
-    // CARD DE BOT NORMAL
+    // card del bot
     return (
-      <View style={{ width: FULL_ITEM_WIDTH, alignItems: 'center' }}>
-        <View style={localStyles.cardContainer}>
+      <View style={{ width: FULL_ITEM_WIDTH, alignItems: 'center', }}>
+        <View style={[localStyles.cardContainer, { justifyContent: 'center'}]}>
           <BotCard item={item} AppColors={AppColors} onClick={() => {}} />
         </View>
       </View>
@@ -106,16 +105,16 @@ const BotCarousel = ({ bots = [], onAddPress, onIndexChange, addProp = false }) 
   const localStyles = StyleSheet.create({
     mainWrapper: { marginVertical: 10, width: '100%' },
     carouselContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
-    cardContainer: { width: CARD_WIDTH, height: 180, marginHorizontal: SPACING / 2 },
-    card: { flex: 1, borderRadius: 20, justifyContent: 'center', alignItems: 'center', elevation: 2 },
-    addCard: { borderStyle: 'dashed', borderWidth: 2, borderColor: AppColors.primary },
+    cardContainer: { width: CARD_WIDTH, height: 180, marginHorizontal: 10, },
+    card: { flex: 0, borderRadius: 20, justifyContent: 'center', alignItems: 'center', elevation: 2 },
+    addCard: { padding: 25, width: 200, alignSelf: 'center', borderRadius: 32},
     emptyCard: { borderStyle: 'dotted', borderWidth: 1, borderColor: AppColors.placeholder, opacity: 0.8 },
     arrowButton: { position: 'absolute', zIndex: 10, backgroundColor: 'rgba(0,0,0,0.1)' },
     leftArrow: { left: 10 },
     rightArrow: { right: 10 },
-    pagination: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 15 },
-    dotTouchTarget: { padding: 8 },
-    dot: { width: 8, height: 8, borderRadius: 4, marginHorizontal: 4 },
+    pagination: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 0 },
+    dotTouchTarget: { paddingTop: 8 ,paddingHorizontal: 2},
+    dot: { width: 10, height: 10, borderRadius: 4, marginHorizontal: 4 },
     plusDotContainer: { width: 20, height: 20, justifyContent: 'center', alignItems: 'center' },
     plusIcon: { fontSize: 18, fontWeight: 'bold', marginTop: -2 }
   });
@@ -123,7 +122,7 @@ const BotCarousel = ({ bots = [], onAddPress, onIndexChange, addProp = false }) 
   return (
     <View style={localStyles.mainWrapper}>
       <View style={localStyles.carouselContainer}>
-        {/* FLECHAS: SOLO EN WEB */}
+        {/* botones para web */}
         {isWeb && currentIndex > 0 && (
           <IconButton
             icon="chevron-left"
@@ -148,7 +147,7 @@ const BotCarousel = ({ bots = [], onAddPress, onIndexChange, addProp = false }) 
           }}
         />
 
-        {/* FLECHAS: SOLO EN WEB */}
+        {/* botones para web */}
         {isWeb && currentIndex < data.length - 1 && (
           <IconButton
             icon="chevron-right"
@@ -158,7 +157,7 @@ const BotCarousel = ({ bots = [], onAddPress, onIndexChange, addProp = false }) 
         )}
       </View>
 
-      {/* Paginación */}
+      {/* Paginación de las cards de bot interactivos para mejor navegacion*/}
       {data.length > 1 && !data[0].isEmpty && (
         <View style={localStyles.pagination}>
           {data.map((_, index) => {
