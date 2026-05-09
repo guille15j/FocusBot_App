@@ -6,7 +6,7 @@ import { getColors, getglobalStyles } from '../../theme/theme';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import MacAddressInput from '../forms/MACInput';
 
-const LinkBotModal = ({ visible, onDismiss }) => {
+const LinkBotModal = ({ visible, onDismiss, onLink }) => {
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
   const { isWeb } = useResponsiveLayout();
@@ -75,13 +75,27 @@ const LinkBotModal = ({ visible, onDismiss }) => {
     return !macError && !nameError;
   };
 
-  const handleLink = () => {
-    if (validateForm()) {
-      Alert.alert(
-        'Bot Vinculado',
-        `"${botName}" se ha conectado correctamente.\n\nMAC: ${macAddress.toUpperCase()}`,
-        [{ text: 'Aceptar', onPress: () => { resetForm(); onDismiss(); } }]
-      );
+  const handleLink = async () => {
+    const nameError = validateField('name', botName);
+    const macError = validateField('mac', macAddress);
+
+    if (nameError || macError) {
+      setErrors({ name: nameError, mac: macError });
+      setTouched({ name: true, mac: true });
+      return;
+    }
+
+    try {
+      // Llamamos a la función del contexto que inyectamos vía props
+      await onLink(macAddress, botName);
+      
+      // Si todo va bien, limpiamos y cerramos
+      resetForm();
+      onDismiss();
+    } catch (err) {
+      // Aquí podrías manejar el error visualmente si quieres
+      console.error("Error al vincular:", err);
+      Alert.alert("Error", "No se pudo vincular el bot. Revisa la dirección MAC.");
     }
   };
 

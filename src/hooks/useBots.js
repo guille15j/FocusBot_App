@@ -25,7 +25,6 @@ export const useBots = (autoRefresh = false, intervalMs = 45000) => {
     }, []);
 
     // Lógica de Polling para el estado de los bots
-    // Nota: He puesto 45s por defecto ya que el estado del bot suele ser menos crítico que el de la actividad
     useEffect(() => {
         let interval;
         if (autoRefresh && isFocused) {

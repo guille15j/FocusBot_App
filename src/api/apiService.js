@@ -62,10 +62,10 @@ export const UserService = {
 }
 
 export const BotService = {
-    getBots: () => fetchApi('bots/', 'GET'),
-    linkBot: (mac_address, custom_name) => fetchApi('bots/link', 'POST', { mac_address, custom_name }),
-    editBot: (botId, data) => fetchApi(`bots/${botId}`, 'PATCH', data),
-    deleteBot: (botId) => fetchApi(`bots/${botId}`, 'DELETE'),
+    getBots: () => fetchApi('bot/getByUser', 'GET'),
+    linkBot: (mac_address, custom_name) => fetchApi('bot/pair', 'POST', { mac_address, custom_name }),
+    editBot: (botId, data) => fetchApi(`bot/${botId}`, 'PATCH', data),
+    deleteBot: (botId) => fetchApi(`bot/${botId}`, 'DELETE'),
 };
 
 export const ActivityService = {

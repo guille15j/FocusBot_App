@@ -16,8 +16,16 @@ export const BotProvider = ({ children }) => {
         if (showLoading) setLoading(true);
         try {
             const data = await BotService.getBots();
+            console.log("Datos recibidos del servidor:", data);
             // Forzamos que si la API devuelve algo extraño, se guarde un array vacío
-            setBots(Array.isArray(data) ? data : []);
+            
+            const botsArray = data && Array.isArray(data.bots) 
+            ? data.bots 
+            : (Array.isArray(data) ? data : []);
+
+            setBots(botsArray);
+            
+            console.log("Datos guardados del servidor en la aplicacion:", bots);
         } catch (err) {
             setError(err.message);
             setBots([]); // En caso de error, mantenemos el array vacío para no romper la UI
@@ -37,16 +45,20 @@ export const BotProvider = ({ children }) => {
 
     // Función para vincular un nuevo bot (Global)
     const linkNewBot = async (macAddress, name) => {
-        setLoading(true);
         try {
-            const newBot = await BotService.linkBot(macAddress, name);
-            setBots(prev => [...prev, newBot]);
-            return newBot;
+            const response = await BotService.linkBot(macAddress, name);
+        
+            // Si el servidor responde correctamente (ej. 200 o 201)
+            if (response) {
+                // RECARGAMOS LA LISTA COMPLETA
+                // Esto hará que el estado 'bots' se actualice y todos los componentes
+                // (Carrusel, Grid, etc.) se rendericen con el nuevo bot automáticamente.
+                await fetchBots(); 
+                return response;
+            }
         } catch (err) {
-            setError(err.message);
+            console.error("Error vinculando el bot:", err);
             throw err;
-        } finally {
-            setLoading(false);
         }
     };
 
