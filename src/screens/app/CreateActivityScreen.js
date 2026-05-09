@@ -12,11 +12,11 @@ import BotCarousel from '../../components/bots/BotCarrusel';
 import { useActivities } from '../../hooks/useActivities';
 
 const BOTS_DATA = [
-  { bot_id: "BOT001", name: "FocusBot Alpha", ssid: "FocusNet_Alpha", mac_address: "00:1A:7D:DA:71:13", status: "IDLE", version: "1.2.3", last_sync: "2026-04-17T19:45:00" },
-  { bot_id: "BOT002", name: "FocusBot Beta", ssid: "FocusNet_Beta", mac_address: "00:1A:7D:DA:71:14", status: "OFFLINE", version: "1.2.3", last_sync: "2026-04-17T19:50:00" },
-  { bot_id: "BOT003", name: "FocusBot Gamma", ssid: "FocusNet_Gamma", mac_address: "00:1A:7D:DA:71:15", status: "FOCUSING", version: "1.2.3", last_sync: "2026-04-17T19:55:00" },
-  { bot_id: "BOT004", name: "FocusBot Delta", ssid: "FocusNet_Delta", mac_address: "00:1A:7D:DA:71:16", status: "IDLE", version: "1.2.4", last_sync: "2026-04-17T20:00:00" },
-  { bot_id: "BOT005", name: "FocusBot Epsilon", ssid: "FocusNet_Epsilon", mac_address: "00:1A:7D:DA:71:17", status: "OFFLINE", version: "1.2.4", last_sync: "2026-04-17T20:05:00" },
+  // { bot_id: "BOT001", name: "FocusBot Alpha", ssid: "FocusNet_Alpha", mac_address: "00:1A:7D:DA:71:13", status: "IDLE", version: "1.2.3", last_sync: "2026-04-17T19:45:00" },
+  // { bot_id: "BOT002", name: "FocusBot Beta", ssid: "FocusNet_Beta", mac_address: "00:1A:7D:DA:71:14", status: "OFFLINE", version: "1.2.3", last_sync: "2026-04-17T19:50:00" },
+  // { bot_id: "BOT003", name: "FocusBot Gamma", ssid: "FocusNet_Gamma", mac_address: "00:1A:7D:DA:71:15", status: "FOCUSING", version: "1.2.3", last_sync: "2026-04-17T19:55:00" },
+  // { bot_id: "BOT004", name: "FocusBot Delta", ssid: "FocusNet_Delta", mac_address: "00:1A:7D:DA:71:16", status: "IDLE", version: "1.2.4", last_sync: "2026-04-17T20:00:00" },
+  // { bot_id: "BOT005", name: "FocusBot Epsilon", ssid: "FocusNet_Epsilon", mac_address: "00:1A:7D:DA:71:17", status: "OFFLINE", version: "1.2.4", last_sync: "2026-04-17T20:05:00" },
 ];
 
 const CATEGORY_LIST = [
@@ -38,7 +38,6 @@ const ACTIVITY_TYPE_INFO = {
   POMODORO: 'Técnica de gestión del tiempo que alterna periodos de trabajo enfocado (25 min por defecto) con descansos cortos. Tras varios ciclos, se toma un descanso largo.',
   HITO: 'Divide tu objetivo en pasos concretos y medibles. Puedes añadir hasta 10 hitos, cada uno con su nombre y descripción.',
   TEMPORIZADOR: 'Cuenta regresiva simple. Configura horas, minutos y segundos para tu actividad.',
-  LIBRE: 'Actividad sin estructura fija. Ideal para tareas que no necesitan seguimiento de tiempo.',
 };
 
 export default function CreateActivityScreen({ navigation, route }) {

@@ -4,244 +4,162 @@ import {
   FlatList,
   useWindowDimensions,
   Platform,
-  Animated,
   TouchableOpacity,
   useColorScheme,
+  StyleSheet
 } from 'react-native';
 import { IconButton, Surface, Text } from 'react-native-paper';
 import { getColors } from '../../theme/theme';
 import BotCard from './BotCard';
 
-const BotCarousel = ({ bots = [], onAddPress, globalStyles, onIndexChange, addProp = false }) => {
+const BotCarousel = ({ bots = [], onAddPress, onIndexChange, addProp = false }) => {
   const scheme = useColorScheme();
   const AppColors = useMemo(() => getColors(scheme), [scheme]);
   const { width: windowWidth } = useWindowDimensions();
   const isWeb = Platform.OS === 'web';
 
+  // Configuración de dimensiones
   const CARD_WIDTH = isWeb ? windowWidth * 0.5 : windowWidth * 0.85;
   const SPACING = 10;
   const FULL_ITEM_WIDTH = CARD_WIDTH + SPACING;
-  const ARROW_OFFSET_WEB = -(windowWidth * 0.12);
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const scrollX = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef(null);
-  const initialScrollDone = useRef(false);
 
-  const localStyles = useMemo(
-    () => ({
-      mainWrapper: {
-        marginVertical: 10,
-        width: '100%',
-        alignItems: 'center',
-      },
-      carouselContainer: {
-        position: 'relative',
-        flexDirection: 'row',
-        alignItems: 'center',
-        width: isWeb ? CARD_WIDTH : '100%',
-        justifyContent: 'center',
-      },
-      flatListContent: {
-        paddingHorizontal: isWeb ? 0 : (windowWidth - CARD_WIDTH) / 2,
-        alignItems: 'center',
-      },
-      cardContainer: {
-        width: CARD_WIDTH,
-        marginRight: SPACING,
-        justifyContent: 'center',
-        elevation: 4,
-      },
-      addCard: {
-        margin: 8,
-        borderRadius: 15,
-        backgroundColor: AppColors.surface,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderStyle: 'dashed',
-        borderColor: AppColors.primary,
-      },
-      navButton: {
-        position: 'absolute',
-        zIndex: 999,
-        margin: 0,
-        elevation: 5,
-      },
-      leftButton: { left: ARROW_OFFSET_WEB },
-      rightButton: { right: ARROW_OFFSET_WEB },
-      pagination: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 0,
-      },
-      dotTouchTarget: {
-        padding: 4,
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      plusDotContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      plusIcon: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginTop: -2,
-      },
-      dot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        opacity: 0.3,
-      },
-      activeDot: {
-        width: 16,
-        borderRadius: 4,
-        opacity: 1,
-      },
-    }),
-    [AppColors, CARD_WIDTH, SPACING, isWeb, windowWidth, ARROW_OFFSET_WEB]
-  );
-
-  // Construir datos condicionalmente: si addProp es true, incluimos el botón de añadir
+  // 1. DATA: Fuente de verdad única
   const data = useMemo(() => {
-    if (addProp) {
-      return [{ id: 'add-button', isAddButton: true }, ...bots];
+    const safeBots = Array.isArray(bots) ? bots : [];
+    if (safeBots.length === 0 && !addProp) {
+      return [{ isEmpty: true }];
     }
-    return bots.length > 0 ? bots : []; // si no hay bots, array vacío
-  }, [addProp, bots]);
+    return addProp ? [{ isAddButton: true }, ...safeBots] : safeBots;
+  }, [bots, addProp]);
 
-  // Scroll inicial: si hay addButton, al índice 1; si no, al 0 (solo una vez)
+  // 2. Lógica de posicionamiento inicial
   useEffect(() => {
-    if (flatListRef.current && data.length > 0 && !initialScrollDone.current) {
-      const targetIndex = addProp ? 1 : 0;
+    // Si hay botón de añadir (idx 0) y hay al menos un bot (idx 1)
+    if (addProp && data.length > 1) {
       setTimeout(() => {
-        flatListRef.current?.scrollToIndex({ index: targetIndex, animated: true });
-        setCurrentIndex(targetIndex);
-        initialScrollDone.current = true;
-      }, 100);
+        scrollToIndex(1);
+      }, 100); // Pequeño delay para asegurar el layout del FlatList
     }
-  }, [data, addProp]);
+  }, [addProp]); // Solo se ejecuta al montar o si cambia la prop de añadir
 
+  // 3. Notificación de índice al padre
   useEffect(() => {
-    if (onIndexChange) {
-      // Pasamos el bot actual basado en el índice
+    if (onIndexChange && data[currentIndex] && !data[currentIndex].isEmpty && !data[currentIndex].isAddButton) {
       onIndexChange(data[currentIndex]);
     }
   }, [currentIndex, data, onIndexChange]);
 
-  // Ajustar el scroll cuando cambia el ancho
-  useEffect(() => {
-    if (flatListRef.current && FULL_ITEM_WIDTH > 0) {
-      const offset = currentIndex * FULL_ITEM_WIDTH;
-      flatListRef.current.scrollToOffset({ offset, animated: false });
-    }
-  }, [FULL_ITEM_WIDTH]);
-
-  const onScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-    {
-      useNativeDriver: false,
-      listener: (event) => {
-        const index = Math.round(event.nativeEvent.contentOffset.x / FULL_ITEM_WIDTH);
-        if (index !== currentIndex) setCurrentIndex(index);
-      },
-    }
-  );
-
   const scrollToIndex = (index) => {
-    if (index >= 0 && index < data.length) {
-      flatListRef.current?.scrollToIndex({ index, animated: true });
+    if (flatListRef.current && index >= 0 && index < data.length) {
+      flatListRef.current.scrollToOffset({
+        offset: index * FULL_ITEM_WIDTH,
+        animated: true,
+      });
+      setCurrentIndex(index);
     }
   };
 
-  const renderItem = ({ item, index }) => {
-    const inputRange = [
-      (index - 1) * FULL_ITEM_WIDTH,
-      index * FULL_ITEM_WIDTH,
-      (index + 1) * FULL_ITEM_WIDTH,
-    ];
-    const scale = scrollX.interpolate({
-      inputRange,
-      outputRange: [0.9, 1, 0.9],
-      extrapolate: 'clamp',
-    });
-    const opacity = scrollX.interpolate({
-      inputRange,
-      outputRange: [0.5, 1, 0.5],
-      extrapolate: 'clamp',
-    });
+  const renderItem = ({ item }) => {
+    // ESTADO VACÍO
+    if (item.isEmpty) {
+      return (
+        <View style={{ width: FULL_ITEM_WIDTH, alignItems: 'center' }}>
+          <View style={localStyles.cardContainer}>
+            <Surface style={[localStyles.card, localStyles.emptyCard, { backgroundColor: AppColors.surface }]}>
+              <IconButton icon="robot-off" size={40} iconColor={AppColors.placeholder} />
+              <Text style={{ color: AppColors.placeholder, textAlign: 'center', paddingHorizontal: 20 }}>
+                No tienes ningún FocusBot vinculado todavía.
+              </Text>
+            </Surface>
+          </View>
+        </View>
+      );
+    }
 
+    // BOTÓN DE AÑADIR
+    if (item.isAddButton) {
+      return (
+        <View style={{ width: FULL_ITEM_WIDTH, alignItems: 'center' }}>
+          <TouchableOpacity style={localStyles.cardContainer} onPress={onAddPress}>
+            <Surface style={[localStyles.card, localStyles.addCard, { backgroundColor: AppColors.surface }]}>
+              <IconButton icon="plus" size={40} iconColor={AppColors.primary} />
+              <Text style={{ color: AppColors.primary, fontWeight: 'bold' }}>Vincular Bot</Text>
+            </Surface>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    // CARD DE BOT NORMAL
     return (
-      <Animated.View style={[localStyles.cardContainer, { transform: [{ scale }], opacity }]}>
-        {item.isAddButton ? (
-          <Surface style={localStyles.addCard} elevation={2}>
-            <IconButton
-              icon="plus"
-              size={50}
-              mode="contained"
-              iconColor="white"
-              containerColor={AppColors.primary}
-              onPress={onAddPress}
-            />
-          </Surface>
-        ) : (
-          <BotCard item={item} AppColors={AppColors} globalStyles={globalStyles} />
-        )}
-      </Animated.View>
+      <View style={{ width: FULL_ITEM_WIDTH, alignItems: 'center' }}>
+        <View style={localStyles.cardContainer}>
+          <BotCard item={item} AppColors={AppColors} onClick={() => {}} />
+        </View>
+      </View>
     );
   };
+
+  const localStyles = StyleSheet.create({
+    mainWrapper: { marginVertical: 10, width: '100%' },
+    carouselContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
+    cardContainer: { width: CARD_WIDTH, height: 180, marginHorizontal: SPACING / 2 },
+    card: { flex: 1, borderRadius: 20, justifyContent: 'center', alignItems: 'center', elevation: 2 },
+    addCard: { borderStyle: 'dashed', borderWidth: 2, borderColor: AppColors.primary },
+    emptyCard: { borderStyle: 'dotted', borderWidth: 1, borderColor: AppColors.placeholder, opacity: 0.8 },
+    arrowButton: { position: 'absolute', zIndex: 10, backgroundColor: 'rgba(0,0,0,0.1)' },
+    leftArrow: { left: 10 },
+    rightArrow: { right: 10 },
+    pagination: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 15 },
+    dotTouchTarget: { padding: 8 },
+    dot: { width: 8, height: 8, borderRadius: 4, marginHorizontal: 4 },
+    plusDotContainer: { width: 20, height: 20, justifyContent: 'center', alignItems: 'center' },
+    plusIcon: { fontSize: 18, fontWeight: 'bold', marginTop: -2 }
+  });
 
   return (
     <View style={localStyles.mainWrapper}>
       <View style={localStyles.carouselContainer}>
-        {isWeb && (
+        {/* FLECHAS: SOLO EN WEB */}
+        {isWeb && currentIndex > 0 && (
           <IconButton
             icon="chevron-left"
-            mode="contained-tonal"
-            disabled={currentIndex === 0}
+            style={[localStyles.arrowButton, localStyles.leftArrow]}
             onPress={() => scrollToIndex(currentIndex - 1)}
-            style={[localStyles.navButton, localStyles.leftButton]}
-            containerColor={AppColors.surface}
           />
         )}
-        <Animated.FlatList
+
+        <FlatList
           ref={flatListRef}
           data={data}
+          keyExtractor={(_, index) => `item-${index}`}
           renderItem={renderItem}
           horizontal
-          keyExtractor={(item) =>
-            item.id || (item.bot_id ? item.bot_id.toString() : Math.random().toString())
-          }
           showsHorizontalScrollIndicator={false}
           snapToInterval={FULL_ITEM_WIDTH}
           decelerationRate="fast"
-          contentContainerStyle={localStyles.flatListContent}
-          onScroll={onScroll}
-          scrollEventThrottle={16}
-          style={isWeb ? { overflowX: 'hidden' } : {}}
-          getItemLayout={(_, index) => ({
-            length: FULL_ITEM_WIDTH,
-            offset: FULL_ITEM_WIDTH * index,
-            index,
-          })}
-          extraData={CARD_WIDTH}
+          contentContainerStyle={{ paddingHorizontal: (windowWidth - FULL_ITEM_WIDTH) / 2 }}
+          onMomentumScrollEnd={(e) => {
+            const index = Math.round(e.nativeEvent.contentOffset.x / FULL_ITEM_WIDTH);
+            if (index >= 0 && index < data.length) setCurrentIndex(index);
+          }}
         />
-        {isWeb && (
+
+        {/* FLECHAS: SOLO EN WEB */}
+        {isWeb && currentIndex < data.length - 1 && (
           <IconButton
             icon="chevron-right"
-            mode="contained-tonal"
-            disabled={currentIndex === data.length - 1}
+            style={[localStyles.arrowButton, localStyles.rightArrow]}
             onPress={() => scrollToIndex(currentIndex + 1)}
-            style={[localStyles.navButton, localStyles.rightButton]}
-            containerColor={AppColors.surface}
           />
         )}
       </View>
-      {/* Paginación condicional */}
-      {data.length > 1 && (
+
+      {/* Paginación */}
+      {data.length > 1 && !data[0].isEmpty && (
         <View style={localStyles.pagination}>
           {data.map((_, index) => {
             const isSelected = currentIndex === index;
@@ -249,29 +167,14 @@ const BotCarousel = ({ bots = [], onAddPress, globalStyles, onIndexChange, addPr
               <TouchableOpacity
                 key={index}
                 onPress={() => scrollToIndex(index)}
-                activeOpacity={0.7}
                 style={localStyles.dotTouchTarget}
               >
-                {/* Solo mostrar "+" si es el índice 0 y hay botón de añadir */}
                 {addProp && index === 0 ? (
                   <View style={localStyles.plusDotContainer}>
-                    <Text
-                      style={[
-                        localStyles.plusIcon,
-                        { color: isSelected ? AppColors.primary : AppColors.placeholder },
-                      ]}
-                    >
-                      +
-                    </Text>
+                    <Text style={[localStyles.plusIcon, { color: isSelected ? AppColors.primary : AppColors.placeholder }]}>+</Text>
                   </View>
                 ) : (
-                  <View
-                    style={[
-                      localStyles.dot,
-                      { backgroundColor: isSelected ? AppColors.primary : AppColors.placeholder },
-                      isSelected && localStyles.activeDot,
-                    ]}
-                  />
+                  <View style={[localStyles.dot, { backgroundColor: isSelected ? AppColors.primary : AppColors.placeholder }]} />
                 )}
               </TouchableOpacity>
             );

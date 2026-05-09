@@ -14,12 +14,13 @@ export const BotProvider = ({ children }) => {
     const fetchBots = useCallback(async (showLoading = false) => {
         if (!user) return;
         if (showLoading) setLoading(true);
-        setError(null);
         try {
             const data = await BotService.getBots();
-            setBots(data);
+            // Forzamos que si la API devuelve algo extraño, se guarde un array vacío
+            setBots(Array.isArray(data) ? data : []);
         } catch (err) {
             setError(err.message);
+            setBots([]); // En caso de error, mantenemos el array vacío para no romper la UI
         } finally {
             if (showLoading) setLoading(false);
         }

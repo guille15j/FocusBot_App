@@ -8,11 +8,22 @@ import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import UserHeader from '../../components/common/UserHeader';
 import BotCarousel from '../../components/bots/BotCarrusel';
 import ActivitiesList from '../../components/activities/ActivitiesList';
-import { AuthContext } from '../../context/AuthContext';
 import {  ActivityIndicator } from 'react-native-paper';
 
 //CUSTOM HOOKS
 import { useActivities } from '../../hooks/useActivities';
+
+//CONTEXTOS
+import { AuthContext } from '../../context/AuthContext';
+import { BotContext } from '../../context/BotContext';
+
+const BOTS_DATA = [
+  { bot_id: "BOT001", name: "FocusBot Alpha", ssid: "FocusNet_Alpha", mac_address: "00:1A:7D:DA:71:13", status: "IDLE", version: "1.2.3", last_sync: "2026-04-17T19:45:00" },
+  { bot_id: "BOT002", name: "FocusBot Beta", ssid: "FocusNet_Beta", mac_address: "00:1A:7D:DA:71:14", status: "OFFLINE", version: "1.2.3", last_sync: "2026-04-17T19:50:00" },
+  { bot_id: "BOT003", name: "FocusBot Gamma", ssid: "FocusNet_Gamma", mac_address: "00:1A:7D:DA:71:15", status: "FOCUSING", version: "1.2.3", last_sync: "2026-04-17T19:55:00" },
+  { bot_id: "BOT004", name: "FocusBot Delta", ssid: "FocusNet_Delta", mac_address: "00:1A:7D:DA:71:16", status: "IDLE", version: "1.2.4", last_sync: "2026-04-17T20:00:00" },
+  { bot_id: "BOT005", name: "FocusBot Epsilon", ssid: "FocusNet_Epsilon", mac_address: "00:1A:7D:DA:71:17", status: "OFFLINE", version: "1.2.4", last_sync: "2026-04-17T20:05:00" },
+];
 
 export default function HomeScreen({ navigation }) {
   const scheme = useColorScheme();
@@ -22,11 +33,14 @@ export default function HomeScreen({ navigation }) {
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
 
   const { user, signOut } = useContext(AuthContext);
+  const { bots, loading: loadingBots } = useContext(BotContext);
+
   const isFocused = useIsFocused();
   const [open, setOpen] = React.useState(false);
 
   // Llamamos al hook con autoRefresh activo cada 60 segundos
   const { activities, loading } = useActivities(true, 60000);
+  
 
   // Seleccionamos solo las 10 actividades más recientes para no saturar la pantalla de informacion irrelevante
   const recentActivities = useMemo(() => {
@@ -36,14 +50,6 @@ export default function HomeScreen({ navigation }) {
     // Si no es un array (está cargando o hubo error), devolvemos array vacío
     return [];
   }, [activities]);
-
-  const botsData = [
-    { bot_id: "BOT001", name: "FocusBot Alpha", ssid: "FocusNet_Alpha", mac_address: "00:1A:7D:DA:71:13", status: "IDLE", version: "1.2.3", last_sync: "2026-04-17T19:45:00" },
-    { bot_id: "BOT002", name: "FocusBot Beta", ssid: "FocusNet_Beta", mac_address: "00:1A:7D:DA:71:14", status: "OFFLINE", version: "1.2.3", last_sync: "2026-04-17T19:50:00" },
-    { bot_id: "BOT003", name: "FocusBot Gamma", ssid: "FocusNet_Gamma", mac_address: "00:1A:7D:DA:71:15", status: "FOCUSING", version: "1.2.3", last_sync: "2026-04-17T19:55:00" },
-  ];
-
-
 
   const ejecutarLogout = async () => {
     await signOut();
@@ -63,7 +69,8 @@ export default function HomeScreen({ navigation }) {
         <View style={{ paddingBottom: isWeb ? 10 : 80 }}>
           {isWeb && <UserHeader user={user || { first_name: 'Nombre', last_name: 'Apellido', email: 'invitado@focusbot.com' }} />}
           <BotCarousel 
-            bots={botsData} 
+            bots={bots} 
+            // bots = {BOTS_DATA}
             onAddPress={() => console.log("Añadir nuevo bot")}
             onBotPress={(bot) => console.log("Seleccionado:", bot.name)}
             globalStyles={globalStyles}

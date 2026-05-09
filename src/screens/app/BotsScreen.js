@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useContext } from 'react';
 import { View, useColorScheme,ScrollView } from 'react-native';
 import { Text, SegmentedButtons } from 'react-native-paper';
 
@@ -10,6 +10,8 @@ import GridBots from '../../components/bots/BotsGrid';
 import CustomAnimatedFAB from '../../components/common/CustomAnimatedFAB';
 import LinkBotModal from '../../components/bots/LinkBotModal';
 import EditBotModal from '../../components/bots/EditBotModal';
+
+import { BotContext } from '../../context/BotContext';
 
 export default function BotsPage() {
   const scheme = useColorScheme();
@@ -35,10 +37,11 @@ export default function BotsPage() {
   };
 
   const botsData = [
-    { bot_id: "BOT001", name: "FocusBot Alpha", ssid: "FocusNet_Alpha", mac_address: "00:1A:7D:DA:71:13", status: "IDLE", version: "1.2.3", last_sync: "2026-04-17T19:45:00" },
-    { bot_id: "BOT002", name: "FocusBot Beta", ssid: "FocusNet_Beta", mac_address: "00:1A:7D:DA:71:14", status: "OFFLINE", version: "1.2.3", last_sync: "2026-04-17T19:50:00" },
-    { bot_id: "BOT003", name: "FocusBot Gamma", ssid: "FocusNet_Gamma", mac_address: "00:1A:7D:DA:71:15", status: "FOCUSING", version: "1.2.3", last_sync: "2026-04-17T19:55:00" },
+    // { bot_id: "BOT001", name: "FocusBot Alpha", ssid: "FocusNet_Alpha", mac_address: "00:1A:7D:DA:71:13", status: "IDLE", version: "1.2.3", last_sync: "2026-04-17T19:45:00" },
+    // { bot_id: "BOT002", name: "FocusBot Beta", ssid: "FocusNet_Beta", mac_address: "00:1A:7D:DA:71:14", status: "OFFLINE", version: "1.2.3", last_sync: "2026-04-17T19:50:00" },
+    // { bot_id: "BOT003", name: "FocusBot Gamma", ssid: "FocusNet_Gamma", mac_address: "00:1A:7D:DA:71:15", status: "FOCUSING", version: "1.2.3", last_sync: "2026-04-17T19:55:00" },
   ];
+  const { bots, loading, linkNewBot, updateBot, deleteBot } = useContext(BotContext);
 
   // 1. CAMBIO: useMemo para filtrar bots según el valor del SegmentedButtons
   // Esto evita re-filtrar en cada renderizado si los datos o el valor no cambian
