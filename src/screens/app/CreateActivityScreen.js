@@ -66,15 +66,17 @@ export default function CreateActivityScreen({ navigation, route }) {
   const [focusTime, setFocusTime] = useState(activity?.type.work_duration.toString() || '25');                             
   const [shortBreak, setShortBreak] = useState(activity?.type.short_break.toString() || '5');
   const [longBreak, setLongBreak] = useState(activity?.type.long_break.toString() || '15');
-  const [cyclesBeforeLong, setCyclesBeforeLong] = useState(activity?.type.cycles_before_long.toString() || '4');
-  const [totalCycles, setTotalCycles] = useState(activity?.extra_data.total_ciclos || 0); 
+  const [cyclesBeforeLong, setCyclesBeforeLong] = useState(activity?.type.cycles_before_long.toString() ||  '4');
+  const [totalCycles, setTotalCycles] = useState(activity?.extra_data.total_ciclos || 4); 
 
   const [hitos, setHitos] = useState(
   activity?.extra_data?.hitos?.map(hito => ({ nombre: hito })) || [{ nombre: '' }]
 );
 
-  const [timerHours, setTimerHours] = useState('0');
-  const [timerMinutes, setTimerMinutes] = useState('25');
+  const [timerHours, setTimerHours] = useState(
+    activity? Math.floor(activity?.type.work_duration / 60).toString() : '0'
+  );
+  const [timerMinutes, setTimerMinutes] = useState(activity? (activity?.type.work_duration % 60).toString() :'25');
 
   const [categoryMenuVisible, setCategoryMenuVisible] = useState(false);
   const [typeMenuVisible, setTypeMenuVisible] = useState(false);
@@ -109,6 +111,17 @@ export default function CreateActivityScreen({ navigation, route }) {
         extra_data.hitos = hitos.map(h => h.nombre).filter(n => n.trim() !== '');
       }
 
+      if (activityType !== 'POMODORO') {
+        setShortBreak('0');
+        setCyclesBeforeLong('0');
+        setTotalCycles(0);
+        setLongBreak('0');
+      }
+
+      const shortBreakValue = activityType === 'POMODORO' ? parseInt(shortBreak || 0) : 0;
+      const longBreakValue  = activityType === 'POMODORO' ? parseInt(longBreak || 0)  : 0;
+      const cyclesValue     = activityType === 'POMODORO' ? parseInt(cyclesBeforeLong || 4) : 0;
+
       //configuramos el payload-mensaje que le vamos a amndar a al fucnion para que cree el cuerpo de la fucnion
       const payload = {
         title: title.trim(),  //titulo de la actividad
@@ -120,10 +133,10 @@ export default function CreateActivityScreen({ navigation, route }) {
           name_type: activityType,
           work_duration:      // es especial si es de tipo temporizador porque hay que parsear los dos campos
           activityType === 'TEMPORIZADOR' ? (parseInt(timerHours || 0) * 60 + parseInt(timerMinutes || 0)) 
-            : parseInt(focusTime || 0), //si no estan rellenos es posible que sea porque no se usan y es necesario que esten a cero
-          short_break: parseInt(shortBreak || 0),
-          long_break: parseInt(longBreak || 0),
-          cycles_before_long: parseInt(cyclesBeforeLong || 4),
+            : parseInt(( activityType === 'POMODORO' ? focusTime : 0)), //si no estan rellenos es posible que sea porque no se usan y es necesario que esten a cero
+          short_break: shortBreakValue,
+          long_break: longBreakValue,
+          cycles_before_long: cyclesValue,
         },
         extra_data: extra_data
       };
