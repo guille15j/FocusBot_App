@@ -115,6 +115,16 @@ export default function CreateActivityScreen({ navigation, route }) {
         config
       };
 
+
+      // ... dentro de handleSave, justo antes de await addActivity(activityData)
+      console.log("--- VERIFICACIÓN DE PAYLOAD ---");
+      console.log("Título:", activityData.title);
+      console.log("Bot ID:", activityData.bot_id);
+      console.log("Tipo:", activityData.type_id);
+      console.log("Configuración:", JSON.stringify(activityData.config, null, 2));
+      console.log("Fecha Inicio:", activityData.init_date);
+      console.log("-------------------------------");
+
       await addActivity(activityData); // Llamada al hook
 
       Alert.alert(
@@ -142,7 +152,20 @@ export default function CreateActivityScreen({ navigation, route }) {
           <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
             
             <Text style={[styles.label, { color: colors.textLight, marginTop: 20 }]}>SELECCIONAR BOT</Text>
-            <BotCarousel bots={BOTS_DATA} selectedBot={selectedBot} onBotPress={(bot) => setSelectedBot(bot.bot_id)} globalStyles={globalStyles} colors={colors} />
+            {/* En el JSX de CreateActivityScreen.js */}
+            <BotCarousel 
+              bots={BOTS_DATA} 
+              selectedBot={selectedBot} 
+              // Cada vez que el usuario deslice, se actualizará el bot automáticamente
+              onIndexChange={(bot) => {
+                if (bot && !bot.isAddButton) {
+                  setSelectedBot(bot.bot_id);
+                  console.log("Bot auto-seleccionado por scroll:", bot.bot_id);
+                }
+              }} 
+              globalStyles={globalStyles} 
+              colors={colors} 
+            />
 
             <Text style={[styles.label, { color: colors.textLight, marginTop: 24 }]}>NOMBRE DE LA ACTIVIDAD</Text>
             <TextInput label="Título" mode="outlined" outlineStyle={{ borderRadius: 30 }} style={globalStyles.input} value={title} onChangeText={setTitle} left={<TextInput.Icon icon="format-title" />} />

@@ -12,7 +12,7 @@ import { IconButton, Surface, Text } from 'react-native-paper';
 import { getColors } from '../../theme/theme';
 import BotCard from './BotCard';
 
-const BotCarousel = ({ bots = [], onAddPress, globalStyles, addProp = false }) => {
+const BotCarousel = ({ bots = [], onAddPress, globalStyles, onIndexChange, addProp = false }) => {
   const scheme = useColorScheme();
   const AppColors = useMemo(() => getColors(scheme), [scheme]);
   const { width: windowWidth } = useWindowDimensions();
@@ -124,6 +124,13 @@ const BotCarousel = ({ bots = [], onAddPress, globalStyles, addProp = false }) =
       }, 100);
     }
   }, [data, addProp]);
+
+  useEffect(() => {
+    if (onIndexChange) {
+      // Pasamos el bot actual basado en el índice
+      onIndexChange(data[currentIndex]);
+    }
+  }, [currentIndex, data, onIndexChange]);
 
   // Ajustar el scroll cuando cambia el ancho
   useEffect(() => {

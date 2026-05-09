@@ -73,13 +73,17 @@ export const useActivities = (autoRefresh = false, intervalMs = 30000) => {
         setError(null);
         try {
             const response = await ActivityService.createActivity(activityData);
-            // Refrescamos la lista en segundo plano para que al volver 
-            // a la pantalla de inicio los datos ya estén ahí.
-            await fetchActivities(false); 
+            
+            // En lugar de solo refrescar, añadimos la respuesta (que ya trae el ID de DB)
+            // al estado local. Así la UI se actualiza instantáneamente.
+            setActivities(prev => [response, ...prev]);
+            
             return response;
         } catch (err) {
-            setError(err.message);
-            throw err; // para que la pantalla pueda capturar el error en el Alert
+            // Aseguramos que el error que guardamos sea el mensaje string
+            const errorMessage = err.response?.data?.message || err.message || 'Error al crear';
+            setError(errorMessage);
+            throw errorMessage; 
         } finally {
             setLoading(false);
         }
