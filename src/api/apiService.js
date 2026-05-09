@@ -69,9 +69,18 @@ export const BotService = {
 };
 
 export const ActivityService = {
-    getActivities: () => fetchApi('activities/', 'GET'),
-    createActivity: (activityData) => fetchApi('activities/', 'POST', activityData),
-    updateState: (activityId, newState) => fetchApi(`activities/${activityId}/state`, 'PATCH', { state: newState }),
+    // Actividades
+    getActivities: () => fetchApi('activities/', 'GET'),    
+    getActivity: (activityId) => fetchApi(`activities/${activityId}`, 'GET'),    
+    createActivity: (activityData) => fetchApi('activities/activity', 'POST', activityData),    
+    updateActivity: (activityId, data) => fetchApi(`activities/${activityId}`, 'PATCH', data),    
+    deleteActivity: (activityId) => fetchApi(`activities/${activityId}`, 'DELETE'),
+
+    // Tipos de Actividad
+    getTypes: () => fetchApi('activities/type', 'GET'),    
+    createType: (typeData) => fetchApi('activities/type', 'POST', typeData),    
+    updateType: (typeId, data) => fetchApi(`activities/type/${typeId}`, 'PATCH', data),    
+    deleteType: (typeId) => fetchApi(`activities/type/${typeId}`, 'DELETE'),
 };
 
 export const HistoryService = {
