@@ -58,7 +58,7 @@ export default function HomeScreen({ navigation }) {
           <UserHeader user={user || { 
             first_name: 'Nombre', 
             last_name: 'Apellido', 
-            email: 'invitado@focusbot.com' }} 
+            email: 'invitado@focusbot.com' }}  navigation={navigation}
           />
         }
         <View style={{ paddingBottom: isWeb ? 10 : 80 }}>
@@ -71,7 +71,7 @@ export default function HomeScreen({ navigation }) {
             globalStyles={globalStyles}
             addProp = {true}
           />
-          <Text variant="titleLarge" style={{ textAlign: 'center', marginVertical:  20 }}>
+          <Text variant="titleLarge" style={{textAlign: 'center', marginVertical:  8, color: colors.text,}}>
             Actividades Recientes
           </Text>
           {loading && activities.length === 0 ? (

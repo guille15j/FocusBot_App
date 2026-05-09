@@ -1,10 +1,10 @@
 import React, { useContext, useMemo } from 'react';
-import { View, StyleSheet, Platform, useColorScheme } from 'react-native'; 
+import { View, StyleSheet, Platform, useColorScheme, Pressable } from 'react-native'; 
 import { Avatar, Text, Button, IconButton } from 'react-native-paper';
 import { getColors } from '../../theme/theme';
 import { AuthContext } from '../../context/AuthContext';
 
-const UserHeader = ({ user }) => {
+const UserHeader = ({ user, navigation }) => {
   const scheme = useColorScheme();
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const isWeb = Platform.OS === 'web';
@@ -28,7 +28,10 @@ const UserHeader = ({ user }) => {
   const styles = getStyles(colors);
 
   return (
-    <View style={styles.topBarContainer}>
+    <Pressable 
+      style={styles.topBarContainer}
+      onPress={()=> navigation.navigate('Profile')}
+    >
       <View style={styles.userContainer}>
         {!isWeb && (
           <>
@@ -58,7 +61,7 @@ const UserHeader = ({ user }) => {
           </View>
         )}
       </View>
-    </View>
+    </Pressable>
   );
 };
 

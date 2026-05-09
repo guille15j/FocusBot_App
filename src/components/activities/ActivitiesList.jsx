@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet, FlatList, useColorScheme, Platform } from 'react-native';
-import { Divider, Surface, Text } from 'react-native-paper';
+import { Divider, Surface, Text, Icon } from 'react-native-paper';
 import { getColors } from '../../theme/theme';
 import ActivityListTile from './ActivityListTile';
 
@@ -35,7 +35,12 @@ const ActivitiesList = ({ activities = [], onActivityPress, globalStyles }) => {
           scrollEnabled={false}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>No hay actividades registradas</Text>
+            <View style={{ padding: 50, alignItems: 'center',}}>
+              <Icon source="robot-happy" size={50} color={colors.placeholder}/>
+              <Text variant="bodyLarge" style={{ color: colors.placeholder, textAlign: 'center' }}>
+                No hay actividades.{"\n"}¡Crea la primera pulsando el botón +!
+              </Text>
+            </View>
           }
         />
       </Surface>
@@ -46,13 +51,15 @@ const ActivitiesList = ({ activities = [], onActivityPress, globalStyles }) => {
 const styles = StyleSheet.create({
   mainContainer: {
     alignItems: 'center',
-    marginVertical: 10,
-    marginHorizontal: 20
+    // marginVertical: 10,
+    marginHorizontal: 16,
   },
   surfaceList: {
     width: '100%',
-    borderRadius: 15,
+    borderRadius: 33,
     overflow: 'hidden',
+    
+    height: '100%',
   },
   webWidth: {},
   listContent: {
