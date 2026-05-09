@@ -94,10 +94,14 @@ export default function BotsPage() {
                     </View>
                   </View>
                 ) : (
-                  <GridBots numColumns={isWeb ? 5 : 1} data={filteredBots} AppColors={colors} globalStyles={globalStyles} 
+                  <GridBots 
+                    numColumns={isWeb ? 5 : 1} 
+                    data={filteredBots} 
+                    AppColors={colors} 
+                    globalStyles={globalStyles} 
                     onPress={(bot) => {
-                      setSelectedBot(bot);
-                      setEditModalVisible(true);
+                      setSelectedBot(bot);     
+                      setEditModalVisible(true); 
                     }}
                   />
                 )}
@@ -123,10 +127,13 @@ export default function BotsPage() {
         
         <EditBotModal 
           visible={editModalVisible}
-          onDismiss={() => setEditModalVisible(false)}
-          colors={colors}
-          isWeb={isWeb}
-          bot={selectedBot}
+          bot={selectedBot}           // Pasamos el bot que guardamos en el paso anterior
+          onDismiss={() => {
+            setEditModalVisible(false);
+            setSelectedBot(null);     // Limpiamos al cerrar
+          }}
+          onUpdate={updateBot}        // Función que viene del contexto
+          onDelete={deleteBot}        // Función que viene del contexto
         />
 
       </View>

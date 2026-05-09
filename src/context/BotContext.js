@@ -63,13 +63,16 @@ export const BotProvider = ({ children }) => {
     };
 
     // Función para actualizar un bot (Global)
-    const updateBot = async (botId, updateData) => {
+    const updateBot = async (botId, data) => {
         try {
-            const updated = await BotService.editBot(botId, updateData);
-            setBots(prev => prev.map(b => b.bot_id === botId ? { ...b, ...updated } : b));
-            return updated;
+            const response = await BotService.editBot(botId, data);
+            if (response) {
+                // RECARGA EL ESTADO GLOBAL
+                await fetchBots(); 
+                return response;
+            }
         } catch (err) {
-            setError(err.message);
+            console.error("Error al actualizar bot en contexto:", err);
             throw err;
         }
     };
@@ -78,9 +81,10 @@ export const BotProvider = ({ children }) => {
     const deleteBot = async (botId) => {
         try {
             await BotService.deleteBot(botId);
-            setBots(prev => prev.filter(b => b.bot_id !== botId));
+            // RECARGA EL ESTADO GLOBAL
+            await fetchBots(); 
         } catch (err) {
-            setError(err.message);
+            console.error("Error al eliminar bot en contexto:", err);
             throw err;
         }
     };

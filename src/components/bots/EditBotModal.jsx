@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
-const EditBotModal = ({ visible, onDismiss, bot }) => {
+const EditBotModal = ({ visible, bot, onDismiss, onUpdate, onDelete }) => {
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
   const { isWeb } = useResponsiveLayout();
@@ -16,15 +16,17 @@ const EditBotModal = ({ visible, onDismiss, bot }) => {
   const [botName, setBotName] = useState('');
   const [error, setError] = useState('');
   const [touched, setTouched] = useState(false);
+  const [loading, setLoading] = useState(false);
 
+  // Sincronizamos el nombre cuando se abre el modal o cambia el bot
   useEffect(() => {
     if (bot) {
-      setBotName(bot.name || '');
+      setBotName(bot.name || bot.custom_name || '');
     }
-  }, [bot]);
+  }, [bot, visible]);
 
   const resetForm = () => {
-    setBotName(bot?.name || '');
+    setBotName(bot?.name || bot?.custom_name || '');
     setError('');
     setTouched(false);
   };
@@ -47,35 +49,43 @@ const EditBotModal = ({ visible, onDismiss, bot }) => {
     setError(validateField(botName));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const validationError = validateField(botName);
     setError(validationError);
     setTouched(true);
 
-    if (!validationError) {
-      Alert.alert(
-        'Bot Actualizado',
-        `El bot ahora se llama "${botName}".`,
-        [{ text: 'Aceptar', onPress: () => { onDismiss(); } }]
-      );
+    if (!validationError && bot) {
+      try {
+        setLoading(true);
+        // Llamamos a la función del contexto. Enviamos el ID y el nuevo nombre.
+        await onUpdate(bot.bot_id, { custom_name: botName });
+        setLoading(false);
+        onDismiss();
+      } catch (err) {
+        setLoading(false);
+        console.error("Error al actualizar:", err);
+        Alert.alert("Error", "No se pudo actualizar el bot.");
+      }
     }
   };
 
   const handleDelete = () => {
     Alert.alert(
       'Eliminar Bot',
-      `Estas seguro de que deseas eliminar "${bot?.name}"? Esta accion no se puede deshacer.`,
+      `¿Estás seguro de que deseas eliminar "${bot?.name || bot?.custom_name}"? Esta acción no se puede deshacer.`,
       [
         { text: 'Cancelar', style: 'cancel' },
         { 
           text: 'Eliminar', 
           style: 'destructive',
-          onPress: () => {
-            Alert.alert(
-              'Bot Eliminado',
-              `"${bot?.name}" ha sido eliminado correctamente.`,
-              [{ text: 'Aceptar', onPress: () => { onDismiss(); } }]
-            );
+          onPress: async () => {
+            try {
+              await onDelete(bot.bot_id);
+              onDismiss();
+            } catch (err) {
+              console.error("Error al eliminar:", err);
+              Alert.alert("Error", "No se pudo eliminar el bot.");
+            }
           }
         },
       ]
@@ -128,8 +138,8 @@ const EditBotModal = ({ visible, onDismiss, bot }) => {
         </View>
 
         <View style={[styles.infoRow, { borderBottomColor: colors.placeholder + '30' }]}>
-          <Text style={[styles.infoLabel, { color: colors.textLight }]}>SSID:</Text>
-          <Text style={[styles.infoValue, { color: colors.text }]}>{bot?.ssid || 'No disponible'}</Text>
+          <Text style={[styles.infoLabel, { color: colors.textLight }]}>Estado:</Text>
+          <Text style={[styles.infoValue, { color: colors.text }]}>{bot?.status || 'Desconocido'}</Text>
         </View>
 
         <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 24 }]}>
@@ -151,7 +161,7 @@ const EditBotModal = ({ visible, onDismiss, bot }) => {
           visible={true}
           style={touched && !error && botName.trim() ? { color: '#4CAF50' } : { color: colors.textLight }}
         >
-          {touched && error ? error : touched && !error ? 'Nombre valido' : 'Cambia el nombre de tu bot'}
+          {touched && error ? error : touched && !error ? 'Nombre válido' : 'Cambia el nombre de tu bot'}
         </HelperText>
 
         <View style={globalStyles.botonera}>
@@ -163,6 +173,8 @@ const EditBotModal = ({ visible, onDismiss, bot }) => {
             textColor={colors.background}
             contentStyle={styles.buttonContent}
             icon="content-save"
+            loading={loading}
+            disabled={loading}
           >
             Guardar
           </Button>
@@ -174,6 +186,7 @@ const EditBotModal = ({ visible, onDismiss, bot }) => {
             textColor={colors.error}
             contentStyle={styles.buttonContent}
             icon="delete"
+            disabled={loading}
           >
             Eliminar
           </Button>
@@ -184,54 +197,16 @@ const EditBotModal = ({ visible, onDismiss, bot }) => {
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
-    padding: 24,
-    borderRadius: 24,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  subtitle: {
-    fontSize: 13,
-    marginBottom: 20,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-  },
-  infoLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  infoValue: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  sectionTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 6,
-    opacity: 0.6,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  buttonContent: {
-    paddingVertical: 6,
-  },
+  modalContainer: { padding: 24, borderRadius: 24 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  title: { fontSize: 20, fontWeight: 'bold' },
+  subtitle: { fontSize: 13, marginBottom: 20 },
+  infoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1 },
+  infoLabel: { fontSize: 13, fontWeight: '600' },
+  infoValue: { fontSize: 14, fontWeight: '500' },
+  sectionTitle: { fontSize: 13, fontWeight: '600', marginBottom: 6, opacity: 0.6, textTransform: 'uppercase', letterSpacing: 1 },
+  buttonContent: { paddingVertical: 6 },
 });
 
 export default EditBotModal;
