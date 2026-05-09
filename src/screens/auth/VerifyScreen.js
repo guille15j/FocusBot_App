@@ -120,6 +120,7 @@ export default function VerifyScreen({ navigation, route = 'coreo' }) {
               onPress={ejecutarVerificacion}
               loading={loading}
               disabled={loading}
+              buttonColor={colors.primary} textColor={colors.background}
               style={[globalStyles.button, { flex: 1 }]}
               labelStyle={{ fontSize: 16, fontWeight: '600' }}
             >

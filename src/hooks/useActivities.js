@@ -68,6 +68,23 @@ export const useActivities = (autoRefresh = false, intervalMs = 30000) => {
         }
     };
 
+    const addActivity = async (activityData) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await ActivityService.createActivity(activityData);
+            // Refrescamos la lista en segundo plano para que al volver 
+            // a la pantalla de inicio los datos ya estén ahí.
+            await fetchActivities(false); 
+            return response;
+        } catch (err) {
+            setError(err.message);
+            throw err; // para que la pantalla pueda capturar el error en el Alert
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return {
         activities,
         loading,
@@ -75,5 +92,6 @@ export const useActivities = (autoRefresh = false, intervalMs = 30000) => {
         refresh: () => fetchActivities(true),
         updateActivityState,
         deleteActivity,
+        addActivity,
     };
 };

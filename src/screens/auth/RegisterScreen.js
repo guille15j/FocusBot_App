@@ -260,6 +260,7 @@ export default function RegisterScreen({ navigation }) {
                 loading={loading}
                 disabled={loading}
                 style={[globalStyles.button, { flex: 1 }]}
+                buttonColor={colors.primary} textColor={colors.background}
                 labelStyle={{ fontSize: 16, fontWeight: '600' }}
               >
                 Register

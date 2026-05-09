@@ -32,7 +32,6 @@ const ACTIVITY_TYPE_LIST = [
   { label: 'Pomodoro', value: 'POMODORO', icon: 'timer', color: '#EF5350' },
   { label: 'Hito', value: 'HITO', icon: 'flag', color: '#FFA726' },
   { label: 'Temporizador', value: 'TEMPORIZADOR', icon: 'timer-sand', color: '#42A5F5' },
-  { label: 'Libre', value: 'LIBRE', icon: 'infinity', color: '#66BB6A' },
 ];
 
 const ACTIVITY_TYPE_INFO = {
@@ -50,6 +49,7 @@ export default function CreateActivityScreen({ navigation, route }) {
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
 
   const activity = route?.params?.activity || null;
+  const { addActivity, loading } = useActivities();
   const isEditing = activity !== null;
 
   const [selectedBot, setSelectedBot] = useState(activity?.bot_id || null);
@@ -86,11 +86,46 @@ export default function CreateActivityScreen({ navigation, route }) {
   const updateHito = (index, field, value) => { const newHitos = [...hitos]; newHitos[index][field] = value; setHitos(newHitos); };
   const showInfo = (typeValue) => { if (typeValue) { setInfoType(typeValue); setInfoModalVisible(true); } };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title.trim()) { Alert.alert('Error', 'El título es obligatorio'); return; }
+    if (!selectedBot) { Alert.alert('Error', 'Debes seleccionar un FocusBot'); return; }
     if (!category) { Alert.alert('Error', 'Selecciona una categoría'); return; }
     if (!activityType) { Alert.alert('Error', 'Selecciona un tipo de actividad'); return; }
-    Alert.alert(isEditing ? 'Actividad Actualizada' : 'Actividad Creada', `La actividad "${title}" se ha ${isEditing ? 'actualizado' : 'creado'} correctamente.`, [{ text: 'Aceptar', onPress: () => navigation.goBack() }]);
+    
+    try{
+      let config = {};
+      if (activityType === 'POMODORO') {
+        config = { focusTime, shortBreak, longBreak, cyclesBeforeLong };
+      } else if (activityType === 'HITO') {
+        // Filtramos hitos vacíos antes de enviar
+        config = { hitos: hitos.filter(h => h.nombre.trim() !== '') };
+      } else if (activityType === 'TEMPORIZADOR') {
+        config = { timerHours, timerMinutes, timerSeconds };
+      }
+
+      const activityData = {
+        title,
+        description,
+        bot_id: selectedBot, // ID obtenido del carrusel
+        category,
+        state: 'PENDIENTE',
+        init_date: `${initDate}T${initTime}:00`,
+        end_date: `${endDate}T${endTime}:00`,
+        type_id: activityType,
+        config
+      };
+
+      await addActivity(activityData); // Llamada al hook
+
+      Alert.alert(
+        'Éxito', 
+        `La actividad "${title}" se ha creado correctamente.`, 
+        [{ text: 'Aceptar', onPress: () => navigation.goBack() }]
+      );
+    }catch(error){
+      Alert.alert('Error', err || 'No se pudo conectar con el servidor');
+    }
+    
   };
 
   return (
@@ -103,7 +138,7 @@ export default function CreateActivityScreen({ navigation, route }) {
           <View style={{ width: 48 }} />
         </View>
 
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+        {/* <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}> */}
           <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
             
             <Text style={[styles.label, { color: colors.textLight, marginTop: 20 }]}>SELECCIONAR BOT</Text>
@@ -212,18 +247,30 @@ export default function CreateActivityScreen({ navigation, route }) {
               </>
             )}
 
-            {activityType === 'LIBRE' && (
-              <>
-                <Text style={[styles.label, { color: colors.textLight, marginTop: 24 }]}>DESCRIPCIÓN</Text>
-                <TextInput label="Descripción" mode="outlined" outlineStyle={{ borderRadius: 30 }} style={globalStyles.input} value={description} onChangeText={setDescription} multiline numberOfLines={4} left={<TextInput.Icon icon="text-box" />} />
-              </>
-            )}
-            <View style={[styles.bottomButtons, { backgroundColor: colors.surface, borderTopColor: colors.placeholder + '30', paddingBottom: insets.bottom || 16 }]}>
-              <Button mode="contained" onPress={handleSave} style={[globalStyles.button, { flex: 1 }]} buttonColor={colors.primary} textColor={colors.background} icon="content-save">Guardar</Button>
-              <Button mode="outlined" onPress={() => navigation.goBack()} style={[globalStyles.buttonOutline, { flex: 1 }]} textColor={colors.text} icon="close">Cancelar</Button>
+           
+            <View style={[styles.bottomButtons]}>
+              <Button 
+                mode="contained" 
+                onPress={handleSave} 
+                loading={loading}
+                disabled={loading}
+                style={[globalStyles.button, { flex: 1 }]} buttonColor={colors.primary} textColor={colors.background} 
+                icon="content-save">
+                  Guardar
+              </Button>
+              
+              <Button 
+                mode="outlined"
+                onPress={() => navigation.goBack()}
+                loading={loading}
+                disabled={loading}
+                style={[globalStyles.buttonOutline, { flex: 1 }]} 
+                icon="close">
+                  Cancelar
+              </Button>
             </View>
           </ScrollView>
-        </KeyboardAvoidingView>
+        {/* </KeyboardAvoidingView> */}
 
         
 

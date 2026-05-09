@@ -154,11 +154,12 @@ export const getglobalStyles = (scheme, isWeb = false) => {
     linkContainer: {
       flexDirection: 'row',
       justifyContent: 'center',
-      marginTop: 20,
+      // marginTop: 20
     },
     link: {
       color: colors.primary,
       fontWeight: '600',
+      textAlign: 'center'
     },
     botonera: {
       flexDirection: 'row',

@@ -155,6 +155,7 @@ export default function ResetScreen({ navigation }) {
               onPress={ejecutarReset}
               loading={loading}
               disabled={loading}
+              buttonColor={colors.primary} textColor={colors.background}
               style={[globalStyles.button, { flex: 1 }]}
               labelStyle={{ fontSize: 16 }}
             >
