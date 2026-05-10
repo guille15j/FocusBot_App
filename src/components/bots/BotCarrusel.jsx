@@ -52,14 +52,16 @@ const BotCarousel = ({ bots = [], onAddPress, onIndexChange, addProp = false }) 
   }, [currentIndex, data, onIndexChange]);
 
   const scrollToIndex = (index) => {
-    if (flatListRef.current && index >= 0 && index < data.length) {
-      flatListRef.current.scrollToOffset({
-        offset: index * FULL_ITEM_WIDTH,
-        animated: true,
-      });
-      setCurrentIndex(index);
-    }
-  };
+  if (flatListRef.current && index >= 0 && index < data.length) {
+    const initialPadding = (windowWidth - FULL_ITEM_WIDTH) / 2;
+    const offset = index * FULL_ITEM_WIDTH - initialPadding;
+    flatListRef.current.scrollToOffset({
+      offset: Math.max(0, offset), // evitar valores negativos
+      animated: true,
+    });
+    setCurrentIndex(index);
+  }
+};
 
   const renderItem = ({ item }) => {
     // Si no hay datos

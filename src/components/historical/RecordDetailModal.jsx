@@ -1,35 +1,58 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Portal, Modal, Text, IconButton, Surface } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { Portal, Modal, Text, IconButton, Button, Surface, Divider } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
-import { getColors } from '../../theme/theme';
+import { getColors, getglobalStyles } from '../../theme/theme';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 const CATEGORIES_CONFIG = {
-  DEPORTES: { icon: 'dumbbell', color: '#FFD54F', label: 'Deporte' },
-  LECTURA: { icon: 'book-open-variant', color: '#FF8A65', label: 'Lectura' },
-  ESTUDIOS: { icon: 'school', color: '#81C784', label: 'Estudio' },
-  DESCANSO: { icon: 'weather-night', color: '#9575CD', label: 'Descanso' },
-  HOGAR: { icon: 'home', color: '#F06292', label: 'Hogar' },
-  OTRAS: { icon: 'dots-horizontal', color: '#BDBDBD', label: 'Otros' },
+  ESTUDIOS: { icon: 'school', color: '#81C784', label: 'Estudios' },
+  LECTURA: { icon: 'book-open-variant', color: '#64B5F6', label: 'Lectura' },
+  HOGAR: { icon: 'home', color: '#FFD54F', label: 'Hogar' },
+  DEPORTES: { icon: 'run', color: '#FF8A65', label: 'Deportes' },
+  DESCANSO: { icon: 'bed', color: '#BA68C8', label: 'Descanso' },
+  OTRAS: { icon: 'dots-horizontal', color: '#90A4AE', label: 'Otras' },
 };
 
-const RecordDetailModal = ({ visible, onDismiss, record }) => {
+const RecordDetailModal = ({ visible, onDismiss, record, onDelete }) => {
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
   const { isWeb } = useResponsiveLayout();
   const colors = useMemo(() => getColors(scheme), [scheme]);
+  const globalStyles = useMemo(() => getglobalStyles(colors), [colors]);
 
   if (!record) return null;
 
-  const rate = record.total_activities > 0 ? ((record.num_completo / record.total_activities) * 100).toFixed(0) : 0;
   const catInfo = CATEGORIES_CONFIG[record.most_category] || CATEGORIES_CONFIG.OTRAS;
-  const formatTime = (min) => {
-    const h = Math.floor(min / 60);
-    const m = Math.round(min % 60);
-    return h > 0 ? `${h}h ${m}min` : `${m}min`;
+  
+  const successRate = record.total_activities > 0 
+    ? ((record.num_completo / record.total_activities) * 100).toFixed(0) 
+    : 0;
+
+  const formatDate = (dateStr) => {
+    return new Date(dateStr).toLocaleDateString('es-ES', { 
+      day: '2-digit', month: 'short', year: 'numeric' 
+    });
+  };
+
+  const handleConfirmDelete = () => {
+    Alert.alert(
+      "Eliminar Registro",
+      "¿Estás seguro de que quieres borrar este informe? Esta acción no se puede deshacer.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { 
+          text: "Eliminar", 
+          onPress: () => {
+            onDelete(record.record_id);
+            onDismiss();
+          }, 
+          style: "destructive" 
+        }
+      ]
+    );
   };
 
   return (
@@ -37,64 +60,95 @@ const RecordDetailModal = ({ visible, onDismiss, record }) => {
       <Modal
         visible={visible}
         onDismiss={onDismiss}
-        style={{ backgroundColor: 'rgba(0,0,0,0.7)', marginTop: -insets.top, marginBottom: -insets.bottom }}
-        contentContainerStyle={[styles.modal, { backgroundColor: colors.surface, marginHorizontal: isWeb ? '35%' : 16 }]}
+        style={{ 
+          backgroundColor: 'rgba(0,0,0,0.7)', 
+          marginTop: -insets.top, 
+          marginBottom: -insets.bottom 
+        }}
+        contentContainerStyle={[
+          styles.modal, 
+          { backgroundColor: colors.surface, margin: isWeb ? 60 : 20 }
+        ]}
       >
+        {/* HEADER ESTILO GENERATE MODAL */}
+        <View style={styles.header}>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.title, { color: colors.primary }]}>Detalles del Informe</Text>
+            <Text style={[styles.sub, { color: colors.textLight }]}>
+              {formatDate(record.init_date_range)} — {formatDate(record.end_date_range)}
+            </Text>
+          </View>
+          <IconButton icon="close-circle" size={28} onPress={onDismiss} iconColor={colors.textLight} />
+        </View>
+
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.header}>
-            <MaterialCommunityIcons name="calendar-check" size={28} color={colors.primary} />
-            <Text style={[styles.title, { color: colors.text }]}>Detalle del Registro</Text>
-            <IconButton icon="close-circle" size={28} onPress={onDismiss} iconColor={colors.textLight} style={{ marginLeft: 'auto' }} />
+          {/* SECCIÓN 1: KPI GRID */}
+          <View style={styles.statsGrid}>
+            <View style={styles.statItem}>
+              <Text style={[styles.statValue, { color: '#81C784' }]}>{record.num_completo}</Text>
+              <Text style={[styles.statLabel, { color: colors.textLight }]}>Completas</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={[styles.statValue, { color: colors.primary }]}>{record.num_pendiente}</Text>
+              <Text style={[styles.statLabel, { color: colors.textLight }]}>Pendientes</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={[styles.statValue, { color: '#E57373' }]}>{record.num_cancelado}</Text>
+              <Text style={[styles.statLabel, { color: colors.textLight }]}>Canceladas</Text>
+            </View>
           </View>
 
-          <Text style={[styles.dateRange, { color: colors.textLight }]}>
-            {new Date(record.init_date_range).toLocaleDateString('es-ES')} - {new Date(record.end_date_range).toLocaleDateString('es-ES')}
-          </Text>
+          <Divider style={{ marginVertical: 20, opacity: 0.2 }} />
 
-          <View style={styles.kpiGrid}>
-            <Surface style={[styles.kpiBox, { backgroundColor: '#81C78415' }]}>
-              <Text style={styles.kpiNum}>{record.num_completo}</Text>
-              <Text style={[styles.kpiSub, { color: '#81C784' }]}>Completado</Text>
-            </Surface>
-            <Surface style={[styles.kpiBox, { backgroundColor: '#FFB74D15' }]}>
-              <Text style={styles.kpiNum}>{record.num_pendiente}</Text>
-              <Text style={[styles.kpiSub, { color: '#FFB74D' }]}>Pendiente</Text>
-            </Surface>
-            <Surface style={[styles.kpiBox, { backgroundColor: '#BA68C815' }]}>
-              <Text style={styles.kpiNum}>{record.num_pospuesto}</Text>
-              <Text style={[styles.kpiSub, { color: '#BA68C8' }]}>Pospuesto</Text>
-            </Surface>
-            <Surface style={[styles.kpiBox, { backgroundColor: '#E5737315' }]}>
-              <Text style={styles.kpiNum}>{record.num_cancelado}</Text>
-              <Text style={[styles.kpiSub, { color: '#E57373' }]}>Cancelado</Text>
-            </Surface>
-          </View>
+          {/* SECCIÓN 2: INFORMACIÓN DETALLADA */}
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Análisis del Periodo</Text>
+          
+          <Surface style={[styles.infoCard, { backgroundColor: colors.background }]}>
+            <MaterialCommunityIcons name={catInfo.icon} size={24} color={catInfo.color} />
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={[styles.cardLabel, { color: colors.textLight }]}>Categoría más frecuente</Text>
+              <Text style={[styles.cardValue, { color: colors.text }]}>{catInfo.label}</Text>
+            </View>
+          </Surface>
 
-          <View style={styles.row}>
-            <Surface style={[styles.infoCard, { backgroundColor: colors.background }]}>
-              <MaterialCommunityIcons name={catInfo.icon} size={24} color={catInfo.color} />
-              <Text style={[styles.infoLabel, { color: colors.textLight }]}>Categoría Top</Text>
-              <Text style={[styles.infoValue, { color: colors.text }]}>{catInfo.label}</Text>
-            </Surface>
-            <Surface style={[styles.infoCard, { backgroundColor: colors.background }]}>
-              <MaterialCommunityIcons name="clock-outline" size={24} color="#4FC3F7" />
-              <Text style={[styles.infoLabel, { color: colors.textLight }]}>Tiempo Total</Text>
-              <Text style={[styles.infoValue, { color: colors.text }]}>{formatTime(record.total_used_time)}</Text>
-            </Surface>
-          </View>
+          <Surface style={[styles.infoCard, { backgroundColor: colors.background }]}>
+            <MaterialCommunityIcons name="clock-outline" size={24} color="#4FC3F7" />
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={[styles.cardLabel, { color: colors.textLight }]}>Tiempo total invertido</Text>
+              <Text style={[styles.cardValue, { color: colors.text }]}>
+                {Math.floor(record.total_used_time / 60)}h {record.total_used_time % 60}m
+              </Text>
+            </View>
+          </Surface>
 
-          <View style={styles.row}>
-            <Surface style={[styles.infoCard, { backgroundColor: colors.background }]}>
-              <MaterialCommunityIcons name="format-list-bulleted" size={24} color={colors.primary} />
-              <Text style={[styles.infoLabel, { color: colors.textLight }]}>Total Actividades</Text>
-              <Text style={[styles.infoValue, { color: colors.text }]}>{record.total_activities}</Text>
-            </Surface>
-            <Surface style={[styles.infoCard, { backgroundColor: colors.background }]}>
-              <MaterialCommunityIcons name="percent" size={24} color="#81C784" />
-              <Text style={[styles.infoLabel, { color: colors.textLight }]}>Tasa Éxito</Text>
-              <Text style={[styles.infoValue, { color: colors.text }]}>{rate}%</Text>
-            </Surface>
-          </View>
+          <Surface style={[styles.infoCard, { backgroundColor: colors.background }]}>
+            <MaterialCommunityIcons name="bullseye-arrow" size={24} color="#F06292" />
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={[styles.cardLabel, { color: colors.textLight }]}>Tasa de éxito</Text>
+              <Text style={[styles.cardValue, { color: colors.text }]}>{successRate}% de efectividad</Text>
+            </View>
+          </Surface>
+
+          {/* BOTÓN DE ELIMINAR REGISTRO */}
+          <Button
+            mode="outlined"
+            onPress={handleConfirmDelete}
+            icon="trash-can-outline"
+            textColor="#E57373"
+            style={{ marginTop: 24, borderColor: '#E57373', borderRadius: 30 }}
+          >
+            Eliminar Registro
+          </Button>
+
+          <Button
+            mode="contained"
+            onPress={onDismiss}
+            style={{ marginTop: 12, marginBottom: 10, borderRadius: 30 }}
+            buttonColor={colors.primary}
+            textColor={colors.background}
+          >
+            Cerrar Detalle
+          </Button>
         </ScrollView>
       </Modal>
     </Portal>
@@ -102,69 +156,34 @@ const RecordDetailModal = ({ visible, onDismiss, record }) => {
 };
 
 const styles = StyleSheet.create({
-  modal: {
-    padding: 24,
-    borderRadius: 24,
-    maxHeight: '90%',
+  modal: { padding: 24, borderRadius: 24 },
+  header: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'flex-start', 
+    marginBottom: 16 
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 4,
+  title: { fontSize: 22, fontWeight: 'bold' },
+  sub: { fontSize: 13, marginTop: 2 },
+  statsGrid: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginTop: 10 
   },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  dateRange: {
-    fontSize: 13,
-    marginBottom: 20,
-    marginLeft: 38,
-  },
-  kpiGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 16,
-  },
-  kpiBox: {
-    width: '47%',
-    padding: 14,
-    borderRadius: 14,
-    alignItems: 'center',
-  },
-  kpiNum: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#4A4E69',
-  },
-  kpiSub: {
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  row: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 8,
-  },
+  statItem: { alignItems: 'center', flex: 1 },
+  statValue: { fontSize: 20, fontWeight: 'bold' },
+  statLabel: { fontSize: 10, textTransform: 'uppercase', marginTop: 4, letterSpacing: 0.5 },
+  sectionTitle: { fontSize: 14, fontWeight: '700', marginBottom: 12, textTransform: 'uppercase' },
   infoCard: {
-    flex: 1,
-    padding: 14,
-    borderRadius: 14,
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 8,
+    elevation: 0,
   },
-  infoLabel: {
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  infoValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+  cardLabel: { fontSize: 11, opacity: 0.8 },
+  cardValue: { fontSize: 15, fontWeight: '600' },
 });
 
 export default RecordDetailModal;

@@ -1,206 +1,110 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
-import { Portal, Modal, TextInput, Button, Text, IconButton, HelperText } from 'react-native-paper';
+import { View, StyleSheet, Alert, Pressable, Platform } from 'react-native';
+import { Portal, Modal, Button, Text, IconButton, Surface } from 'react-native-paper';
+import DateTimePicker from '@react-native-community/datetimepicker'; // Necesitas instalar esto
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
-import { getColors, getglobalStyles } from '../../theme/theme';
-import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import { getColors } from '../../theme/theme';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-const formatDateInput = (text) => {
-  const cleaned = text.replace(/[^0-9]/g, '').slice(0, 8);
-  let result = '';
-  if (cleaned.length > 0) result += cleaned.substring(0, 4);
-  if (cleaned.length > 4) result += '-' + cleaned.substring(4, 6);
-  if (cleaned.length > 6) result += '-' + cleaned.substring(6, 8);
-  return result;
-};
-
-const formatTimeInput = (text) => {
-  const cleaned = text.replace(/[^0-9]/g, '').slice(0, 4);
-  let result = '';
-  if (cleaned.length > 0) result += cleaned.substring(0, 2);
-  if (cleaned.length > 2) result += ':' + cleaned.substring(2, 4);
-  return result;
-};
-
-const GenerateRecordModal = ({ visible, onDismiss }) => {
+const GenerateRecordModal = ({ visible, onDismiss, onGenerate }) => {
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
-  const { isWeb } = useResponsiveLayout();
   const colors = useMemo(() => getColors(scheme), [scheme]);
-  const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
 
-  const today = new Date().toISOString().split('T')[0];
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(null); // 'start' | 'end' | null
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [initDate, setInitDate] = useState(today);
-  const [initTime, setInitTime] = useState('00:00');
-  const [endDate, setEndDate] = useState(today);
-  const [endTime, setEndTime] = useState('23:59');
-
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
-
-  const resetForm = () => {
-    setInitDate(today);
-    setInitTime('00:00');
-    setEndDate(today);
-    setEndTime('23:59');
-    setErrors({});
-    setTouched({});
+  const onChange = (event, selectedDate) => {
+    setShowPicker(null); // Cerrar el picker
+    if (selectedDate) {
+      if (showPicker === 'start') setStartDate(selectedDate);
+      if (showPicker === 'end') setEndDate(selectedDate);
+    }
   };
 
-  const validateDate = (value) => {
-    if (!value.trim()) return 'Obligatorio';
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return 'Formato: YYYY-MM-DD';
-    const d = new Date(value + 'T00:00:00');
-    if (isNaN(d.getTime())) return 'Fecha inválida';
-    return '';
-  };
-
-  const validateTime = (value) => {
-    if (!value.trim()) return 'Obligatorio';
-    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) return 'Formato: HH:MM (00-23:59)';
-    return '';
-  };
-
-  const handleChangeInitDate = (text) => {
-    const formatted = formatDateInput(text);
-    setInitDate(formatted);
-    if (touched.initDate) setErrors(prev => ({ ...prev, initDate: validateDate(formatted) }));
-  };
-
-  const handleChangeInitTime = (text) => {
-    const formatted = formatTimeInput(text);
-    setInitTime(formatted);
-    if (touched.initTime) setErrors(prev => ({ ...prev, initTime: validateTime(formatted) }));
-  };
-
-  const handleChangeEndDate = (text) => {
-    const formatted = formatDateInput(text);
-    setEndDate(formatted);
-    if (touched.endDate) setErrors(prev => ({ ...prev, endDate: validateDate(formatted) }));
-  };
-
-  const handleChangeEndTime = (text) => {
-    const formatted = formatTimeInput(text);
-    setEndTime(formatted);
-    if (touched.endTime) setErrors(prev => ({ ...prev, endTime: validateTime(formatted) }));
-  };
-
-  const handleGenerate = () => {
-    const initDateErr = validateDate(initDate);
-    const initTimeErr = validateTime(initTime);
-    const endDateErr = validateDate(endDate);
-    const endTimeErr = validateTime(endTime);
-
-    setErrors({ initDate: initDateErr, initTime: initTimeErr, endDate: endDateErr, endTime: endTimeErr });
-    setTouched({ initDate: true, initTime: true, endDate: true, endTime: true });
-
-    if (initDateErr || initTimeErr || endDateErr || endTimeErr) return;
-
-    const init = new Date(`${initDate}T${initTime}:00`);
-    const end = new Date(`${endDate}T${endTime}:00`);
-    if (end <= init) {
-      Alert.alert('Error', 'La fecha de fin debe ser posterior a la de inicio');
+  const handleGenerate = async () => {
+    if (startDate >= endDate) {
+      Alert.alert("Rango Inválido", "La fecha de inicio debe ser anterior a la de fin.");
       return;
     }
 
-    Alert.alert(
-      'Registro Generado',
-      `Rango: ${initDate} ${initTime} - ${endDate} ${endTime}`,
-      [{ text: 'Aceptar', onPress: () => { resetForm(); onDismiss(); } }]
-    );
+    setIsSubmitting(true);
+    // Convertimos a ISO para tu API de Python
+    const result = await onGenerate(startDate.toISOString(), endDate.toISOString());
+    setIsSubmitting(false);
+    
+    if (result.success) onDismiss();
   };
 
-  const handleDismiss = () => { resetForm(); onDismiss(); };
+  const DateSelector = ({ label, date, onPress, icon }) => (
+    <View style={styles.selectorContainer}>
+      <Text style={[styles.label, { color: colors.textLight }]}>{label}</Text>
+      <Surface style={[styles.surface, { backgroundColor: colors.background }]} elevation={0}>
+        <Pressable onPress={onPress} style={styles.pressable}>
+          <MaterialCommunityIcons name={icon} size={20} color={colors.primary} />
+          <Text style={[styles.dateText, { color: colors.text }]}>
+            {date.toLocaleString('es-ES', { 
+              day: '2-digit', month: '2-digit', year: 'numeric', 
+              hour: '2-digit', minute: '2-digit' 
+            })}
+          </Text>
+          <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textLight} />
+        </Pressable>
+      </Surface>
+    </View>
+  );
 
   return (
     <Portal>
       <Modal
         visible={visible}
-        onDismiss={handleDismiss}
-        style={{ backgroundColor: 'rgba(0,0,0,0.7)', marginTop: -insets.top, marginBottom: -insets.bottom }}
-        contentContainerStyle={[styles.modal, { backgroundColor: colors.surface, marginHorizontal: isWeb ? '35%' : 16 }]}
+        onDismiss={onDismiss}
+        contentContainerStyle={[styles.modal, { backgroundColor: colors.surface, marginBottom: insets.bottom + 20 }]}
       >
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.primary }]}>Generar Registro</Text>
-          <IconButton icon="close-circle" size={28} onPress={handleDismiss} iconColor={colors.textLight} />
+          <IconButton icon="close-circle" size={24} onPress={onDismiss} />
         </View>
 
-        <Text style={[styles.sub, { color: colors.textLight }]}>Selecciona el rango de fechas</Text>
-        <Text style={[styles.section, { color: colors.text }]}>Fecha de Inicio</Text>
+        <Text style={[styles.description, { color: colors.textLight }]}>
+          Elige el intervalo de tiempo para calcular tus estadísticas.
+        </Text>
 
-        <TextInput
-          label="Fecha (YYYY-MM-DD)"
-          mode="outlined"
-          outlineStyle={{ borderRadius: 30 }}
-          value={initDate}
-          onChangeText={handleChangeInitDate}
-          onBlur={() => setTouched(prev => ({ ...prev, initDate: true }))}
-          error={touched.initDate && !!errors.initDate}
-          keyboardType="number-pad"
-          maxLength={10}
-          left={<TextInput.Icon icon="calendar-start" />}
-          style={{ marginBottom: 4 }}
+        <DateSelector 
+          label="DESDE" 
+          date={startDate} 
+          icon="calendar-import"
+          onPress={() => setShowPicker('start')} 
         />
-        {touched.initDate && errors.initDate ? <HelperText type="error" visible>{errors.initDate}</HelperText> : null}
 
-        <TextInput
-          label="Hora (HH:MM)"
-          mode="outlined"
-          outlineStyle={{ borderRadius: 30 }}
-          value={initTime}
-          onChangeText={handleChangeInitTime}
-          onBlur={() => setTouched(prev => ({ ...prev, initTime: true }))}
-          error={touched.initTime && !!errors.initTime}
-          keyboardType="number-pad"
-          maxLength={5}
-          left={<TextInput.Icon icon="clock-start" />}
-          style={{ marginBottom: 4 }}
+        <DateSelector 
+          label="HASTA" 
+          date={endDate} 
+          icon="calendar-export"
+          onPress={() => setShowPicker('end')} 
         />
-        {touched.initTime && errors.initTime ? <HelperText type="error" visible>{errors.initTime}</HelperText> : null}
 
-        <Text style={[styles.section, { color: colors.text, marginTop: 20 }]}>Fecha de Fin</Text>
-
-        <TextInput
-          label="Fecha (YYYY-MM-DD)"
-          mode="outlined"
-          outlineStyle={{ borderRadius: 30 }}
-          value={endDate}
-          onChangeText={handleChangeEndDate}
-          onBlur={() => setTouched(prev => ({ ...prev, endDate: true }))}
-          error={touched.endDate && !!errors.endDate}
-          keyboardType="number-pad"
-          maxLength={10}
-          left={<TextInput.Icon icon="calendar-end" />}
-          style={{ marginBottom: 4 }}
-        />
-        {touched.endDate && errors.endDate ? <HelperText type="error" visible>{errors.endDate}</HelperText> : null}
-
-        <TextInput
-          label="Hora (HH:MM)"
-          mode="outlined"
-          outlineStyle={{ borderRadius: 30 }}
-          value={endTime}
-          onChangeText={handleChangeEndTime}
-          onBlur={() => setTouched(prev => ({ ...prev, endTime: true }))}
-          error={touched.endTime && !!errors.endTime}
-          keyboardType="number-pad"
-          maxLength={5}
-          left={<TextInput.Icon icon="clock-end" />}
-          style={{ marginBottom: 4 }}
-        />
-        {touched.endTime && errors.endTime ? <HelperText type="error" visible>{errors.endTime}</HelperText> : null}
+        {showPicker && (
+          <DateTimePicker
+            value={showPicker === 'start' ? startDate : endDate}
+            mode="datetime" // Permite elegir fecha y hora
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={onChange}
+            maximumDate={new Date()} // No permitir fechas futuras
+          />
+        )}
 
         <Button
           mode="contained"
           onPress={handleGenerate}
-          style={[globalStyles.button, { marginTop: 24 }]}
-          buttonColor={colors.primary}
-          textColor={colors.background}
-          icon="calculator"
+          loading={isSubmitting}
+          style={styles.btn}
+          contentStyle={{ height: 50 }}
         >
-          Calcular y Guardar
+          Calcular Informe
         </Button>
       </Modal>
     </Portal>
@@ -208,11 +112,16 @@ const GenerateRecordModal = ({ visible, onDismiss }) => {
 };
 
 const styles = StyleSheet.create({
-  modal: { padding: 24, borderRadius: 24 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  title: { fontSize: 20, fontWeight: 'bold' },
-  sub: { fontSize: 13, marginBottom: 20 },
-  section: { fontSize: 13, fontWeight: '600', marginBottom: 6, opacity: 0.7 },
+  modal: { margin: 20, padding: 24, borderRadius: 28 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  title: { fontSize: 22, fontWeight: 'bold' },
+  description: { fontSize: 14, marginBottom: 25, lineHeight: 20 },
+  selectorContainer: { marginBottom: 18 },
+  label: { fontSize: 11, fontWeight: 'bold', letterSpacing: 1, marginBottom: 8, marginLeft: 4 },
+  surface: { borderRadius: 16, overflow: 'hidden' },
+  pressable: { flexDirection: 'row', alignItems: 'center', padding: 16, gap: 12 },
+  dateText: { flex: 1, fontSize: 15, fontWeight: '500' },
+  btn: { marginTop: 10, borderRadius: 16 },
 });
 
 export default GenerateRecordModal;

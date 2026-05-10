@@ -85,5 +85,10 @@ export const ActivityService = {
 
 export const HistoryService = {
     getRecords: () => fetchApi('history/', 'GET'),
-    calculateRecord: (init_date, end_date) => fetchApi('history/', 'POST', { init_date_range: init_date, end_date_range: end_date }),
+    getRecordById: (recordId) => fetchApi(`history/${recordId}`, 'GET'),
+    calculateRecord: (init_date, end_date) => 
+        fetchApi('history/calculate', 'POST', { 
+            init_date_range: init_date, 
+            end_date_range: end_date 
+        }),
 };
