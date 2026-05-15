@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { View, useColorScheme } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -24,7 +24,6 @@ import ProfileScreen from './src/screens/app/ProfileScreen';
 import HistoricalRecords from './src/screens/app/HistoricalScreen';
 
 import BottomNav from './src/navigation/BottomTabs';
-
 import { useResponsiveLayout } from './src/hooks/useResponsiveLayout';
 
 const Stack = createStackNavigator();
@@ -37,26 +36,28 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [userToken, setUserToken] = useState(null);
   const [user, setUser] = useState(null);
-  const navigationRef = React.useRef();
+  const [navReady, setNavReady] = useState(false);
+  const navigationRef = useRef();
 
   const authActions = useMemo(() => ({
     signIn: async (token, userData) => {
-      console.log("Iniciando sesión con token:", token);
-      try{
+      try {
         await authStorage.saveToken(token);
         await authStorage.saveUser(userData);
         setUserToken(token);
         setUser(userData);
-      }catch(e){
-        console.error("Error en el proceso de incio de sesion: ",e);
+        // Al hacer login manual, activamos la barra rápido
+        setNavReady(true);
+      } catch (e) {
+        console.error("Error en el inicio de sesión:", e);
       }
     },
     signOut: async () => {
-      console.log("Cerrando sesión...");
       await authStorage.deleteToken();
       await authStorage.deleteUser();
       setUser(null);
       setUserToken(null);
+      setNavReady(false);
     },
     signUp: async (token, userData) => {
       try {
@@ -64,8 +65,9 @@ export default function App() {
         await authStorage.saveUser(userData);
         setUserToken(token);
         setUser(userData);
+        setNavReady(true);
       } catch (e) {
-        console.error("Error al guardar datos tras registro:", e);
+        console.error("Error al registrar:", e);
       }
     },
     userToken,
@@ -73,66 +75,84 @@ export default function App() {
   }), [userToken, user]);
 
   useEffect(() => {
-    const verificarSesionGuardada = async () => {
-      console.log("Verificando si hay sesión guardada...");
-      const token = await authStorage.getToken();
-      const userData = await authStorage.getUser();
-      if (token) console.log("Sesión encontrada. Token:", token);
-      else console.log("No hay sesion guardada");
-      setUserToken(token);
-      setUser(userData);
-      setLoading(false);
+    const verificarSesion = async () => {
+      try {
+        const token = await authStorage.getToken();
+        const userData = await authStorage.getUser();
+        
+        if (token) {
+          setUserToken(token);
+          setUser(userData);
+          // EL TRUCO: Los datos ya están en el estado, pero la barra
+          // espera un momento para ganar el foco táctil.
+          setTimeout(() => {
+            setNavReady(true);
+          }, 600);
+        }
+      } catch (e) {
+        console.error("Error verificando sesión:", e);
+      } finally {
+        setLoading(false);
+      }
     };
-    verificarSesionGuardada();
+
+    verificarSesion();
   }, []);
 
   if (loading) {
     return (
-      <PaperProvider theme={theme}>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator animating={true} size="large" color={theme.colors.primary} />
-        </View>
-      </PaperProvider>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background }}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
     );
   }
 
   return (
     <AuthContext.Provider value={authActions}>
       <BotProvider>
-      <ActivityProvider>
-      <SafeAreaProvider>
-        <PaperProvider theme={theme}>         
-          <NavigationContainer ref={navigationRef}>
-            <Stack.Navigator screenOptions={{ headerShown: false }}>
-              {userToken == null ? (
-                <>
-                  <Stack.Screen name="Login" component={LoginScreen} />
-                  <Stack.Screen name="Register" component={RegisterScreen} />
-                  <Stack.Screen name="Reset" component={ResetScreen} />
-                  <Stack.Screen name="Verify" component={VerifyScreen} />
-                </>
-              ) : (
-                <>
-                  <Stack.Screen name="Home" component={HomeScreen} />
-                  <Stack.Screen name="Activities" component={ActivitiesScreen} />
-                  <Stack.Screen name="CreateActivity" component={CreateActivityScreen} />
-                  <Stack.Screen name="Bots" component={BotsPage} />
-                  <Stack.Screen name="Profile" component={ProfileScreen} />
-                  <Stack.Screen name="Records" component={HistoricalRecords} />
-                  {/* <Stack.Screen name="CreateActivity" component={CreateActivityScreen} /> */}
-                </>
-              )}
-            </Stack.Navigator>
-            {userToken && 
-              <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 999 }}> 
-              {/* para que este por enci¡ma de todos los componentes y sea pulsable aunque no se haya seguido un beun flujo de renderizado */}
-                <BottomNav navigation={navigationRef.current} />
+        <ActivityProvider>
+          <SafeAreaProvider>
+            <PaperProvider theme={theme}>
+              
+              <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+                <NavigationContainer ref={navigationRef}>
+                  
+                  {/* CONTENEDOR FLEX: Divide la pantalla en dos bloques reales */}
+                  <View style={{ flex: 1 }}>
+                    <Stack.Navigator screenOptions={{ headerShown: false }}>
+                      {userToken == null ? (
+                        <>
+                          <Stack.Screen name="Login" component={LoginScreen} />
+                          <Stack.Screen name="Register" component={RegisterScreen} />
+                          <Stack.Screen name="Reset" component={ResetScreen} />
+                          <Stack.Screen name="Verify" component={VerifyScreen} />
+                        </>
+                      ) : (
+                        <>
+                          <Stack.Screen name="Home" component={HomeScreen} />
+                          <Stack.Screen name="Activities" component={ActivitiesScreen} />
+                          <Stack.Screen name="CreateActivity" component={CreateActivityScreen} />
+                          <Stack.Screen name="Bots" component={BotsPage} />
+                          <Stack.Screen name="Profile" component={ProfileScreen} />
+                          <Stack.Screen name="Records" component={HistoricalRecords} />
+                        </>
+                      )}
+                    </Stack.Navigator>
+                  </View>
+
+                  {/* BARRA: Hermano de layout del Navigator (evita bloqueos) */}
+                  {(userToken && navReady) && (
+                    <View style={{ backgroundColor: theme.colors.surface }}>
+                      <BottomNav navigation={navigationRef.current} />
+                    </View>
+                  )}
+
+                </NavigationContainer>
               </View>
-            }
-          </NavigationContainer>
-        </PaperProvider>
-      </SafeAreaProvider>
-      </ActivityProvider>
+
+            </PaperProvider>
+          </SafeAreaProvider>
+        </ActivityProvider>
       </BotProvider>
     </AuthContext.Provider>
   );

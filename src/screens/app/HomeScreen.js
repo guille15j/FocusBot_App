@@ -10,6 +10,7 @@ import BotCarousel        from '../../components/bots/BotCarrusel';
 import ActivitiesList     from '../../components/activities/ActivitiesList';
 import LinkBotModal       from '../../components/bots/LinkBotModal';
 import { ScreenWrapper }  from '../../components/layout/ScreenWrapper';
+import {BottomNav}        from '../../navigation/BottomTabs'
 
 //CUSTOM HOOKS
 import { useActivities }        from '../../hooks/useActivities';
@@ -155,6 +156,9 @@ export default function HomeScreen({ navigation }) {
           backdropColor="rgba(0,0,0,0.5)"
         />
       </Portal>
+
+      {/* <BottomNav navigation={navigationRef.current} /> */}
+
     </ScreenWrapper>
   );
 }

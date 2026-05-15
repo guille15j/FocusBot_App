@@ -51,7 +51,7 @@ export default function Activities({ navigation }) {
   };
 
   const handleActionPress = async (activity) => {
-    // Ejemplo: Si está PENDIENTE, la pasamos a EN CURSO
+    
     const nuevoEstado = activity.state === 'PENDIENTE' ? 'EN CURSO' : 'COMPLETADO';
     try {
       await updateActivityState(activity.activity_id, nuevoEstado);
