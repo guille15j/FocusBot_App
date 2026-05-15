@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import { ActivityService } from '../api/apiService';
 
-export const useActivities = (autoRefresh = false, intervalMs = 30000) => {
+export const useActivities = (autoRefresh = false, intervalMs = 15 * 60 * 1000) => {
     const [activities, setActivities] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);

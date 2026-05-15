@@ -3,6 +3,7 @@
     "name": "FocusApp_Correciones",
     "slug": "FocusApp_Correciones",
     "version": "1.0.0",
+    "scheme": "focusapp",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -42,7 +43,8 @@
       }
     },
     "plugins": [
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-web-browser"
     ]
   }
 }

@@ -114,15 +114,15 @@ export default function BottomNav({ navigation }) {
 const getStyles = (colors, useSidebar) => StyleSheet.create({
   sidebarContainer: {
     position: 'absolute',
-    top: 0,
+    top: -10000,
     left: 0,
     bottom: 0,
     width: 80,
     zIndex: 100,
     backgroundColor: colors.surface,
     flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    // justifyContent: 'space-between',
+    // alignItems: 'center',
     borderRightWidth: 1,
     borderRightColor: colors.outlineVariant || 'rgba(0,0,0,0.05)',
   },

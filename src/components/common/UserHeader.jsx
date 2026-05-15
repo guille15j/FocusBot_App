@@ -3,6 +3,7 @@ import { View, StyleSheet, Platform, useColorScheme, Pressable } from 'react-nat
 import { Avatar, Text, Button, IconButton } from 'react-native-paper';
 import { getColors } from '../../theme/theme';
 import { AuthContext } from '../../context/AuthContext';
+import {BotIcon} from '../BotIcon';
 
 const UserHeader = ({ user, navigation }) => {
   const scheme = useColorScheme();

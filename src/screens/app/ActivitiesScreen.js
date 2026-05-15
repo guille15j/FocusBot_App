@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, ScrollView, useColorScheme, StyleSheet, Alert } from 'react-native';
+import { View, ScrollView, useColorScheme, StyleSheet, Alert, RefreshControl } from 'react-native';
 import { Text, Searchbar, Chip, SegmentedButtons, Icon } from 'react-native-paper';
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
@@ -90,7 +90,19 @@ export default function Activities({ navigation }) {
         <Text style={[globalStyles.tituloPagina]}>Actividades</Text>
         <Searchbar placeholder="Buscar actividad..." onChangeText={setSearchQuery} value={searchQuery} style={{ marginHorizontal: 15, marginVertical: 15 }} />
         
-        <ScrollView onScroll={onScroll} scrollEventThrottle={16} style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: isWeb ? 10 : (platform === 'ios' ? 40 : 65) }}>
+        <ScrollView 
+          onScroll={onScroll} 
+          scrollEventThrottle={16} 
+          style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: isWeb ? 10 : (platform === 'ios' ? 40 : 65) }}
+          refreshControl={
+            <RefreshControl 
+              refreshing={loading} 
+              onRefresh={refresh} 
+              colors={[colors.primary]} 
+              tintColor={colors.primary}
+            />
+          }
+        >
           {activities.length === 0 && !loading ? (
             <View style={{ padding: 50, alignItems: 'center' }}>
               <Icon source="robot-happy" size={100} />

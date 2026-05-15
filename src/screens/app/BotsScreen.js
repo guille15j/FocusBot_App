@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useContext } from 'react';
-import { View, useColorScheme, ScrollView, useWindowDimensions } from 'react-native';
+import { View, useColorScheme, ScrollView, useWindowDimensions, RefreshControl } from 'react-native';
 import { Text, SegmentedButtons, ActivityIndicator, Surface, IconButton } from 'react-native-paper';
 
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
@@ -27,8 +27,7 @@ export default function BotsPage() {
   const AppColors = useMemo(() => getColors(scheme), [scheme]);
   
   // Extraemos todo lo necesario del contexto de Bots
-  const { bots, loading, linkNewBot, updateBot, deleteBot } = useContext(BotContext);
-
+  const { bots, loading, refresh, linkNewBot, updateBot, deleteBot } = useContext(BotContext);
   const [value, setValue] = React.useState('IDLE'); 
   const [label, setLabel] = useState('Esperando');
   const [linkModalVisible, setLinkModalVisible] = useState(false);
@@ -80,7 +79,16 @@ export default function BotsPage() {
             <ScrollView 
               onScroll={onScroll} scrollEventThrottle={16} 
               style={{ flex: 1 }} // para que fucnione bn el fab custom debe de ocuapr todo lo posible
-              contentContainerStyle={{ paddingBottom: isWeb ? 10 : (platform === 'ios' ? 40 : 65 )}}>
+              contentContainerStyle={{ paddingBottom: isWeb ? 10 : (platform === 'ios' ? 40 : 65 )}}
+              refreshControl={
+                <RefreshControl 
+                  refreshing={loading} 
+                  onRefresh= {refresh}
+                  colors={[colors.primary]} 
+                  tintColor={colors.primary}
+                />
+              }
+            >
 
                 {filteredBots.length === 0 ? (
                   <View style={{  alignItems: 'center'}}>

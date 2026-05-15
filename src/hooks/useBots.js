@@ -72,8 +72,11 @@ export const useBots = (autoRefresh = false, intervalMs = 45000) => {
         bots,
         loading,
         error,
-        refresh: () => fetchBots(true),
+        // AÑADE ESTA LÍNEA:
+        refresh: () => fetchBots(true), 
         linkNewBot,
-        updateBot
+        updateBot,
+        deleteBot,
+        fetchBots
     };
 };

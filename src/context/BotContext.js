@@ -94,7 +94,7 @@ export const BotProvider = ({ children }) => {
             bots, 
             loading, 
             error, 
-            refreshBots: () => fetchBots(true),
+            refresh: () => fetchBots(true),
             linkNewBot,
             updateBot,
             deleteBot

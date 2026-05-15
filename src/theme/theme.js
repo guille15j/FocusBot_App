@@ -57,10 +57,12 @@ export const getglobalStyles = (scheme, isWeb = false) => {
     container_web:{
       backgroundColor: colors.background,
       minHeight: '100vh',
+      zindex: 1,
     },
     container_movil:{
       backgroundColor: colors.background,
       minHeight: '100%',   
+      zindex: 1,
     },
     section:{
       paddingHorizontal: 20,

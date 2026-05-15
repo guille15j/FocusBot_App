@@ -48,6 +48,7 @@ export default function HistoricalRecords({ navigation }) {
       acc[r.most_category] = (acc[r.most_category] || 0) + 1;
       return acc;
     }, {});
+    
     const topCat = Object.entries(categorias).sort((a, b) => b[1] - a[1])[0]?.[0] || '---';
 
     return [

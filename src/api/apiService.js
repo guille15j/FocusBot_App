@@ -1,4 +1,5 @@
 const API_URL = 'http://83.36.5.17:5000/';
+const GOOGLE_CLIENT_ID = '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com';
 
 import { authStorage } from '../core/authStorage';
 
@@ -53,6 +54,7 @@ export const AuthService = {
     verify: (email, codigo) => fetchApi('auth/verify', 'POST', { email, codigo }),
     resendCode: (email) => fetchApi('auth/resend-code', 'POST', { email }),
     resetPassword: (data) => fetchApi('auth/change/password', 'POST', data),
+    googleLoggin: (googleToken) => fetchApi('auth/google', 'POST',googleToken),
 
 };
 

@@ -1,5 +1,5 @@
-import React, { useContext, useMemo, useState } from 'react';
-import { View, StyleSheet, useColorScheme } from 'react-native';
+import React, { useContext, useMemo, useState, useCallback } from 'react';
+import { View, StyleSheet, useColorScheme, ScrollView, RefreshControl, Platform } from 'react-native'; 
 import { useIsFocused } from '@react-navigation/native';
 import { Text, FAB, Portal, ActivityIndicator } from 'react-native-paper';
 
@@ -28,21 +28,36 @@ export default function HomeScreen({ navigation }) {
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
 
   const { user, signOut } = useContext(AuthContext);
-   const { bots, loading: loadingBots, linkNewBot, updateBot, deleteBot } = useContext(BotContext);
+  
+  // Extraemos 'refresh' del contexto de Bots (que configuramos como fetchBots(true))
+  const { bots, loading: loadingBots, linkNewBot, refresh: refreshBots } = useContext(BotContext);
 
   const isFocused = useIsFocused();
   const [open, setOpen] = React.useState(false);
 
-  // Llamamos al hook con autoRefresh activo cada 60 segundos
-  const { activities, loading } = useActivities(true, 60000);
+  // Extraemos 'refresh' del hook de actividades
+  const { activities, loading: loadingActs, refresh: refreshActs } = useActivities(true);
   
+  // El estado de refresco depende de si cualquiera de los dos está cargando
+  const isRefreshing = loadingBots || loadingActs;
 
-  // Seleccionamos solo las 10 actividades más recientes para no saturar la pantalla de informacion irrelevante
+  const onRefresh = useCallback(async () => {
+    console.log("HomeScreen: Refrescando datos de API...");
+    try {
+      // Ejecutamos ambas peticiones al servidor en paralelo
+      await Promise.all([
+        refreshBots ? refreshBots() : Promise.resolve(),
+        refreshActs ? refreshActs() : Promise.resolve()
+      ]);
+    } catch (error) {
+      console.error("Error al sincronizar con la API en Home:", error);
+    }
+  }, [refreshBots, refreshActs]);
+
   const recentActivities = useMemo(() => {
     if (Array.isArray(activities)) {
       return activities.slice(0, 10);
     }
-    // Si no es un array (está cargando o hubo error), devolvemos array vacío
     return [];
   }, [activities]);
 
@@ -52,45 +67,59 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <ScreenWrapper withScroll={true}>
+    <ScreenWrapper withScroll={false}>
       <View style={isWeb ? globalStyles.container_web : globalStyles.container_movil}>
-        {!isWeb && 
-          <UserHeader user={user || { 
-            first_name: 'Nombre', 
-            last_name: 'Apellido', 
-            email: 'invitado@focusbot.com' }}  navigation={navigation}
-          />
-        }
-        <View style={{ paddingBottom: isWeb ? 10 : 80 }}>
-          {isWeb && <UserHeader user={user || { first_name: 'Nombre', last_name: 'Apellido', email: 'invitado@focusbot.com' }} />}
-          <BotCarousel 
-            bots={bots} 
-            // bots = {BOTS_DATA}
-            onAddPress={() => console.log("Añadir nuevo bot")}
-            onBotPress={(bot) => console.log("Seleccionado:", bot.name)}
-            globalStyles={globalStyles}
-            addProp = {true}
-          />
-          <Text variant="titleLarge" style={{textAlign: 'center', marginVertical:  8, color: colors.text,}}>
-            Actividades Recientes
-          </Text>
-          {loading && activities.length === 0 ? (
-            <ActivityIndicator animating={true} color={colors.primary} style={{ marginVertical: 20 }} />
-          ) : (
-            <ActivitiesList 
-              activities={recentActivities} 
-              // Navegamos a la pantalla principal de actividades al pulsar
-              onActivityPress={(activity) => navigation.navigate('Activities')}
-              globalStyles={globalStyles} 
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          refreshControl={
+            <RefreshControl 
+              refreshing={isRefreshing} 
+              onRefresh={onRefresh} 
+              colors={[colors.primary]} 
+              tintColor={colors.primary}
             />
-          )}
-        </View>
+          }
+        >
+          {!isWeb && 
+            <UserHeader user={user || { 
+              first_name: 'Nombre', 
+              last_name: 'Apellido', 
+              email: 'invitado@focusbot.com' }}  navigation={navigation}
+            />
+          }
+          <View style={{ paddingBottom: isWeb ? 10 : 80 }}>
+            {isWeb && <UserHeader user={user || { first_name: 'Nombre', last_name: 'Apellido', email: 'invitado@focusbot.com' }} />}
+            
+            <BotCarousel 
+              bots={bots} 
+              onAddPress={() => setLinkModalVisible(true)}
+              onBotPress={(bot) => console.log("Seleccionado:", bot.name)}
+              globalStyles={globalStyles}
+              addProp = {true}
+            />
 
-        <LinkBotModal 
-          visible={linkModalVisible}
-          onDismiss={() => setLinkModalVisible(false)}
-          onLink={linkNewBot}
-        />
+            <Text variant="titleLarge" style={{textAlign: 'center', marginVertical:  8, color: colors.text,}}>
+              Actividades Recientes
+            </Text>
+
+            {/* Spinner central solo si no hay datos y está cargando */}
+            {isRefreshing && activities.length === 0 ? (
+              <ActivityIndicator animating={true} color={colors.primary} style={{ marginVertical: 20 }} />
+            ) : (
+              <ActivitiesList 
+                activities={recentActivities} 
+                onActivityPress={(activity) => navigation.navigate('Activities')}
+                globalStyles={globalStyles} 
+              />
+            )}
+          </View>
+
+          <LinkBotModal 
+            visible={linkModalVisible}
+            onDismiss={() => setLinkModalVisible(false)}
+            onLink={linkNewBot}
+          />
+        </ScrollView>
 
       </View>
       <Portal>
@@ -120,7 +149,6 @@ export default function HomeScreen({ navigation }) {
             { 
             backgroundColor: open ? colors.placeholder : colors.primary,
             bottom: isWeb ? 20 : 100,
-            
             }
           }
           color={colors.background}
