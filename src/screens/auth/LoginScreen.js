@@ -27,21 +27,20 @@ export default function LoginScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useContext(AuthContext);
 
+  // --- Configuración de Google OAuth para móvil (expo-auth-session) ---
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId:      process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
-    iosClientId:      '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
-    androidClientId:  '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
-    
-    responseType: Platform.OS === 'web' ? 'code' : 'id_token',
-
-    // Redirigimos la versión Web directamente al endpoint de tu API
-    redirectUri: Platform.OS === 'web' 
-      ? AuthSession.makeRedirectUri({ isVisualStudioCode: false })
-      : AuthSession.makeRedirectUri({ scheme: 'focusapp' }),
+    androidClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
+    iosClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
+    responseType: 'id_token',
+    redirectUri: AuthSession.makeRedirectUri({ scheme: 'focusapp' }),
   });
-  useEffect(() => {    
+
+  // Solo procesar la respuesta de expo-auth-session en móvil
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    
     if (response?.type === 'success') {
-      const token = response.authentication?.idToken || response.params?.id_token || response.params?.code;
+      const token = response.authentication?.idToken || response.params?.id_token;
       if (token) {
         manejarLoginGoogle(token);
       } else {
@@ -51,6 +50,42 @@ export default function LoginScreen({ navigation }) {
       setLoading(false);
     }
   }, [response]);
+
+  // --- Configuración de Google Identity Services para web ---
+  const googleClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com';
+
+  // Callback para GIS (web)
+  const manejarGISResponse = async (response) => {
+    const { credential } = response; // id_token
+    if (credential) {
+      await manejarLoginGoogle(credential);
+    } else {
+      setLoading(false);
+    }
+  };
+
+  // Inicializa GIS al montar el componente (solo web)
+  useEffect(() => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && window.google) {
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: manejarGISResponse,
+        auto_select: false,
+      });
+    }
+  }, []);
+
+  // Dispara el prompt de GIS (web)
+  const promptGIS = () => {
+    if (Platform.OS === 'web' && window.google) {
+      window.google.accounts.id.prompt((notification) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          console.log('GIS prompt no mostrado o saltado');
+          setLoading(false);
+        }
+      });
+    }
+  };
 
   const manejarLoginGoogle = async (token) => {
     setLoading(true);
@@ -90,7 +125,7 @@ export default function LoginScreen({ navigation }) {
   const irAReset = () => navigation.navigate('Reset');
 
   return (
-    <LinearGradient colors={[colors.background, colors.primary,colors.background]} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} style={{ flex: 1 }}>
+    <LinearGradient colors={[colors.background, colors.primary, colors.background]} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} style={{ flex: 1 }}>
       <KeyboardAvoidingView style={isWeb ? globalStyles.authContainer_web : globalStyles.authContainer} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
           <View style={globalStyles.form} elevation={4}>
@@ -136,10 +171,13 @@ export default function LoginScreen({ navigation }) {
               icon="google"
               onPress={() => {
                 setLoading(true);
-                // Ejecución nativa/web optimizada con ventana emergente
-                promptAsync(Platform.OS === 'web' ? { windowFeatures: { width: 500, height: 600 } } : {});
+                if (Platform.OS === 'web') {
+                  promptGIS();
+                } else {
+                  promptAsync();
+                }
               }}
-              disabled={!request || loading}
+              disabled={loading}
               style={[globalStyles.buttonOutline, {marginTop: 0}]}
               contentStyle={{ paddingVertical: 2 }}
             >
