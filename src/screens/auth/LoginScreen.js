@@ -27,24 +27,25 @@ export default function LoginScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useContext(AuthContext);
 
-  // --- CONFIGURACIÓN HÍBRIDA DE GOOGLE ---
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
-    iosClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
-    androidClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
+    webClientId:      process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+    iosClientId:      '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
+    androidClientId:  '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
     
     redirectUri: AuthSession.makeRedirectUri({
       scheme: 'focusapp',
-      // __DEV__ es true solo en desarrollo. 
-      // En Web usa la URL del navegador; en móvil usa el Proxy solo en desarrollo.
-      useProxy: Platform.OS !== 'web' && __DEV__, 
+      preferLocalhost: !__DEV__,
     }),
   });
 
   useEffect(() => {
     if (response?.type === 'success') {
-      const { id_token } = response.params;
-      manejarLoginGoogle(id_token);
+      const token = response.authentication?.idToken || response.params?.id_token;
+      if (token) {
+        manejarLoginGoogle(token);
+      } else {
+        setLoading(false);
+      }
     } else if (response?.type === 'error' || response?.type === 'cancel') {
       setLoading(false);
     }
