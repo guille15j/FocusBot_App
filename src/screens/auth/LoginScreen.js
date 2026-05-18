@@ -34,12 +34,11 @@ export default function LoginScreen({ navigation }) {
     
     responseType: Platform.OS === 'web' ? 'code' : 'id_token',
 
+    // Redirigimos la versión Web directamente al endpoint de tu API
     redirectUri: Platform.OS === 'web' 
-      ? window.location.origin 
+      ? AuthSession.makeRedirectUri({ isVisualStudioCode: false })
       : AuthSession.makeRedirectUri({ scheme: 'focusapp' }),
   });
-
-  // FLUJO 1: Listener estándar de Expo (Móviles y entornos locales estables)
   useEffect(() => {    
     if (response?.type === 'success') {
       const token = response.authentication?.idToken || response.params?.id_token || response.params?.code;
@@ -52,38 +51,6 @@ export default function LoginScreen({ navigation }) {
       setLoading(false);
     }
   }, [response]);
-
-  // FLUJO 2: EFECTO DE RESCATE EXCLUSIVO PARA WEB (VERCEL) 
-  // Captura de forma manual tanto parámetros '?' como hashes '#' si la app se recarga
-  useEffect(() => {
-    if (Platform.OS !== 'web') return;
-
-    let tokenEncontrado = null;
-
-    // Variante A: Intentar leer '?code=' o '?id_token=' de la URL
-    if (window.location.search) {
-      const urlParams = new URLSearchParams(window.location.search);
-      tokenEncontrado = urlParams.get('code') || urlParams.get('id_token') || urlParams.get('access_token');
-    }
-
-    // Variante B: Si no se halló arriba, intentar desestructurar el hash '#'
-    if (!tokenEncontrado && window.location.hash) {
-      const hash = window.location.hash.substring(1);
-      const hashParams = new URLSearchParams(hash);
-      tokenEncontrado = hashParams.get('id_token') || hashParams.get('access_token') || hashParams.get('code');
-    }
-
-    // Si capturamos cualquier credencial válida de Google directamente desde la URL de Vercel
-    if (tokenEncontrado) {
-      console.log("¡Credencial de Google rescatada manualmente desde Vercel!:", tokenEncontrado);
-      
-      // Limpiamos estéticamente la barra del navegador para remover los tokens expuestos
-      window.history.replaceState({}, document.title, window.location.pathname);
-      
-      // Ejecutamos el inicio de sesión mandando el parámetro rescatado
-      manejarLoginGoogle(tokenEncontrado);
-    }
-  }, []);
 
   const manejarLoginGoogle = async (token) => {
     setLoading(true);
