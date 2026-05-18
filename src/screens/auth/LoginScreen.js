@@ -32,10 +32,9 @@ export default function LoginScreen({ navigation }) {
     iosClientId:      '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
     androidClientId:  '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
     
-    redirectUri: AuthSession.makeRedirectUri({
-      scheme: 'focusapp',
-      preferLocalhost: !__DEV__,
-    }),
+    redirectUri: Platform.OS === 'web' 
+      ? window.location.origin // Esto obliga a usar directamente https://focus-bot-app-web.vercel.app
+      : AuthSession.makeRedirectUri({ scheme: 'focusapp' }),
   });
 
   useEffect(() => {
