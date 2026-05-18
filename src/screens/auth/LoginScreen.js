@@ -27,13 +27,15 @@ export default function LoginScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useContext(AuthContext);
 
+  const redirectUri = AuthSession.makeRedirectUri();
+  console.log('Redirect URI:', redirectUri);
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
     androidClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
     iosClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
     responseType: 'id_token',
-    redirectUri: AuthSession.makeRedirectUri({ scheme: 'focusapp' }),
+    redirectUri: redirectUri,
   });
 
   // Solo procesar la respuesta de expo-auth-session en móvil, pendiente de crear el contendio cliente id para moviels
