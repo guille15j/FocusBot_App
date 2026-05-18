@@ -35,13 +35,14 @@ export default function LoginScreen({ navigation }) {
     responseType: Platform.OS === 'web' ? 'code' : 'id_token',
 
     redirectUri: Platform.OS === 'web' 
-      ? window.location.origin // Esto obliga a usar directamente https://focus-bot-app-web.vercel.app
+      ? window.location.origin 
       : AuthSession.makeRedirectUri({ scheme: 'focusapp' }),
   });
 
+  // FLUJO 1: Listener estándar de Expo (Móviles y entornos locales estables)
   useEffect(() => {    
     if (response?.type === 'success') {
-      const token = response.authentication?.idToken || response.params?.id_token;
+      const token = response.authentication?.idToken || response.params?.id_token || response.params?.code;
       if (token) {
         manejarLoginGoogle(token);
       } else {
@@ -52,30 +53,35 @@ export default function LoginScreen({ navigation }) {
     }
   }, [response]);
 
-  // EFECT EXCLUSIVO PARA WEB (VERCEL) PARA QUE FUCNIONE EL GOOGLE OAUTH
+  // FLUJO 2: EFECTO DE RESCATE EXCLUSIVO PARA WEB (VERCEL) 
+  // Captura de forma manual tanto parámetros '?' como hashes '#' si la app se recarga
   useEffect(() => {
     if (Platform.OS !== 'web') return;
 
-    // Detectamos si la URL de la ventana tiene el maldito hash con el access_token
-    if (window.location.hash) {
-      const hash = window.location.hash.substring(1); // Quita el '#'
-      const params = new URLSearchParams(hash);
+    let tokenEncontrado = null;
+
+    // Variante A: Intentar leer '?code=' o '?id_token=' de la URL
+    if (window.location.search) {
+      const urlParams = new URLSearchParams(window.location.search);
+      tokenEncontrado = urlParams.get('code') || urlParams.get('id_token') || urlParams.get('access_token');
+    }
+
+    // Variante B: Si no se halló arriba, intentar desestructurar el hash '#'
+    if (!tokenEncontrado && window.location.hash) {
+      const hash = window.location.hash.substring(1);
+      const hashParams = new URLSearchParams(hash);
+      tokenEncontrado = hashParams.get('id_token') || hashParams.get('access_token') || hashParams.get('code');
+    }
+
+    // Si capturamos cualquier credencial válida de Google directamente desde la URL de Vercel
+    if (tokenEncontrado) {
+      console.log("¡Credencial de Google rescatada manualmente desde Vercel!:", tokenEncontrado);
       
-      // Intentamos rascar el access_token o el id_token que te está enviando Google
-      const accessToken = params.get('access_token');
-      const idToken = params.get('id_token');
-
-      const tokenFinal = idToken || accessToken;
-
-      if (tokenFinal) {
-        console.log("¡Token rescatado del hash a mano!:", tokenFinal);
-        
-        // Limpiamos la URL para que no quede feo el hash en Vercel
-        window.history.replaceState({}, document.title, window.location.pathname);
-        
-        // Ejecutamos tu función de login
-        manejarLoginGoogle(tokenFinal);
-      }
+      // Limpiamos estéticamente la barra del navegador para remover los tokens expuestos
+      window.history.replaceState({}, document.title, window.location.pathname);
+      
+      // Ejecutamos el inicio de sesión mandando el parámetro rescatado
+      manejarLoginGoogle(tokenEncontrado);
     }
   }, []);
 
@@ -86,7 +92,7 @@ export default function LoginScreen({ navigation }) {
       if (res.token) {
         await signIn(res.token);
       } else {
-        Alert.alert("Error", "Error en validación: " + (res.message || "Token inválido"));
+        Alert.alert("Error", "Error en validación: " + (res.message || "Token/Código inválido"));
       }
     } catch (err) {
       Alert.alert("Error", "Error de conexión con el backend");
@@ -138,7 +144,6 @@ export default function LoginScreen({ navigation }) {
               <Text style={[globalStyles.link, { fontSize: 14 }]}>¿Has olvidado la contraseña?</Text>
             </TouchableOpacity>
 
-            {/* CAMBIO AQUÍ: Botón a ancho completo + Pregunta de Registro abajo */}
             <Button 
               icon="login" 
               mode="contained" 
@@ -153,8 +158,6 @@ export default function LoginScreen({ navigation }) {
               Iniciar sesión
             </Button>
 
-           
-
             <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 20 }}>
               <PaperDivider style={{ flex: 1 }} />
               <Text style={{ marginHorizontal: 12, color: colors.textLight, fontSize: 12, fontWeight: '600' }}>o</Text>
@@ -166,7 +169,7 @@ export default function LoginScreen({ navigation }) {
               icon="google"
               onPress={() => {
                 setLoading(true);
-                // En Web, forzamos el uso de una ventana emergente (Popup)
+                // Ejecución nativa/web optimizada con ventana emergente
                 promptAsync(Platform.OS === 'web' ? { windowFeatures: { width: 500, height: 600 } } : {});
               }}
               disabled={!request || loading}
