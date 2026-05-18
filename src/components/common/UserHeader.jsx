@@ -1,15 +1,18 @@
 import React, { useContext, useMemo } from 'react';
 import { View, StyleSheet, Platform, useColorScheme, Pressable } from 'react-native'; 
-import { Avatar, Text, Button, IconButton } from 'react-native-paper';
+import { Avatar, Text, IconButton } from 'react-native-paper';
 import { getColors } from '../../theme/theme';
 import { AuthContext } from '../../context/AuthContext';
-import {BotIcon} from '../BotIcon';
+import { BotIcon } from '../BotIcon';
 
 const UserHeader = ({ user, navigation }) => {
   const scheme = useColorScheme();
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const isWeb = Platform.OS === 'web';
   const { signOut } = useContext(AuthContext);
+
+  // 🚀 OPTIMIZACIÓN: Memorizamos los estilos acoplados al tema para evitar recrearlos en cada render
+  const styles = useMemo(() => getStyles(colors), [colors]);
 
   if (!user) return null;
   else {
@@ -26,38 +29,60 @@ const UserHeader = ({ user, navigation }) => {
     console.log("Sesión cerrada");
   };
 
-  const styles = getStyles(colors);
+  // 🚀 UNIFICACIÓN: Fuente de la imagen de perfil optimizada para ambos entornos (Web y Móvil)
+  const avatarSource = useMemo(() => {
+    return user.profile_img 
+      ? { uri: user.profile_img } 
+      : require('../../assets/avatar.png');
+  }, [user.profile_img]);
 
   return (
     <Pressable 
-      style={styles.topBarContainer}
-      onPress={()=> navigation.navigate('Profile')}
+      style={({ pressed }) => [
+        styles.topBarContainer,
+        !isWeb && pressed && { opacity: 0.85, transform: [{ scale: 0.99 }] } // Feedback sutil al presionar la barra
+      ]}
+      onPress={() => navigation && navigation.navigate('Profile')}
     >
       <View style={styles.userContainer}>
-        {!isWeb && (
+        {!isWeb ? (
           <>
+            {/* VISTA MÓVIL OPTIMIZADA */}
             <Avatar.Image 
-              size={isWeb ? 100 : 60} 
-              source={
-                user.profile_img 
-                  ? { uri: user.profile_img } // Si existe Base64 en la DB, úsalo
-                  : require('../../assets/avatar.png') // Si no, usa el fallback actual
-              } 
+              size={54} 
+              source={avatarSource} 
+              style={styles.avatarShadow}
             />
-            <View>
-              <Text style={styles.userName}>{user.first_name} {user.last_name}</Text>
-              <Text style={styles.userDetail}>{'#'+ user.nickname || user.email}</Text>
+            <View style={styles.textContainer}>
+              <Text variant="titleMedium" style={styles.userName} numberOfLines={1}>
+                {user.first_name} {user.last_name}
+              </Text>
+              {/* 🚀 CORRECCIÓN: Paréntesis para evitar que concatene '#' con undefined */}
+              <Text variant="bodySmall" style={styles.userDetail} numberOfLines={1}>
+                {user.nickname ? `@${user.nickname}` : user.email}
+              </Text>
             </View>
+            
             <View style={{ flex: 1 }} />
-            <IconButton mode="contained" icon="logout" size={20} onPress={ejecutarLogout} iconColor={colors.primary} />
+            
+            {/* 🚀 REDISEÑO: Botón de logout más limpio y con hitSlop para evitar falsas pulsaciones al ir al perfil */}
+            <IconButton 
+              mode="subtle" 
+              icon="logout" 
+              size={20} 
+              onPress={ejecutarLogout} 
+              iconColor={colors.error || '#E57373'} // Un color rojizo sutil o tu color de error
+              containerColor={colors.error + '10'}  // Fondo translúcido suave
+              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }} 
+            />
           </>
-        )}
-        {isWeb && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', margin: 20 }}>
-            <Avatar.Image size={100} source={require('../../assets/avatar.png')} />
-            <View>
-              <Text style={styles.userTittle}>¡Hola de nuevo!</Text>
-              <Text style={styles.userName}>{user.first_name} {user.last_name}</Text>
+        ) : (
+          /* VISTA WEB OPTIMIZADA */
+          <View style={styles.webWrapper}>
+            <Avatar.Image size={80} source={avatarSource} style={styles.avatarShadow} />
+            <View style={styles.textContainerWeb}>
+              <Text style={styles.userTitleWeb}>¡Hola de nuevo!</Text>
+              <Text style={styles.userNameWeb}>{user.first_name} {user.last_name}</Text>
             </View>
           </View>
         )}
@@ -66,42 +91,70 @@ const UserHeader = ({ user, navigation }) => {
   );
 };
 
+// 🚀 ESTILOS DINÁMICOS OPTIMIZADOS
 const getStyles = (colors) => StyleSheet.create({
   topBarContainer: {
     backgroundColor: Platform.OS === 'web' ? 'transparent' : colors.surface,
-    borderRadius: Platform.OS === 'web' ? 0 : 60,
-    marginHorizontal: Platform.OS === 'web' ? 0 : 10,
-    elevation: Platform.OS === 'web' ? 0 : 5,
+    borderRadius: Platform.OS === 'web' ? 0 : 20, // 🚀 Ajustado de 60 a 20 para albergar mejor el diseño de tarjetas angulares del listado
+    marginHorizontal: Platform.OS === 'web' ? 0 : 16,
+    marginTop: Platform.OS === 'web' ? 0 : 8,
+    marginBottom: Platform.OS === 'web' ? 0 : 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    elevation: Platform.OS === 'web' ? 0 : 2, // Bajado de 5 a 2 para mantener homogeneidad con el resto de la app
     shadowColor: Platform.OS === 'web' ? 'transparent' : '#000',
-    shadowOffset: Platform.OS === 'web' ? { width: 0, height: 0 } : { width: 0, height: 3 },
-    shadowOpacity: Platform.OS === 'web' ? 0 : 0.25,
-    shadowRadius: Platform.OS === 'web' ? 0 : 4,
+    shadowOffset: Platform.OS === 'web' ? { width: 0, height: 0 } : { width: 0, height: 2 },
+    shadowOpacity: Platform.OS === 'web' ? 0 : 0.08,
+    shadowRadius: Platform.OS === 'web' ? 0 : 3,
   },
   userContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 5,
-    paddingVertical: 5,
+    width: '100%',
   },
-  userTittle: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    color: colors.primary,
-    marginLeft: 16
+  textContainer: {
+    marginLeft: 12,
+    justifyContent: 'center',
+    flex: 1,
+    marginRight: 8,
+  },
+  avatarShadow: {
+    backgroundColor: 'transparent',
+    ...Platform.select({
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 2 },
+      android: { elevation: 1 }
+    })
   },
   userName: {
-    fontSize: 20,
-    fontWeight: '500',
+    fontWeight: '700',
     color: colors.text,
-    marginLeft: 16
+    letterSpacing: 0.1,
   },
   userDetail: {
-    fontSize: 12,
-    fontWeight: '400',
+    fontWeight: '500',
     color: colors.placeholder,
-    marginLeft: 16,
-    maxWidth: 200,
+    marginTop: 1,
   },
+  /* ESTILOS ESPECÍFICOS PARA LA WEB */
+  webWrapper: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    margin: 20 
+  },
+  textContainerWeb: {
+    marginLeft: 20,
+  },
+  userTitleWeb: {
+    fontSize: 26,
+    fontWeight: '800',
+    color: colors.primary,
+    marginBottom: 4,
+  },
+  userNameWeb: {
+    fontSize: 18,
+    fontWeight: '500',
+    color: colors.text,
+  }
 });
 
 export default UserHeader;

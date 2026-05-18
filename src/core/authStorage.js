@@ -59,6 +59,33 @@ export const authStorage = {
     }
   },
 
+  // Función para verificar si un token JWT está caducado
+  isTokenExpired : (token) => {
+    if (!token) return true;
+    try {
+      // Los JWT tienen 3 partes separadas por puntos. La segunda parte (index 1) contiene los datos (payload)
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      
+      // Decodificamos el texto Base64 a un JSON plano
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+
+      const { exp } = JSON.parse(jsonPayload);
+      
+      // El campo 'exp' viene en segundos. Lo comparamos con la hora actual en segundos.
+      const currentTime = Math.floor(Date.now() / 1000);
+      return exp < currentTime; // Devuelve true si la hora de expiración ya pasó
+    } catch (error) {
+      console.error("Error al decodificar el token:", error);
+      return true; // Si el token está corrupto o mal formado, lo tratamos como caducado
+    }
+  },
+
   // Eliminar usuario
   deleteUser: async () => {
     try {

@@ -1,7 +1,9 @@
 import React, { useContext, useMemo } from 'react';
 import { View, StyleSheet, TouchableOpacity, Platform, Dimensions, useColorScheme } from 'react-native';
-import { useNavigationState, getPathFromState } from '@react-navigation/native';
+import { useNavigationState } from '@react-navigation/native';
 import { Drawer, IconButton, Surface } from 'react-native-paper';
+
+// Rutas relativas correctas desde src/navigation/ hacia el resto de carpetas
 import { getColors } from '../theme/theme';
 import { AuthContext } from '../context/AuthContext';
 
@@ -26,7 +28,7 @@ export default function BottomNav({ navigation }) {
 
   const isActivityRelated = currentRouteName === 'Activities' || currentRouteName === 'CreateActivity';
 
-  let navItems = [    
+  const navItems = [    
     { name: 'Home', icon: 'home', iconOutline: 'home-outline' },
     { name: 'Bots', icon: 'robot', iconOutline: 'robot-outline' },
     { name: 'Activities', icon: 'calendar', iconOutline: 'calendar-outline' },
@@ -34,7 +36,7 @@ export default function BottomNav({ navigation }) {
     { name: 'Profile', icon: 'account', iconOutline: 'account-outline' },
   ];
 
-  let navItems_app = [    
+  const navItems_app = [    
     { name: 'Records', icon: 'clock-outline', iconOutline: 'clock-outline' },
     { name: 'Bots', icon: 'robot', iconOutline: 'robot-outline' },
     { name: 'Home', icon: 'home', iconOutline: 'home-outline' },
@@ -50,6 +52,7 @@ export default function BottomNav({ navigation }) {
     await signOut();
   };
 
+  // RENDERIZADO PARA WEB (SIDEBAR LATERAL)
   if (useSidebar) {
     return (
       <Surface style={styles.sidebarContainer} elevation={1}>
@@ -67,21 +70,27 @@ export default function BottomNav({ navigation }) {
                   active={isActive}
                   onPress={() => handleNavigation(item.name)}
                   style={styles.drawerItem}
-                  activeColor={colors.background}
+                  activeColor={colors.background || '#ffffff'}
                   rippleColor={colors.primary}
+                  theme={{
+                    colors: {
+                      secondaryContainer: colors.primary, 
+                    }
+                  }}
                 />
               );
             })}
           </Drawer.Section>
         </View>
         <View style={styles.sidebarFooter}>
-          <IconButton icon="help" size={24} />
-          <IconButton icon="logout" size={24} onPress={ejecutarLogout} />
+          <IconButton icon="help" size={24} iconColor={colors.placeholder} />
+          <IconButton icon="logout" size={24} iconColor={colors.placeholder} onPress={ejecutarLogout} />
         </View>
       </Surface>
     );
   }
 
+  // RENDERIZADO PARA MÓVIL (BARRA INFERIOR)
   return (
     <Surface style={styles.bottomBarContainer} elevation={4}>
       <View style={styles.bottomBar}>
@@ -98,8 +107,8 @@ export default function BottomNav({ navigation }) {
               <View style={isActive ? styles.activeWrapper : null}>
                 <IconButton
                   icon={isActive ? item.icon : item.iconOutline}
-                  iconColor={isActive ? colors.background : colors.placeholder}
-                  size={isActive ? 30 : 25}
+                  iconColor={isActive ? (colors.background || '#ffffff') : (colors.placeholder || '#757575')}
+                  size={isActive ? 28 : 24}
                   style={isActive ? styles.iconActive : styles.iconBase}
                 />
               </View>
@@ -113,18 +122,16 @@ export default function BottomNav({ navigation }) {
 
 const getStyles = (colors, useSidebar) => StyleSheet.create({
   sidebarContainer: {
-    position: 'absolute',
-    top: -10000,
+    position: isLargeScreen && Platform.OS === 'web' ? 'fixed' : 'absolute',
+    top: 0, 
     left: 0,
     bottom: 0,
     width: 80,
     zIndex: 100,
     backgroundColor: colors.surface,
     flexDirection: 'column',
-    // justifyContent: 'space-between',
-    // alignItems: 'center',
     borderRightWidth: 1,
-    borderRightColor: colors.outlineVariant || 'rgba(0,0,0,0.05)',
+    borderRightColor: colors.border || 'rgba(0,0,0,0.08)',
   },
   sidebarHeader: {
     height: 60,
@@ -138,17 +145,18 @@ const getStyles = (colors, useSidebar) => StyleSheet.create({
     backgroundColor: 'transparent',
   },
   drawerItem: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     alignSelf: 'center',
     justifyContent: 'center',
-    marginVertical: 4,
+    marginVertical: 6,
   },
   sidebarFooter: {
     paddingBottom: 30,
     width: '100%',
     alignItems: 'center',
+    gap: 10
   },
   bottomBarContainer: {
     position: 'absolute',
@@ -156,17 +164,15 @@ const getStyles = (colors, useSidebar) => StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: colors.surface,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    borderTopWidth: 1,
+    borderTopColor: colors.border || 'rgba(0,0,0,0.05)',
   },
   bottomBar: {
-    height: 70,
+    height: Platform.OS === 'ios' ? 76 : 64,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingBottom: Platform.OS === 'ios' ? 15 : 5,
+    paddingBottom: Platform.OS === 'ios' ? 16 : 0,
   },
   bottomBarBtn: {
     flex: 1,
@@ -174,17 +180,16 @@ const getStyles = (colors, useSidebar) => StyleSheet.create({
     justifyContent: 'center',
   },
   activeWrapper: {
-    borderWidth: 10,
-    borderColor: colors.surface,
     borderRadius: 100,
-    backgroundColor: colors.surface,
+    backgroundColor: 'transparent',
   },
   iconBase: {
-    backgroundColor: colors.surface,
-    borderRadius: 100,
+    backgroundColor: 'transparent',
+    margin: 0,
   },
   iconActive: {
     backgroundColor: colors.primary,
     borderRadius: 100,
+    margin: 0,
   }
 });

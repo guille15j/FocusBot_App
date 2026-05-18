@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, IconButton, Avatar } from 'react-native-paper';
 
 const CATEGORIES = {
@@ -15,11 +15,12 @@ const CATEGORIES = {
 };
 
 const STATE_COLORS = {
-  'EN CURSO': '#4FC3F7',
+  'EN_CURSO': '#4FC3F7',
   'PENDIENTE': '#FFB74D',
   'COMPLETADO': '#81C784',
   'CANCELADO': '#E57373',
   'POSPUESTO': '#BA68C8',
+  'PAUSADO': '#ffed4d',
 };
 
 const ActivityListTile = ({ item, onInfoPress, AppColors }) => {
@@ -29,36 +30,61 @@ const ActivityListTile = ({ item, onInfoPress, AppColors }) => {
   const rawState = item?.state ? String(item.state).toUpperCase().trim() : 'PENDIENTE';
   const stateColor = STATE_COLORS[rawState] || AppColors.placeholder;
 
+  // 🚀 Lógica de iconos y colores extraída limpiamente para legibilidad visual
+  const isEnCurso = rawState === 'EN_CURSO' || rawState === 'EN CURSO';
+  const isFinalizado = rawState === 'COMPLETADO' || rawState === 'CANCELADO';
+
+  const actionIcon = isEnCurso ? "pause" : (!isFinalizado ? "play" : "information");
+  const actionColor = isEnCurso ? AppColors.secondary : (!isFinalizado ? AppColors.primary : AppColors.placeholder);
+  
+  // Fondo dinámico sutil para el botón de acción según su estado
+  const actionBg = isFinalizado ? 'transparent' : (isEnCurso ? AppColors.secondary + '15' : AppColors.primary + '15');
+
   return (
-    <View style={styles.container}>
-      <Avatar.Icon 
-        size={44} 
-        icon={category.icon} 
-        style={{ backgroundColor: category.color }} 
-        color="white"
-      />
+    <TouchableOpacity 
+      activeOpacity={0.7} 
+      onPress={() => onInfoPress && onInfoPress(item)}
+      style={[styles.container,]}
+    >
+      {/* AVATAR DE CATEGORÍA */}
+      <View style={styles.avatarWrapper}>
+        <Avatar.Icon 
+          size={40} 
+          icon={category.icon} 
+          style={{ backgroundColor: category.color }} 
+          // color="#121212" // Texto/Icono oscuro sobre fondos pastel/vivos para legibilidad premium
+        />
+      </View>
+
+      {/* TEXTOS INFORMATIVOS */}
       <View style={styles.textContainer}>
-        <Text variant="titleMedium" style={{ color: AppColors.text }} numberOfLines={1}>
+        <Text variant="titleMedium" style={[styles.title, { color: AppColors.text }]} numberOfLines={1}>
           {item?.title ?? 'Sin título'}
         </Text>
+        
         <View style={styles.subtitleRow}>
-          <Text variant="labelSmall" style={{ color: stateColor, fontWeight: 'bold' }}>
-            {item?.state ?? 'PENDIENTE'} •{' '}
-          </Text>
-          
+          {/* 🚀 BADGE DE ESTADO PREMIUM: Encapsulado con fondo alpha de su propio color */}
+          <View style={[styles.stateBadge, { backgroundColor: stateColor + '18' }]}>
+            <View style={[styles.stateDot, { backgroundColor: stateColor }]} />
+            <Text variant="labelSmall" style={[styles.stateText, { color: stateColor }]}>
+              {item?.state ?? 'PENDIENTE'}
+            </Text>
+          </View>
         </View>
       </View>
       
-        
+      {/* 🚀 BOTÓN DE ACCIÓN: Rediseñado con área interactiva destacada */}
+      <View style={[styles.actionWrapper, { backgroundColor: actionBg }]}>
         <IconButton
-          icon= {rawState === 'EN CURSO' ? "pause": ( (rawState != 'COMPLETADO' && rawState != 'CANCELADO') ? "play" : "information")}
-          size={24}
+          icon={actionIcon}
+          size={22}
           onPress={() => onInfoPress && onInfoPress(item)}
-          iconColor={rawState === 'EN CURSO' ? AppColors.secondary: ( (rawState != 'COMPLETADO' && rawState != 'CANCELADO') ? AppColors.primary : AppColors.placeholder)}
-          disabled = {rawState === 'COMPLETADO' || rawState === 'CANCELADO'}
+          iconColor={actionColor}
+          disabled={isFinalizado}
+          style={styles.iconButtonCustom}
         />
-      
-    </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 
@@ -66,17 +92,71 @@ const styles = StyleSheet.create({
   container: { 
     flexDirection: 'row', 
     alignItems: 'center', 
-    paddingVertical: 10, 
-    paddingHorizontal: 16 
+    paddingVertical: 12, 
+    paddingHorizontal: 16,
+    borderRadius: 16,          // 🚀 Modernizado a tarjetas suaves
+    marginVertical: 6,         // Margen entre elementos de la lista
+    marginHorizontal: 4,       // Separación sutil de los bordes de la pantalla
+    // borderWidth: 1,            // Borde premium sutil
+    // elevation: 1,              // Sombra ligera para Android
+    // shadowColor: '#000',       // Sombra ligera para iOS
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+  },
+  avatarWrapper: {
+    // Pequeño efecto contenedor para el avatar
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+
+    // shadowOpacity: 0.1,
+    // shadowRadius: 3,
   },
   textContainer: { 
     flex: 1, 
-    marginLeft: 16, 
+    marginLeft: 14, 
     justifyContent: 'center' 
+  },
+  title: {
+    fontWeight: '600',
+    marginBottom: 4,
   },
   subtitleRow: { 
     flexDirection: 'row', 
     alignItems: 'center' 
+  },
+  // 🚀 Nuevos estilos estéticos para la píldora de estado
+  stateBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    marginTop: 2,
+  },
+  stateDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginRight: 6,
+  },
+  stateText: {
+    fontWeight: '700',
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+    fontSize: 10,
+  },
+  // 🚀 Nuevos estilos estéticos para el wrapper del botón de acción
+  actionWrapper: {
+    borderRadius: 22,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconButtonCustom: {
+    margin: 0,
+    padding: 0,
   }
 });
 

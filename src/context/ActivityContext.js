@@ -70,7 +70,7 @@ export const ActivityProvider = ({ children }) => {
     // 2. EDITAR: Buscamos en el array local y cambiamos los campos al recibir 200
     const updateActivity = async (id, updatedData) => {
         try {
-            await ActivityService.editActivity(id, updatedData);
+            await ActivityService.updateActivity(id, updatedData);
             
             // Editamos el contexto localmente de forma inmediata
             setActivities(prev => prev.map(act => 

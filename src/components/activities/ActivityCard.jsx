@@ -15,10 +15,11 @@ const CATEGORIES_CONFIG = {
 
 const STATE_COLORS = {
   PENDIENTE: '#FFB74D',
-  'EN CURSO': '#4FC3F7',
+  EN_CURSO: '#4FC3F7',
   COMPLETADO: '#81C784',
   CANCELADO: '#E57373',
   POSPUESTO: '#BA68C8',
+  PAUSADO: '#ffed4d',
 };
 
 const ActivityCard = ({ activity, onPress }) => {

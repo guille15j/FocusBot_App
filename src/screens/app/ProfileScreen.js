@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useContext } from 'react';
-import { View, Pressable, useColorScheme, Alert } from 'react-native';
+import React, { useState, useMemo, useContext, useEffect } from 'react';
+import { View, Pressable, useColorScheme, Alert, StyleSheet, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 import {
@@ -36,26 +36,42 @@ export default function ProfilePage({ navigation }) {
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
 
   // Campos básicos de identidad
-  const [firstName, setFirstName] = useState(user?.first_name || '');
-  const [lastName, setLastName] = useState(user?.last_name || '');
-  const [nickname, setNickname] = useState(user?.nickname || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [phone, setPhone] = useState(user?.phone || '');
-  // Imagen de perfil (Base64 / LargeText)
-  const [profileImg, setProfileImg] = useState(user?.profile_img || null);
-  // Preferencias y localización
-  const [timezone, setTimezone] = useState(user?.timezone || 'UTC+0');
-  // Detalles médicos / Condición (campos específicos de tu DB)
-  const [name_detail, setNameDetail] = useState(user?.name_detail || '');
-  const [description_detail, setDescriptionDetail] = useState(user?.description_detail || '');
-  const [severity, setSeverity] = useState(user?.severity || 'LEVE');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [profileImg, setProfileImg] = useState(null);
+  const [timezone, setTimezone] = useState('UTC+0');
+  const [name_detail, setNameDetail] = useState('');
+  const [description_detail, setDescriptionDetail] = useState('');
+  const [severity, setSeverity] = useState('LEVE');
 
   const [loading, setLoading] = useState(false);
-  const [editar, setEditable] = useState(false);
+  const [isEditing, setIsEditing] = useState(false); // 🚀 Corregido nombre semántico
 
   const [severityMenuVisible, setSeverityMenuVisible] = useState(false);
   const [timezoneMenuVisible, setTimezoneMenuVisible] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // 🚀 Sincronizar y resetear campos cuando el usuario cambia o se cancela la edición
+  const resetFormFields = () => {
+    setFirstName(user?.first_name || '');
+    setLastName(user?.last_name || '');
+    setNickname(user?.nickname || '');
+    setEmail(user?.email || '');
+    setPhone(user?.phone || '');
+    setProfileImg(user?.profile_img || null);
+    setTimezone(user?.timezone || 'UTC+0');
+    setNameDetail(user?.name_detail || '');
+    setDescriptionDetail(user?.description_detail || '');
+    setSeverity(user?.severity || 'LEVE');
+    setErrors({});
+  };
+
+  useEffect(() => {
+    resetFormFields();
+  }, [user]);
 
   const ejecutarLogout = async () => {
     await signOut();
@@ -82,7 +98,7 @@ export default function ProfilePage({ navigation }) {
         first_name: firstName,
         last_name: lastName,
         nickname: nickname,
-        email: email.toLowerCase(),
+        email: email.toLowerCase().trim(),
         phone: phone,
         profile_img: profileImg,
         timezone: timezone,
@@ -91,32 +107,30 @@ export default function ProfilePage({ navigation }) {
         severity: severity,
       };
       
-      console.log('1. Enviando a servidor...');
       await UserService.updateUser(datosActualizados);
-      
-      console.log('2. Obteniendo token...');
       const tokenActual = await authStorage.getToken();
       
-      // IMPORTANTE: Creamos el objeto nuevo asegurándonos de no enviar undefined
       const usuarioParaContexto = {
-        ...user, // Mantenemos lo que ya había (como el user_id)
+        ...user,
         ...datosActualizados
       };
-
-      console.log('3. Actualizando Contexto con:', usuarioParaContexto.nickname);
       
-      // Llamamos al signIn
       await signIn(tokenActual, usuarioParaContexto); 
+      setIsEditing(false);
       
-      console.log('4. ¡Contexto actualizado! Cerrando edición...');
-      
-      // SI LLEGA AQUÍ, SE CERRARÁ EL MODO EDICIÓN
-      setEditable(false);
-      Alert.alert("Éxito", "Perfil actualizado correctamente");
-    
+      // Adaptación multiplataforma para alertas
+      if (Platform.OS === 'web') {
+        alert("Perfil actualizado correctamente");
+      } else {
+        Alert.alert("Éxito", "Perfil actualizado correctamente");
+      }
     } catch (error) {
       console.error("ERROR CRÍTICO EN ACTUALIZACIÓN:", error);
-      Alert.alert("Error", "Ocurrió un fallo al sincronizar los datos locales.");
+      if (Platform.OS === 'web') {
+        alert("Ocurrió un fallo al sincronizar los datos locales.");
+      } else {
+        Alert.alert("Error", "Ocurrió un fallo al sincronizar los datos locales.");
+      }
     } finally {
       setLoading(false);
     }
@@ -130,101 +144,91 @@ export default function ProfilePage({ navigation }) {
   const seleccionarImagen = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permiso denegado', 'Necesitamos acceso a tus fotos.');
+      if (Platform.OS === 'web') alert('Necesitamos acceso a tus fotos.');
+      else Alert.alert('Permiso denegado', 'Necesitamos acceso a tus fotos.');
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'], // Cambiado de deprecated ImagePicker.MediaTypeOptions.Images
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 0.2, // Calidad baja para asegurar que el string Base64 no se bloquee
+      quality: 0.2, // Compresión estratégica para no sobrecargar almacenamiento Base64
       base64: true,
     });
 
-    if (!result.canceled && result.assets && result.assets[0].base64) {
+    if (!result.canceled && result.assets?.[0]?.base64) {
       const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
-      console.log('Imagen seleccionada. Longitud base64:', base64Image.length); // DEBUG VITAL
       setProfileImg(base64Image);
-    } else if (!result.canceled) {
-        console.warn("La imagen no contiene datos Base64");
     }
   };
 
   const severityLabel = SEVERITY_OPTIONS.find(opt => opt.value === severity)?.label || severity;
+  const descLength = description_detail?.length || 0;
 
   return (
     <ScreenWrapper withScroll={true}>
       <View style={isWeb ? globalStyles.container_web : globalStyles.container_movil}>
-        <View style={{ alignItems: 'center', marginVertical: 20 }}>
-          <View style={{ position: 'relative' }}>
+        
+        {/* SECCIÓN DEL AVATAR */}
+        <View style={styles.avatarSection}>
+          <View style={styles.avatarContainer}>
             <Avatar.Image
               size={120}
-              /* IMPORTANTE: Aquí ocurre la "decodificación". 
-                Al pasarle el string Base64 en el objeto { uri: ... }, 
-                React Native lo renderiza automáticamente como imagen.
-              */
-              source={
-                profileImg 
-                  ? { uri: profileImg } 
-                  : require('../../assets/avatar.png') // Imagen por defecto
-              }
-              style={{ backgroundColor: colors.surfaceVariant + 40}}
+              source={profileImg ? { uri: profileImg } : require('../../assets/avatar.png')}
+              style={{ backgroundColor: colors.surfaceVariant + '40'}}
             />
-            {editar && (
-              // Cambbiar imagen de perfil
-              <Surface style={{ position: 'absolute', right: 0, bottom: 0, backgroundColor: colors.primary, borderRadius: 20 }} elevation={4}>
-                <IconButton icon="pencil" size={20} iconColor={colors.surface} onPress={seleccionarImagen} />
+            {isEditing && (
+              <Surface style={[styles.editBadge, { backgroundColor: colors.primary }]} elevation={4}>
+                <IconButton icon="camera" size={18} iconColor={colors.surface} onPress={seleccionarImagen} style={styles.noMargin} />
               </Surface>
             )}
           </View>
-          <Text style={{ marginTop: 12, fontWeight: 'bold', color: colors.text, fontSize: 18 }}>
-            @{nickname}
+          <Text style={[styles.headerNickname, { color: colors.text }]}>
+            @{nickname || 'usuario'}
           </Text>
         </View>
 
-        {editar ? (
-          <View style={{ marginHorizontal: isWeb ? '25%' : '10%', marginBottom: isWeb ? 100 : 50 }}>
-            {/* Nombre */}
+        {/* MODO EDICIÓN FORMULARIO */}
+        {isEditing ? (
+          <View style={[styles.formWrapper, isWeb && styles.webFormWidth]}>
+            
             <TextInput
               label="Nombre"
               value={firstName}
               onChangeText={handleChange(setFirstName, 'firstName')}
               mode="outlined"
               style={globalStyles.input}
-              outlineStyle={{ borderRadius: 30 }}
+              outlineStyle={styles.inputRound}
               left={<TextInput.Icon icon="account" />}
               error={!!errors.firstName}
             />
             <HelperText type="error" visible={!!errors.firstName}>{errors.firstName}</HelperText>
 
-            {/* Apellidos */}
             <TextInput
               label="Apellidos"
               value={lastName}
               onChangeText={handleChange(setLastName, 'lastName')}
               mode="outlined"
               style={globalStyles.input}
-              outlineStyle={{ borderRadius: 30 }}
+              outlineStyle={styles.inputRound}
               left={<TextInput.Icon icon="account-group" />}
               error={!!errors.lastName}
             />
             <HelperText type="error" visible={!!errors.lastName}>{errors.lastName}</HelperText>
 
-            {/* Usuario */}
             <TextInput
               label="Usuario"
               value={nickname}
               onChangeText={handleChange(setNickname, 'nickname')}
               mode="outlined"
               style={globalStyles.input}
-              outlineStyle={{ borderRadius: 30 }}
+              outlineStyle={styles.inputRound}
               left={<TextInput.Icon icon="at" />}
               error={!!errors.nickname}
             />
             <HelperText type="error" visible={!!errors.nickname}>{errors.nickname}</HelperText>
 
-            {/* Email */}
             <TextInput
               label="Email"
               value={email}
@@ -232,13 +236,13 @@ export default function ProfilePage({ navigation }) {
               mode="outlined"
               keyboardType="email-address"
               style={globalStyles.input}
-              outlineStyle={{ borderRadius: 30 }}
+              outlineStyle={styles.inputRound}
               left={<TextInput.Icon icon="email" />}
               error={!!errors.email}
             />
             <HelperText type="error" visible={!!errors.email}>{errors.email}</HelperText>
 
-            {/* Dropdown de Zona Horaria (ahora con estilo TextInput) */}
+            {/* Selector de Zona Horaria */}
             <Menu
               visible={timezoneMenuVisible}
               onDismiss={() => setTimezoneMenuVisible(false)}
@@ -251,7 +255,7 @@ export default function ProfilePage({ navigation }) {
                       mode="outlined"
                       editable={false}
                       style={globalStyles.input}
-                      outlineStyle={{ borderRadius: 30 }}
+                      outlineStyle={styles.inputRound}
                       left={<TextInput.Icon icon="clock" />}
                       right={<TextInput.Icon icon="menu-down" />}
                     />
@@ -277,19 +281,20 @@ export default function ProfilePage({ navigation }) {
                 />
               ))}
             </Menu>
+            <View style={styles.smallSpacer} />
 
-            {/* Detalle */}
             <TextInput
-              label="Detalle"
+              label="Detalle / Condición"
               value={name_detail}
               onChangeText={setNameDetail}
               mode="outlined"
               style={globalStyles.input}
-              outlineStyle={{ borderRadius: 30 }}
+              outlineStyle={styles.inputRound}
               left={<TextInput.Icon icon="information" />}
             />
+            <View style={styles.smallSpacer} />
 
-            {/* Dropdown de Severidad (ahora con estilo TextInput) */}
+            {/* Selector de Severidad */}
             <Menu
               visible={severityMenuVisible}
               onDismiss={() => setSeverityMenuVisible(false)}
@@ -302,7 +307,7 @@ export default function ProfilePage({ navigation }) {
                       mode="outlined"
                       editable={false}
                       style={globalStyles.input}
-                      outlineStyle={{ borderRadius: 30 }}
+                      outlineStyle={styles.inputRound}
                       left={<TextInput.Icon icon="alert-circle" />}
                       right={<TextInput.Icon icon="menu-down" />}
                     />
@@ -328,8 +333,9 @@ export default function ProfilePage({ navigation }) {
                 />
               ))}
             </Menu>
+            <View style={styles.smallSpacer} />
 
-            {/* Descripción */}
+            {/* 🚀 MODIFICADO: Retirado icono izquierdo para evitar desalineación en multiline */}
             <TextInput
               label="Descripción"
               value={description_detail}
@@ -338,51 +344,46 @@ export default function ProfilePage({ navigation }) {
               multiline
               numberOfLines={4}
               maxLength={250}
-              style={[globalStyles.input, { height: 100, paddingTop: 10 }]}
-              outlineStyle={{ borderRadius: 20 }}
-              left={<TextInput.Icon icon="view-headline" />}
+              style={styles.multilineInput}
+              outlineStyle={styles.multilineRound}
               error={!!errors.description}
               right={
                 <TextInput.Affix
-                  text={`${description_detail.length}/250`}
-                  textStyle={{ fontSize: 12, color: description_detail.length > 250 ? colors.error : colors.textLight }}
+                  text={`${descLength}/250`}
+                  textStyle={{ fontSize: 12, color: descLength > 250 ? colors.error : colors.placeholder }}
                 />
               }
             />
-            <HelperText type={errors.description ? 'error' : 'info'} visible={!!errors.description || description_detail.length > 240}>
-              {errors.description
-                ? errors.description
-                : description_detail.length >= 250
-                  ? 'Has alcanzado el límite de caracteres'
-                  : `${250 - description_detail.length} caracteres restantes`}
+            <HelperText type={errors.description ? 'error' : 'info'} visible={true}>
+              {errors.description ? errors.description : `${250 - descLength} caracteres restantes`}
             </HelperText>
 
-            
-
-            {/* Botones */}
-            <View style={{ flexDirection: 'row', marginTop: 20, gap: 10 }}>
+            {/* Botones de acción formulario */}
+            <View style={styles.rowButtons}>
               <Button
                 mode="contained"
                 icon="content-save"
                 onPress={ejecutarActualizacion}
                 loading={loading}
-                style={{ flex: 1, borderRadius: 30 }}
+                style={styles.flexButton}
                 textColor={colors.background}
               >
                 Guardar
               </Button>
               <Button
                 mode="outlined"
-                onPress={() => { setEditable(false); setErrors({}); }}
-                style={{ flex: 1, borderRadius: 30 }}
+                onPress={resetFormFields} // 🚀 Limpia cambios alterados al cancelar
+                style={styles.flexButton}
               >
                 Cancelar
               </Button>
             </View>
           </View>
         ) : (
-          <View style={{ marginHorizontal: isWeb ? '25%' : '10%', marginBottom: isWeb ? 100 : 50 }}>
-            <Surface style={{ borderRadius: 20, padding: 10, backgroundColor: colors.surface }} elevation={1}>
+          
+          /* MODO VISTA DE PERFIL */
+          <View style={[styles.formWrapper, isWeb && styles.webFormWidth]}>
+            <Surface style={[styles.cardSurface, { backgroundColor: colors.surface }]} elevation={1}>
               <List.Item title="Nombre Completo" description={`${firstName} ${lastName}`} left={p => <List.Icon {...p} icon="account" />} />
               <Divider />
               <List.Item title="Usuario" description={`@${nickname}`} left={p => <List.Icon {...p} icon="at" />} />
@@ -391,18 +392,17 @@ export default function ProfilePage({ navigation }) {
               <Divider />
               <List.Item title="Zona Horaria" description={timezone} left={p => <List.Icon {...p} icon="clock" />} />
               <Divider />
-              <List.Item title="Condición" description={name_detail} left={p => <List.Icon {...p} icon="medical-bag" />} />
+              <List.Item title="Condición" description={name_detail || 'No especificada'} left={p => <List.Icon {...p} icon="medical-bag" />} />
               <Divider />
               <List.Item title="Grado" description={severityLabel} left={p => <List.Icon {...p} icon="alert-octagon" />} />
               <Divider />
-              <List.Item title="Descripción" description={description_detail} descriptionNumberOfLines={0} left={p => <List.Icon {...p} icon="view-headline" />} />
-              
+              <List.Item title="Descripción" description={description_detail || 'Sin descripción'} descriptionNumberOfLines={0} left={p => <List.Icon {...p} icon="view-headline" />} />
             </Surface>
 
             <Button
               mode="contained"
               icon="pencil"
-              onPress={() => setEditable(true)}
+              onPress={() => setIsEditing(true)}
               style={globalStyles.button}
               textColor={colors.background}
             >
@@ -411,10 +411,11 @@ export default function ProfilePage({ navigation }) {
             <Button
               mode="outlined"
               icon="logout"
-              onPress={() => ejecutarLogout() }
+              onPress={ejecutarLogout}
               style={globalStyles.buttonOutline}
+              textColor={colors.error} // Estilo UI destructivo limpio
             >
-              Cerrar Sesion
+              Cerrar Sesión
             </Button>
           </View>
         )}
@@ -422,3 +423,67 @@ export default function ProfilePage({ navigation }) {
     </ScreenWrapper>
   );
 }
+
+const styles = StyleSheet.create({
+  avatarSection: {
+    alignItems: 'center', 
+    marginVertical: 20
+  },
+  avatarContainer: {
+    position: 'relative'
+  },
+  editBadge: {
+    position: 'absolute', 
+    right: -4, 
+    bottom: -4, 
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  noMargin: {
+    margin: 0
+  },
+  headerNickname: {
+    marginTop: 12, 
+    fontWeight: '700', 
+    fontSize: 20,
+    letterSpacing: 0.3
+  },
+  formWrapper: {
+    marginHorizontal: '8%',
+    marginBottom: 60,
+  },
+  webFormWidth: {
+    maxWidth: 500,
+    width: '100%',
+    alignSelf: 'center',
+  },
+  inputRound: {
+    borderRadius: 28
+  },
+  multilineRound: {
+    borderRadius: 16
+  },
+  multilineInput: {
+    height: 110, 
+    paddingTop: 8
+  },
+  smallSpacer: {
+    height: 6
+  },
+  rowButtons: {
+    flexDirection: 'row', 
+    marginTop: 24, 
+    gap: 12
+  },
+  flexButton: {
+    flex: 1, 
+    borderRadius: 28
+  },
+  cardSurface: {
+    borderRadius: 20, 
+    paddingVertical: 6, 
+    paddingHorizontal: 4,
+    marginBottom: 20
+  }
+});

@@ -16,7 +16,7 @@ const CATEGORIES_CONFIG = {
   OTRAS: { icon: 'dots-horizontal', color: '#90A4AE', label: 'Otras' },
 };
 
-const RecordDetailModal = ({ visible, onDismiss, record, onDelete }) => {
+const RecordDetailModal = ({ visible, onDismiss, record }) => {
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
   const { isWeb } = useResponsiveLayout();
@@ -35,24 +35,6 @@ const RecordDetailModal = ({ visible, onDismiss, record, onDelete }) => {
     return new Date(dateStr).toLocaleDateString('es-ES', { 
       day: '2-digit', month: 'short', year: 'numeric' 
     });
-  };
-
-  const handleConfirmDelete = () => {
-    Alert.alert(
-      "Eliminar Registro",
-      "¿Estás seguro de que quieres borrar este informe? Esta acción no se puede deshacer.",
-      [
-        { text: "Cancelar", style: "cancel" },
-        { 
-          text: "Eliminar", 
-          onPress: () => {
-            onDelete(record.record_id);
-            onDismiss();
-          }, 
-          style: "destructive" 
-        }
-      ]
-    );
   };
 
   return (
@@ -89,8 +71,8 @@ const RecordDetailModal = ({ visible, onDismiss, record, onDelete }) => {
               <Text style={[styles.statLabel, { color: colors.textLight }]}>Completas</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={[styles.statValue, { color: colors.primary }]}>{record.num_pendiente}</Text>
-              <Text style={[styles.statLabel, { color: colors.textLight }]}>Pendientes</Text>
+              <Text style={[styles.statValue, { color: colors.primary }]}>{record.num_pospuesto}</Text>
+              <Text style={[styles.statLabel, { color: colors.textLight }]}>Pospuestos</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: '#E57373' }]}>{record.num_cancelado}</Text>
@@ -128,17 +110,6 @@ const RecordDetailModal = ({ visible, onDismiss, record, onDelete }) => {
               <Text style={[styles.cardValue, { color: colors.text }]}>{successRate}% de efectividad</Text>
             </View>
           </Surface>
-
-          {/* BOTÓN DE ELIMINAR REGISTRO */}
-          <Button
-            mode="outlined"
-            onPress={handleConfirmDelete}
-            icon="trash-can-outline"
-            textColor="#E57373"
-            style={{ marginTop: 24, borderColor: '#E57373', borderRadius: 30 }}
-          >
-            Eliminar Registro
-          </Button>
 
           <Button
             mode="contained"

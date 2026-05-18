@@ -1,23 +1,28 @@
 import React from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import BotCard from './BotCard';
-// import { flingGestureHandlerProps } from 'react-native-gesture-handler/lib/typescript/handlers/FlingGestureHandler';
 
-const GridBots = ({ data, numColumns, AppColors, globalStyles, onPress }) => {
-  
-  if (numColumns <= 1) numColumns = 2;
-  
+const GridBots = ({ data, numColumns = 2, AppColors, onClick }) => {
+  // Forzar un mínimo de 2 columnas para mantener la estructura de rejilla visual
+  const columns = numColumns <= 1 ? 2 : numColumns;
+
   return (
     <FlatList
-      style={[
-        styles.container, 
-        // { backgroundColor: AppColors.surface }
-      ]}
+      style={styles.container}
       data={data}
-      renderItem={({ item }) => <BotCard item={item} AppColors={AppColors} globalStyles={globalStyles} onClick={onPress}/>}
-      keyExtractor={item => item.bot_id}
-      numColumns={numColumns}
+      renderItem={({ item }) => (
+        <View style={[styles.cardWrapper, { width: `${100 / columns}%` }]}>
+          <BotCard 
+            item={item} 
+            AppColors={AppColors} 
+            onClick={onClick}
+          />
+        </View>
+      )}
+      keyExtractor={(item, index) => item?.bot_id?.toString() || `grid-bot-${index}`}
+      numColumns={columns}
       columnWrapperStyle={styles.columnWrapper}
+      contentContainerStyle={styles.contentContainer}
       scrollEnabled={false}
     />
   );
@@ -25,16 +30,19 @@ const GridBots = ({ data, numColumns, AppColors, globalStyles, onPress }) => {
 
 const styles = StyleSheet.create({
   container: {
-    // padding: 10,
-    // maxHeight: 500,
-    margin: 16,
-    // borderRadius: 16,
+    marginHorizontal: 12,
+    marginVertical: 8,
     flex: 1,
-    flexGrow: 1
+  },
+  contentContainer: {
+    paddingBottom: 4,
   },
   columnWrapper: {
-    justifyContent: 'space-between'
-  }
+    justifyContent: 'flex-start',
+  },
+  cardWrapper: {
+    padding: 6, // Controla la separación exacta y uniforme entre las tarjetas de la rejilla
+  },
 });
 
 export default GridBots;

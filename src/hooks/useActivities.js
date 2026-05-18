@@ -41,7 +41,7 @@ export const useActivities = (autoRefresh = false, intervalMs = 15 * 60 * 1000) 
 
     const updateActivityState = async (activityId, newState) => {
         try {
-            await ActivityService.updateState(activityId, newState);
+            await ActivityService.updateActivity(activityId, { state: newState });
             setActivities((prev) =>
                 prev.map((act) =>
                     act.activity_id === activityId ? { ...act, state: newState } : act

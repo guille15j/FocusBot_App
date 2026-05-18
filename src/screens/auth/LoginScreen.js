@@ -88,7 +88,7 @@ export default function LoginScreen({ navigation }) {
   const irAReset = () => navigation.navigate('Reset');
 
   return (
-    <LinearGradient colors={[colors.background, colors.primary]} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} style={{ flex: 1 }}>
+    <LinearGradient colors={[colors.background, colors.primary,colors.background]} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} style={{ flex: 1 }}>
       <KeyboardAvoidingView style={isWeb ? globalStyles.authContainer_web : globalStyles.authContainer} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
           <View style={globalStyles.form} elevation={4}>
@@ -109,10 +109,22 @@ export default function LoginScreen({ navigation }) {
               <Text style={[globalStyles.link, { fontSize: 14 }]}>¿Has olvidado la contraseña?</Text>
             </TouchableOpacity>
 
-            <View style={globalStyles.botonera}>
-              <Button icon="login" mode="contained" onPress={ejecutarLogin} loading={loading} disabled={loading} style={[globalStyles.button, { flex: 1 }]} buttonColor={colors.primary} textColor={colors.background} labelStyle={{ fontSize: 16, fontWeight: '600' }}>Iniciar sesión</Button>
-              <Button icon='account-plus' mode="outlined" onPress={irARegistro} disabled={loading} style={[globalStyles.buttonOutline, { flex: 1 }]} labelStyle={{ fontSize: 16 }}>Registrarse</Button>
-            </View>
+            {/* CAMBIO AQUÍ: Botón a ancho completo + Pregunta de Registro abajo */}
+            <Button 
+              icon="login" 
+              mode="contained" 
+              onPress={ejecutarLogin} 
+              loading={loading} 
+              disabled={loading} 
+              style={globalStyles.button} 
+              buttonColor={colors.primary} 
+              textColor={colors.background} 
+              labelStyle={{ fontSize: 16, fontWeight: '600' }}
+            >
+              Iniciar sesión
+            </Button>
+
+           
 
             <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 20 }}>
               <PaperDivider style={{ flex: 1 }} />
@@ -125,11 +137,18 @@ export default function LoginScreen({ navigation }) {
               icon="google"
               onPress={() => promptAsync()}
               disabled={!request || loading}
-              style={[globalStyles.buttonOutline, { borderColor: colors.textLight }]}
-              contentStyle={{ paddingVertical: 8 }}
+              style={[globalStyles.buttonOutline, {marginTop: 0}]}
+              contentStyle={{ paddingVertical: 2 }}
             >
               Continuar con Google
             </Button>
+
+             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 16 }}>
+              <Text style={{ color: colors.textLight, fontSize: 14 }}>¿No tienes una cuenta? </Text>
+              <TouchableOpacity onPress={irARegistro}>
+                <Text style={[globalStyles.link, { fontSize: 14 }]}>Regístrate</Text>
+              </TouchableOpacity>
+            </View>
               
           </View>
         </ScrollView>

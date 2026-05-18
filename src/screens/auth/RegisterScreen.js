@@ -110,8 +110,8 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <LinearGradient
-      colors={[colors.background, colors.primary]}
-      start={{ x: 0, y: 0 }}
+      colors={[colors.background, colors.primary,colors.background]}
+      start={{ x: 1, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={{ flex: 1 }}
     >

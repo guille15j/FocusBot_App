@@ -84,12 +84,8 @@ export default function ResetScreen({ navigation }) {
   };
 
   return (
-    <LinearGradient
-      colors={[colors.background, colors.primary]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      style={{ flex: 1 }}
-    >
+        <LinearGradient colors={[colors.background, colors.primary,colors.background]} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} style={{ flex: 1 }}>
+    
       <KeyboardAvoidingView 
         style={isWeb ? globalStyles.authContainer_web : globalStyles.authContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

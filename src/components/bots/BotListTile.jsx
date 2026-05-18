@@ -24,12 +24,14 @@ const BotTile = ({ item, onPress, AppColors }) => {
   };
 
   const config = obtenerConfiguracion(item.status);
+  // console.log(Object.keys(item), Object.values(item));
+
 
   return (
     <List.Item
       title={item.name}
       titleStyle={styles.title}
-      description={`ID: ${item.bot_id} • v${item.version}\nStatus: ${item.status}`}
+      description={`${item.mac} \nStatus: ${item.status}`}
       descriptionNumberOfLines={2}
       left={props => (
         <Avatar.Icon 

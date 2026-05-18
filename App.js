@@ -5,12 +5,13 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { PaperProvider, ActivityIndicator } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { authStorage } from './src/core/authStorage';
+import { authStorage } from './src/core/authStorage'; 
 import { AuthContext } from './src/context/AuthContext';
 import { BotProvider } from './src/context/BotContext';
 import { ActivityProvider } from './src/context/ActivityContext';
 import { getAppTheme } from './src/theme/theme';
 
+import LoadingScreen from './src/screens/auth/LoadingScreen';
 import LoginScreen from './src/screens/auth/LoginScreen';
 import RegisterScreen from './src/screens/auth/RegisterScreen';
 import ResetScreen from './src/screens/auth/ResetScreen';
@@ -46,18 +47,23 @@ export default function App() {
         await authStorage.saveUser(userData);
         setUserToken(token);
         setUser(userData);
-        // Al hacer login manual, activamos la barra rápido
         setNavReady(true);
       } catch (e) {
         console.error("Error en el inicio de sesión:", e);
       }
     },
     signOut: async () => {
-      await authStorage.deleteToken();
-      await authStorage.deleteUser();
-      setUser(null);
-      setUserToken(null);
-      setNavReady(false);
+      try {
+        // Usamos los métodos exactos que tienes en tu authStorage
+        await authStorage.deleteToken();
+        await authStorage.deleteUser();
+      } catch (e) {
+        console.error("Error al limpiar almacenamiento en signOut:", e);
+      } finally {
+        setUser(null);
+        setUserToken(null);
+        setNavReady(false);
+      }
     },
     signUp: async (token, userData) => {
       try {
@@ -70,40 +76,63 @@ export default function App() {
         console.error("Error al registrar:", e);
       }
     },
+    setAuthSession: (token, userData) => {
+      setUserToken(token);
+      setUser(userData);
+      if (token) {
+        setTimeout(() => setNavReady(true), 400);
+      } else {
+        setNavReady(false);
+      }
+      setLoading(false); 
+    },
     userToken,
     user,
   }), [userToken, user]);
 
-  useEffect(() => {
-    const verificarSesion = async () => {
-      try {
-        const token = await authStorage.getToken();
-        const userData = await authStorage.getUser();
+  // useEffect(() => {
+  //   const verificarSesion = async () => {
+  //     try {
+  //       const token = await authStorage.getToken();
+  //       const userData = await authStorage.getUser();
         
-        if (token) {
-          setUserToken(token);
-          setUser(userData);
-          // EL TRUCO: Los datos ya están en el estado, pero la barra
-          // espera un momento para ganar el foco táctil.
-          setTimeout(() => {
-            setNavReady(true);
-          }, 600);
-        }
-      } catch (e) {
-        console.error("Error verificando sesión:", e);
-      } finally {
-        setLoading(false);
-      }
-    };
+  //       if (token) {
+  //         // Comprobamos si está caducado 
+  //         if (authStorage.isTokenExpired(token)) {
+  //           console.log("Sesión expirada detectada al arrancar. Limpiando datos...");
+            
+  //           // Si está caducado, borramos todo
+  //           await authStorage.deleteToken();
+  //           await authStorage.deleteUser();
+          
+  //           setUserToken(null);
+  //           setUser(null);
+  //         } else {
+  //           // El token es válido, mantenemos la sesión y entramos directo a la App
+  //           setUserToken(token);
+  //           setUser(userData);
+  //           setTimeout(() => {
+  //             setNavReady(true);
+  //           }, 600);
+  //         }
+  //       }
+  //     } catch (e) {
+  //       console.error("Error verificando sesión:", e);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    verificarSesion();
-  }, []);
+  //   verificarSesion();
+  // }, []);
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background }}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-      </View>
+      <AuthContext.Provider value={authActions}>
+        <PaperProvider theme={theme}>
+          <LoadingScreen />
+        </PaperProvider>
+      </AuthContext.Provider>
     );
   }
 
@@ -117,11 +146,11 @@ export default function App() {
               <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
                 <NavigationContainer ref={navigationRef}>
                   
-                  {/* CONTENEDOR FLEX: Divide la pantalla en dos bloques reales */}
                   <View style={{ flex: 1 }}>
                     <Stack.Navigator screenOptions={{ headerShown: false }}>
                       {userToken == null ? (
                         <>
+                        
                           <Stack.Screen name="Login" component={LoginScreen} />
                           <Stack.Screen name="Register" component={RegisterScreen} />
                           <Stack.Screen name="Reset" component={ResetScreen} />
@@ -140,7 +169,6 @@ export default function App() {
                     </Stack.Navigator>
                   </View>
 
-                  {/* BARRA: Hermano de layout del Navigator (evita bloqueos) */}
                   {(userToken && navReady) && (
                     <View style={{ backgroundColor: theme.colors.surface }}>
                       <BottomNav navigation={navigationRef.current} />

@@ -11,20 +11,19 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
   
   const animatedValue = useRef(new Animated.Value(opened ? 1 : 0)).current;
 
+  // Filtrado tolerante que comprueba tanto status como state
   const filteredData = useMemo(() => {
     return Array.isArray(activities) 
-      ? activities.filter(a => a !== null && a.state?.toUpperCase() === filterState?.toUpperCase()) 
+      ? activities.filter(a => a !== null && (a.status || a.state)?.toUpperCase() === filterState?.toUpperCase()) 
       : [];
   }, [activities, filterState]);
-
-  if (filteredData.length === 0) return null;
 
   const toggleSection = () => {
     if (isExpanded) {
       Animated.timing(animatedValue, {
         toValue: 0,
         duration: 250,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }).start(() => {
         setShouldRender(false);
       });
@@ -35,7 +34,7 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
       Animated.timing(animatedValue, {
         toValue: 1,
         duration: 300,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }).start();
     }
   };
@@ -60,7 +59,7 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
             {filterState}
           </Text>
           <View style={[styles.countBadge, { backgroundColor: AppColors.surfaceVariant || AppColors.surface }]}>
-            <Text style={{ fontSize: 10, color: AppColors.textLight , fontWeight: 'bold' }}>
+            <Text style={{ fontSize: 10, color: AppColors.textLight, fontWeight: 'bold' }}>
               {filteredData.length}
             </Text>
           </View>
@@ -73,17 +72,27 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
 
       {shouldRender && (
         <Animated.View style={[styles.gridContainer, { opacity, transform: [{ translateY }] }]}>
-          {filteredData.map((item) => (
-            <View 
-              key={item?.activity_id || item?.id || Math.random()} 
-              style={{ width: `${100 / numColumns}%`, paddingBottom: 2 }}
-            >
-              <ActivityCard 
-                activity={item} 
-                onPress={() => onActivityPress && onActivityPress(item)} 
-              />
+          {filteredData.length === 0 ? (
+            <View style={styles.emptyGridSection}>
+              <Text style={{ color: AppColors.placeholder, fontSize: 12, fontStyle: 'italic' }}>
+                Sin resultados para este estado
+              </Text>
             </View>
-          ))}
+          ) : (
+            filteredData.map((item, index) => (
+              <View 
+                key={item?.activity_id || item?.id || `grid-act-${index}`} 
+                style={{ width: `${100 / numColumns}%`, padding: 4 }}
+              >
+                {/* Se pasan ambas propiedades para asegurar compatibilidad con ActivityCard */}
+                <ActivityCard 
+                  activity={item}
+                  item={item} 
+                  onPress={() => onActivityPress && onActivityPress(item)} 
+                />
+              </View>
+            ))
+          )}
         </Animated.View>
       )}
     </View>
@@ -103,6 +112,7 @@ const styles = StyleSheet.create({
   stateTitle: { fontWeight: '900', letterSpacing: 1, textTransform: 'uppercase', fontSize: 12, opacity: 0.5 },
   countBadge: { marginLeft: 8, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10, minWidth: 20, alignItems: 'center' },
   gridContainer: { flexDirection: 'row', flexWrap: 'wrap', paddingVertical: 4 },
+  emptyGridSection: { width: '100%', paddingLeft: 16, paddingVertical: 4 }
 });
 
 export default ActivitiesGrid;

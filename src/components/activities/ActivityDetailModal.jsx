@@ -19,6 +19,21 @@ const CATEGORIES_CONFIG = {
   OTRAS: { icon: 'link-variant', color: '#BDBDBD', label: 'Otros' },
 };
 
+const ACTIVITY_TYPE_CONFIG = {
+  POMODORO: { label: 'Pomodoro', icon: 'timer', color: '#EF5350' },
+  HITO: { label: 'Hito', icon: 'flag', color: '#FFA726' },
+  TEMPORIZADOR: { label: 'Temporizador', icon: 'timer-sand', color: '#42A5F5' },
+};
+
+const AUDIO_CONFIG = {
+  ninguno: { label: 'Sin Sonido', icon: 'volume-off', color: '#BDBDBD' },
+  fogata: { label: 'Fogata', icon: 'fire', color: '#FF7043' },
+  bosque: { label: 'Bosque', icon: 'tree', color: '#66BB6A' },
+  rio: { label: 'Río', icon: 'water', color: '#29B6F6' },
+  lluvia: { label: 'Lluvia', icon: 'weather-pouring', color: '#78909C' },
+  'ruido blanco': { label: 'Ruido Blanco', icon: 'waves', color: '#AB47BC' },
+};
+
 const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEditPress, onDeletePress }) => {
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
@@ -27,14 +42,17 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
 
   const categoryInfo = CATEGORIES_CONFIG[activity?.category] || CATEGORIES_CONFIG.OTRAS;
+  const typeInfo = ACTIVITY_TYPE_CONFIG[activity?.type?.name_type] || { label: activity?.type?.name_type || 'Desconocido', icon: 'help-circle', color: '#757575' };
+  const audioInfo = AUDIO_CONFIG[activity?.extra_data?.audio] || AUDIO_CONFIG.ninguno;
 
   const getStateConfig = (state) => {
     switch (state) {
       case 'COMPLETADO': return { color: '#81C784', icon: 'check-circle', label: 'Completado' };
-      case 'EN CURSO': return { color: '#4FC3F7', icon: 'play-circle', label: 'En Curso' };
+      case 'EN_CURSO': return { color: '#4FC3F7', icon: 'play-circle', label: 'En Curso' };
       case 'PENDIENTE': return { color: '#FFB74D', icon: 'clock-outline', label: 'Pendiente' };
       case 'CANCELADO': return { color: '#E57373', icon: 'close-circle', label: 'Cancelado' };
       case 'POSPUESTO': return { color: '#BA68C8', icon: 'pause-circle', label: 'Pospuesto' };
+      case 'PAUSADO': return { color: '#ffed4d', icon: 'stop', label: 'Pausado' };
       default: return { color: '#757575', icon: 'help-circle', label: state };
     }
   };
@@ -43,15 +61,9 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
 
   const getActionButtonConfig = () => {
     if (!activity) return null;
-    
-    if (activity.state === 'EN CURSO') {
-      return { icon: 'pause', label: 'Pausar', action: 'pause' };
-    }
-    
-    if (['PENDIENTE', 'POSPUESTO'].includes(activity.state)) {
-      return { icon: 'play', label: 'Iniciar', action: 'start' };
-    }
-    
+    if (activity.state === 'EN_CURSO') return { icon: 'pause', label: 'Pausar', action: 'pause' };
+    if (activity.state === 'PAUSADO') return { icon: 'play', label: 'Reanudar', action: 'resume' };
+    if (['PENDIENTE', 'POSPUESTO'].includes(activity.state)) return { icon: 'play', label: 'Iniciar', action: 'start' };
     return null;
   };
 
@@ -59,8 +71,9 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
   const actionConfig = getActionButtonConfig();
 
   const formatDate = (dateString) => {
-    if (!dateString) return '--/--/---- --:--';
+    if (!dateString) return null;
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return null;
     return date.toLocaleDateString([], { day: '2-digit', month: '2-digit', year: 'numeric' }) + 
            '  ' + 
            date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -71,7 +84,7 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
     const start = new Date(activity.init_date);
     const end = new Date(activity.end_date);
     const diffMs = end - start;
-    if (diffMs < 0) return null;
+    if (diffMs < 0 || isNaN(diffMs)) return null;
     
     const hours = Math.floor(diffMs / (1000 * 60 * 60));
     const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
@@ -82,6 +95,8 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
   };
 
   const duration = calculateDuration();
+  const formattedInitDate = formatDate(activity?.init_date);
+  const formattedEndDate = formatDate(activity?.end_date);
 
   if (!activity) return null;
 
@@ -104,12 +119,15 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
           }
         ]}
       >
+        {/* Cabecera */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Surface style={[styles.headerIconSurface, { backgroundColor: stateConfig.color + '20' }]}>
               <MaterialCommunityIcons name={stateConfig.icon} size={22} color={stateConfig.color} />
             </Surface>
-            <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>{activity.title}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>{activity.title}</Text>
+            </View>
           </View>
           <IconButton 
             icon="close-circle" 
@@ -124,6 +142,7 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
           bounces={false}
           contentContainerStyle={styles.scrollContent}
         >
+          {/* Fila de Badges */}
           <View style={styles.badgesRow}>
             <Surface style={[styles.badge, { backgroundColor: stateConfig.color + '20', borderColor: stateConfig.color }]}>
               <MaterialCommunityIcons name={stateConfig.icon} size={12} color={stateConfig.color} />
@@ -135,6 +154,16 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
               <Text style={[styles.badgeText, { color: categoryInfo.color }]}>{categoryInfo.label}</Text>
             </Surface>
 
+            <Surface style={[styles.badge, { backgroundColor: typeInfo.color + '20', borderColor: typeInfo.color }]}>
+              <MaterialCommunityIcons name={typeInfo.icon} size={12} color={typeInfo.color} />
+              <Text style={[styles.badgeText, { color: typeInfo.color }]}>{typeInfo.label}</Text>
+            </Surface>
+
+            <Surface style={[styles.badge, { backgroundColor: audioInfo.color + '20', borderColor: audioInfo.color }]}>
+              <MaterialCommunityIcons name={audioInfo.icon} size={12} color={audioInfo.color} />
+              <Text style={[styles.badgeText, { color: audioInfo.color }]}>{audioInfo.label}</Text>
+            </Surface>
+
             {duration && (
               <Surface style={[styles.badge, { backgroundColor: colors.primary + '20', borderColor: colors.primary }]}>
                 <MaterialCommunityIcons name="timer-outline" size={12} color={colors.primary} />
@@ -143,35 +172,117 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
             )}
           </View>
 
-          
+          {/* Bloque de Configuración del Tipo de Actividad */}
+          <Surface style={[styles.sectionCard, { backgroundColor: colors.background }]}>
+            <View style={styles.sectionCardHeader}>
+              <MaterialCommunityIcons name={typeInfo.icon} size={18} color={typeInfo.color} />
+              <Text style={[styles.sectionTitle, { color: colors.textLight }]}>Configuración de {typeInfo.label}</Text>
+            </View>
 
-          <View style={styles.infoGrid}>
-            <Surface style={[styles.infoCard, { backgroundColor: colors.background }]}>
-              <MaterialCommunityIcons name="calendar-start" size={18} color={colors.primary} />
-              <Text style={[styles.infoLabel, { color: colors.textLight }]}>Inicio</Text>
-              <Text style={[styles.infoValue, { color: colors.text }]}>{formatDate(activity.init_date)}</Text>
-            </Surface>
+            {activity.type?.name_type === 'POMODORO' && (
+              <View style={styles.typeSpecificContent}>
+                <View style={styles.configItemRow}>
+                  <MaterialCommunityIcons name="clock-outline" size={16} color={colors.textLight} />
+                  <Text style={[styles.configDetailText, { color: colors.text }]}>
+                    <Text style={{ fontWeight: 'bold' }}>Enfoque:</Text> {activity.type?.work_duration} min
+                  </Text>
+                </View>
+                <View style={styles.configItemRow}>
+                  <MaterialCommunityIcons name="coffee-outline" size={16} color={colors.textLight} />
+                  <Text style={[styles.configDetailText, { color: colors.text }]}>
+                    <Text style={{ fontWeight: 'bold' }}>Descanso Corto:</Text> {activity.type?.short_break} min
+                  </Text>
+                </View>
+                <View style={styles.configItemRow}>
+                  <MaterialCommunityIcons name="bed-outline" size={16} color={colors.textLight} />
+                  <Text style={[styles.configDetailText, { color: colors.text }]}>
+                    <Text style={{ fontWeight: 'bold' }}>Descanso Largo:</Text> {activity.type?.long_break} min
+                  </Text>
+                </View>
+                <View style={styles.configItemRow}>
+                  <MaterialCommunityIcons name="refresh" size={16} color={colors.textLight} />
+                  <Text style={[styles.configDetailText, { color: colors.text }]}>
+                    <Text style={{ fontWeight: 'bold' }}>Frecuencia:</Text> Cada {activity.type?.cycles_before_long} ciclos
+                  </Text>
+                </View>
+                <View style={styles.configItemRow}>
+                  <MaterialCommunityIcons name="flag-checkered" size={16} color={colors.textLight} />
+                  <Text style={[styles.configDetailText, { color: colors.text }]}>
+                    <Text style={{ fontWeight: 'bold' }}>Ciclos Totales:</Text> {activity.extra_data?.total_ciclos === 0 ? 'Infinitos (Manual)' : `${activity.extra_data?.total_ciclos} ciclos`}
+                  </Text>
+                </View>
+              </View>
+            )}
 
-            <Surface style={[styles.infoCard, { backgroundColor: colors.background }]}>
-              <MaterialCommunityIcons name="calendar-end" size={18} color={colors.primary} />
-              <Text style={[styles.infoLabel, { color: colors.textLight }]}>Fin</Text>
-              <Text style={[styles.infoValue, { color: colors.text }]}>{formatDate(activity.end_date)}</Text>
-            </Surface>
-          </View>
+            {activity.type?.name_type === 'TEMPORIZADOR' && (
+              <View style={styles.typeSpecificContent}>
+                <View style={styles.configItemRow}>
+                  <MaterialCommunityIcons name="hourglass-hash" size={16} color={colors.textLight} />
+                  <Text style={[styles.configDetailText, { color: colors.text }]}>
+                    <Text style={{ fontWeight: 'bold' }}>Tiempo Programado:</Text> {Math.floor((activity.type?.work_duration || 0) / 60)}h {(activity.type?.work_duration || 0) % 60}min ({activity.type?.work_duration} minutos totales)
+                  </Text>
+                </View>
+              </View>
+            )}
 
+            {activity.type?.name_type === 'HITO' && (
+              <View style={styles.typeSpecificContent}>
+                <View style={styles.configItemRow}>
+                  <MaterialCommunityIcons name="format-list-bulleted" size={16} color={colors.textLight} />
+                  <Text style={[styles.configDetailText, { color: colors.text, fontWeight: 'bold' }]}>
+                    Lista de Hitos ({activity.extra_data?.hitos?.length || 0}):
+                  </Text>
+                </View>
+                {activity.extra_data?.hitos && activity.extra_data.hitos.length > 0 ? (
+                  activity.extra_data.hitos.map((hito, idx) => (
+                    <View key={idx} style={styles.hitoRow}>
+                      <MaterialCommunityIcons name="flag-variant-outline" size={14} color={typeInfo.color} />
+                      <Text style={[styles.hitoItemText, { color: colors.text }]}>{hito}</Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text style={[styles.emptyText, { color: colors.textLight }]}>No hay hitos definidos</Text>
+                )}
+              </View>
+            )}
+          </Surface>
+
+          {/* Grid Horarios de Inicio y Fin (Renderizado Condicional) */}
+          {(formattedInitDate || formattedEndDate) && (
+            <View style={styles.infoGrid}>
+              {formattedInitDate && (
+                <Surface style={[styles.infoCard, { backgroundColor: colors.background }]}>
+                  <MaterialCommunityIcons name="calendar-start" size={18} color={colors.primary} />
+                  <Text style={[styles.infoLabel, { color: colors.textLight }]}>Inicio</Text>
+                  <Text style={[styles.infoValue, { color: colors.text }]}>{formattedInitDate}</Text>
+                </Surface>
+              )}
+
+              {formattedEndDate && (
+                <Surface style={[styles.infoCard, { backgroundColor: colors.background }]}>
+                  <MaterialCommunityIcons name="calendar-end" size={18} color={colors.primary} />
+                  <Text style={[styles.infoLabel, { color: colors.textLight }]}>Fin</Text>
+                  <Text style={[styles.infoValue, { color: colors.text }]}>{formattedEndDate}</Text>
+                </Surface>
+              )}
+            </View>
+          )}
+
+          {/* Bot Asignado */}
           <Surface style={[styles.sectionCard, { backgroundColor: colors.background }]}>
             <View style={styles.sectionCardHeader}>
               <MaterialCommunityIcons name="robot" size={18} color={colors.primary} />
               <Text style={[styles.sectionTitle, { color: colors.textLight }]}>Bot Asignado</Text>
             </View>
-            {activity.bot_id ? (
+            
+            {activity.bot?.bot_id ? (
               <BotTile 
                 item={{
-                  bot_id: activity.bot_id,
-                  name: activity.bot_id,
-                  status: 'IDLE',
-                  version: '1.0',
-                  last_sync: activity.end_date
+                  bot_id: activity.bot.bot_id,
+                  name: activity.bot.name,
+                  mac: activity.bot.mac,
+                  status: activity.bot.status,
+                  last_sync: activity.bot.end_date
                 }}
                 AppColors={colors}
               />
@@ -182,9 +293,10 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
             )}
           </Surface>
 
+          {/* Resultado si está COMPLETADO */}
           {activity.state === 'COMPLETADO' && activity.result && (
             <Surface style={[styles.resultCard, { 
-              backgroundColor: activity.result === 'SUCCESS' ? '#4CAF50' + '10' : '#F44336' + '10',
+              backgroundColor: activity.result === 'SUCCESS' ? '#4CAF5010' : '#F4433610',
               borderColor: activity.result === 'SUCCESS' ? '#4CAF50' : '#F44336'
             }]}>
               <View style={styles.resultContent}>
@@ -192,7 +304,7 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
                   backgroundColor: activity.result === 'SUCCESS' ? '#4CAF50' : '#F44336'
                 }]}>
                   <MaterialCommunityIcons 
-                    icon={activity.result === 'SUCCESS' ? 'check' : 'close'} 
+                    name={activity.result === 'SUCCESS' ? 'check' : 'close'} 
                     size={18} 
                     color="#FFFFFF" 
                   />
@@ -202,7 +314,7 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
                   <Text style={[styles.resultText, { 
                     color: activity.result === 'SUCCESS' ? '#4CAF50' : '#F44336' 
                   }]}>
-                    {activity.result === 'SUCCESS' ? 'Completado con exito' : 'No completado'}
+                    {activity.result === 'SUCCESS' ? 'Completado con éxito' : 'No completado'}
                   </Text>
                 </View>
               </View>
@@ -210,18 +322,37 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
           )}
         </ScrollView>
 
+        {/* Sección de Acciones */}
         <View style={styles.actionsContainer}>
           {shouldShowActionButton && actionConfig && (
-            <Button 
-              mode="contained" 
-              onPress={() => onActionPress && onActionPress(actionConfig.action, activity)}
-              style={[styles.actionButton, { backgroundColor: stateConfig.color }]}
-              textColor={colors.background}
-              contentStyle={styles.buttonContent}
-              icon={actionConfig.icon}
-            >
-              {actionConfig.label}
-            </Button>
+            <View style={activity.state === 'EN_CURSO' ? styles.parallelActionsRow : null}>
+              <Button 
+                mode="contained" 
+                onPress={() => onActionPress && onActionPress(actionConfig.action, activity)}
+                style={[
+                  activity.state === 'EN_CURSO' ? styles.parallelButton : styles.actionButton, 
+                  { backgroundColor: stateConfig.color }
+                ]}
+                textColor={colors.background}
+                contentStyle={styles.buttonContent}
+                icon={actionConfig.icon}
+              >
+                {actionConfig.label}
+              </Button>
+
+              {activity.state === 'EN_CURSO' && (
+                <Button 
+                  mode="contained" 
+                  onPress={() => onActionPress && onActionPress('finish', activity)}
+                  style={[styles.parallelButton, { backgroundColor: '#81C784' }]} 
+                  textColor={colors.background}
+                  contentStyle={styles.buttonContent}
+                  icon="check-all"
+                >
+                  Finalizar
+                </Button>
+              )}
+            </View>
           )}
 
           <View style={styles.secondaryActions}>
@@ -283,7 +414,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    flex: 1,
   },
   badgesRow: {
     flexDirection: 'row',
@@ -304,15 +434,27 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
   },
-  descriptionCard: {
-    padding: 12,
-    borderRadius: 14,
-    marginBottom: 12,
+  typeSpecificContent: {
+    marginTop: 6,
+    gap: 6,
   },
-  descriptionText: {
+  configItemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  configDetailText: {
     fontSize: 13,
-    lineHeight: 18,
-    marginTop: 2,
+  },
+  hitoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginLeft: 24,
+    marginVertical: 1,
+  },
+  hitoItemText: {
+    fontSize: 13,
   },
   sectionTitle: {
     fontSize: 10,
@@ -391,6 +533,16 @@ const styles = StyleSheet.create({
     borderTopColor: 'rgba(0,0,0,0.05)',
   },
   actionButton: {
+    borderRadius: 30,
+    width: '100%',
+  },
+  parallelActionsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    width: '100%',
+  },
+  parallelButton: {
+    flex: 1,
     borderRadius: 30,
   },
   secondaryActions: {
