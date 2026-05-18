@@ -135,7 +135,11 @@ export default function LoginScreen({ navigation }) {
             <Button
               mode="outlined" 
               icon="google"
-              onPress={() => promptAsync()}
+              onPress={() => {
+                setLoading(true);
+                // En Web, forzamos el uso de una ventana emergente (Popup)
+                promptAsync(Platform.OS === 'web' ? { windowFeatures: { width: 500, height: 600 } } : {});
+              }}
               disabled={!request || loading}
               style={[globalStyles.buttonOutline, {marginTop: 0}]}
               contentStyle={{ paddingVertical: 2 }}
