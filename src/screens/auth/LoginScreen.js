@@ -52,7 +52,7 @@ export default function LoginScreen({ navigation }) {
   }, [response]);
 
   // --- Configuración de Google Identity Services para web ---
-  const googleClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com';
+  const googleClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID ; 
 
   // Callback para GIS (web)
   const manejarGISResponse = async (response) => {
