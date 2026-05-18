@@ -32,12 +32,14 @@ export default function LoginScreen({ navigation }) {
     iosClientId:      '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
     androidClientId:  '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
     
+    responseType: Platform.OS === 'web' ? 'code' : 'id_token',
+
     redirectUri: Platform.OS === 'web' 
       ? window.location.origin // Esto obliga a usar directamente https://focus-bot-app-web.vercel.app
       : AuthSession.makeRedirectUri({ scheme: 'focusapp' }),
   });
 
-  useEffect(() => {
+  useEffect(() => {    
     if (response?.type === 'success') {
       const token = response.authentication?.idToken || response.params?.id_token;
       if (token) {
@@ -49,6 +51,33 @@ export default function LoginScreen({ navigation }) {
       setLoading(false);
     }
   }, [response]);
+
+  // EFECT EXCLUSIVO PARA WEB (VERCEL) PARA QUE FUCNIONE EL GOOGLE OAUTH
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+
+    // Detectamos si la URL de la ventana tiene el maldito hash con el access_token
+    if (window.location.hash) {
+      const hash = window.location.hash.substring(1); // Quita el '#'
+      const params = new URLSearchParams(hash);
+      
+      // Intentamos rascar el access_token o el id_token que te está enviando Google
+      const accessToken = params.get('access_token');
+      const idToken = params.get('id_token');
+
+      const tokenFinal = idToken || accessToken;
+
+      if (tokenFinal) {
+        console.log("¡Token rescatado del hash a mano!:", tokenFinal);
+        
+        // Limpiamos la URL para que no quede feo el hash en Vercel
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        // Ejecutamos tu función de login
+        manejarLoginGoogle(tokenFinal);
+      }
+    }
+  }, []);
 
   const manejarLoginGoogle = async (token) => {
     setLoading(true);
