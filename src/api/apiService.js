@@ -1,16 +1,16 @@
-// const API_URL = 'http://83.36.5.17:5000/';
-const API_URL = 'https://focus-bot.duckdns.org/';
-const GOOGLE_CLIENT_ID = '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com';
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
+const X_API_KEY = process.env.EXPO_PUBLIC_X_API_KEY;
+const GOOGLE_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
 
 import { authStorage } from '../core/authStorage';
 
 async function fetchApi(endpoint, method = 'GET', body = null) {
     const token = await authStorage.getToken();
-    const url = API_URL + endpoint;
+    const url = `${API_URL}${endpoint}`;
 
     const headers = {
         'Content-Type': 'application/json',
-        'X-API-Key': 'mi_clave_secreta_muy_larga'
+        'X-API-Key': X_API_KEY
     };
 
     if (token) {
