@@ -29,6 +29,7 @@ export default function LoginScreen({ navigation }) {
 
   // --- Configuración de Google OAuth para móvil (expo-auth-session) ---
   const [request, response, promptAsync] = Google.useAuthRequest({
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
     androidClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
     iosClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
     responseType: 'id_token',
