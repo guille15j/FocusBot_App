@@ -27,16 +27,16 @@ export default function LoginScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useContext(AuthContext);
 
-  // --- Configuración de Google OAuth para móvil (expo-auth-session) ---
+
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
     androidClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
     iosClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
     responseType: 'id_token',
     redirectUri: AuthSession.makeRedirectUri({ scheme: 'focusapp' }),
   });
 
-  // Solo procesar la respuesta de expo-auth-session en móvil
+  // Solo procesar la respuesta de expo-auth-session en móvil, pendiente de crear el contendio cliente id para moviels
   useEffect(() => {
     if (Platform.OS === 'web') return;
     
