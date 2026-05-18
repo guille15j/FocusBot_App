@@ -1,6 +1,6 @@
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
-const X_API_KEY = process.env.EXPO_PUBLIC_X_API_KEY;
-const GOOGLE_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
+const API_URL = process.env.API_URL;
+const X_API_KEY = process.env.X_API_KEY;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 
 import { authStorage } from '../core/authStorage';
 
