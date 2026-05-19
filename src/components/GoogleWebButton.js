@@ -17,10 +17,11 @@ export default function GoogleWebButton({ onSuccess }) {
         callback: async (response) => {
           const credential = response.credential;
           const res = await AuthService.googleLoggin(credential);
-          onSuccess(res.token, res.user);
+          
           console.log("Respuesta backend Google:", res);
           
           console.log("USUARIO:", res.user);
+          onSuccess(res.token, res.user); //NUESTRO SINGING
 
         }
       });

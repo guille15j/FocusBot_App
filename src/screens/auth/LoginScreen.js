@@ -212,7 +212,7 @@ export default function LoginScreen({ navigation }) {
             </View>
 
             {Platform.OS === 'web' ? (
-              <GoogleWebButton onSuccess={(token) => signIn(token)} />
+              <GoogleWebButton onSuccess={(token, user) => signIn(token, user)} />
             ) : (
               <Button
                 mode="outlined"
