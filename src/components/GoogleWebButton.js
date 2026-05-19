@@ -50,7 +50,7 @@ export default function GoogleWebButton({ onSuccess, colors, globalStyles }) {
         onPress={handleCustomGoogleLogin}
         style={[
           globalStyles.buttonOutline,
-          { marginTop: 0, borderRadius: 30 }
+          { marginTop: 0, borderRadius: 30 , position: "relative",}
         ]}
         contentStyle={{ paddingVertical: 6 }}
         labelStyle={{
@@ -67,8 +67,6 @@ export default function GoogleWebButton({ onSuccess, colors, globalStyles }) {
           // opacity: 50,
           // pointerEvents: "none",
           position: "absolute",
-          width: 1000,
-          height: 1000,
           overflow: "hidden",
           zIndex: 100
         }}
