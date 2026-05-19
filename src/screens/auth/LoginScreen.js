@@ -26,12 +26,21 @@ export default function LoginScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useContext(AuthContext);
-  
-const redirectUri = AuthSession.makeRedirectUri({
-  useProxy: false,
-});
 
-console.log("Redirect URI:", redirectUri);
+
+
+console.log("REDIRECT URI REAL:", AuthSession.makeRedirectUri({
+  useProxy: false,
+  preferLocalhost: false,
+}));
+
+const redirectUri =
+  Platform.OS === "web"
+    ? "https://focus-bot-app-web.vercel.app"
+    : AuthSession.makeRedirectUri({ scheme: "focusapp" });
+
+  console.log("Redirect URI:", redirectUri)
+
 
 const [request, response, promptAsync] = Google.useAuthRequest({
   webClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
