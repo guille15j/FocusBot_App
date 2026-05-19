@@ -55,7 +55,8 @@ export const AuthService = {
     verify: (email, codigo) => fetchApi('auth/verify', 'POST', { email, codigo }),
     resendCode: (email) => fetchApi('auth/resend-code', 'POST', { email }),
     resetPassword: (data) => fetchApi('auth/change/password', 'POST', data),
-    googleLoggin: (googleToken) => fetchApi('auth/google', 'POST',googleToken),
+    googleLoggin: (googleToken) => fetchApi('auth/google', 'POST', { token: googleToken }),
+
 
 };
 
