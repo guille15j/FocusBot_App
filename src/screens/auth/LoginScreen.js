@@ -27,20 +27,20 @@ export default function LoginScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useContext(AuthContext);
   
-  const redirectUri = AuthSession.makeRedirectUri({
-    useProxy: false,
-  });
+const redirectUri = AuthSession.makeRedirectUri({
+  useProxy: false,
+});
 
-  console.log("Redirect URI:", redirectUri);
+console.log("Redirect URI:", redirectUri);
 
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: "...",
-    iosClientId: "...",
-    androidClientId: "...",
-    responseType: "id_token",
-    scopes: ["openid", "profile", "email"],
-    redirectUri,
-  });
+const [request, response, promptAsync] = Google.useAuthRequest({
+  webClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
+  iosClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
+  androidClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
+  responseType: "id_token",
+  scopes: ["openid", "profile", "email"],
+  redirectUri,
+});
 
 
   useEffect(() => {
