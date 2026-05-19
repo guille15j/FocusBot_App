@@ -26,7 +26,7 @@ export default function LoginScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useContext(AuthContext);
 
-  // --- Configuración de Google OAuth para móvil (expo-auth-session) ---
+  // --- Configuración de Google OAuth para móvil (iOS/Android) ---
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
     iosClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
@@ -34,7 +34,7 @@ export default function LoginScreen({ navigation }) {
     redirectUri: AuthSession.makeRedirectUri({ scheme: 'focusapp' }),
   });
 
-  // Solo procesar la respuesta de expo-auth-session en móvil
+  // Procesar respuesta de expo-auth-session en móvil
   useEffect(() => {
     if (Platform.OS === 'web') return;
     
@@ -76,7 +76,6 @@ export default function LoginScreen({ navigation }) {
     if (Platform.OS === 'web' && window.google) {
       window.google.accounts.id.prompt((notification) => {
         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          console.log('GIS prompt no mostrado o saltado');
           setLoading(false);
         }
       });
