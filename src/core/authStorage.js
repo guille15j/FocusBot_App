@@ -22,7 +22,8 @@ export const authStorage = {
   saveUser: async (user) => {
     try {
       await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
-      console.log('Usuario guardado');
+      console.log('Usuario guardado', user);
+
     } catch (error) {
       console.error('Error guardando usuario:', error);
     }
