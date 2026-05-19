@@ -82,7 +82,7 @@ export default function LoginScreen({ navigation }) {
   const manejarLoginGoogle = async (token) => {
     setLoading(true);
     try {
-      const res = await AuthService.googleLogin(token);
+      const res = await AuthService.googleLoggin(token);
       if (res.token) {
         await signIn(res.token);
       } else {
