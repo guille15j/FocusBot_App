@@ -26,23 +26,22 @@ export default function LoginScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useContext(AuthContext);
-
-  // --- CONFIGURACIÓN HÍBRIDA DE GOOGLE ---
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
-    iosClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
-    androidClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
-
-     responseType: 'id_token',
-     scopes: ['openid', 'profile', 'email'],
-
-    redirectUri: AuthSession.makeRedirectUri({
-      scheme: 'focusapp',
-      // __DEV__ es true solo en desarrollo. 
-      // En Web usa la URL del navegador; en móvil usa el Proxy solo en desarrollo.
-      useProxy: Platform.OS !== 'web' && __DEV__, 
-    }),
+  
+  const redirectUri = AuthSession.makeRedirectUri({
+    useProxy: false,
   });
+
+  console.log("Redirect URI:", redirectUri);
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    webClientId: "...",
+    iosClientId: "...",
+    androidClientId: "...",
+    responseType: "id_token",
+    scopes: ["openid", "profile", "email"],
+    redirectUri,
+  });
+
 
   useEffect(() => {
   console.log('Response recibido');
