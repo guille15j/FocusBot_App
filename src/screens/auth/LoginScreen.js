@@ -43,6 +43,7 @@ export default function LoginScreen({ navigation }) {
 
   useEffect(() => {
     if (response?.type === 'success') {
+      console.log(response.params);
       const { id_token } = response.params;
       manejarLoginGoogle(id_token);
     } else if (response?.type === 'error' || response?.type === 'cancel') {
@@ -154,4 +155,5 @@ export default function LoginScreen({ navigation }) {
         </ScrollView>
       </KeyboardAvoidingView>
     </LinearGradient>
-  );}
+  );
+}
