@@ -45,6 +45,7 @@ export default function LoginScreen({ navigation }) {
   });
 
   useEffect(() => {
+  console.log('Response recibido');
   if (response?.type === 'success') {
     const idToken =
       response.authentication?.idToken ||   // móvil
@@ -55,11 +56,16 @@ export default function LoginScreen({ navigation }) {
       setLoading(false);
       return;
     }
-
+    console.log('Manejando toekrn recibido');
     manejarLoginGoogle(idToken);
+    console.log('Fin manejo toekrn recibido');
+
   } else if (response?.type === 'error' || response?.type === 'cancel') {
     setLoading(false);
+    console.log('Response erroneo');
+
   }
+  console.log('Response terminado');
 }, [response]);
 
 
