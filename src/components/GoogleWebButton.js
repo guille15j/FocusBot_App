@@ -64,11 +64,11 @@ export default function GoogleWebButton({ onSuccess, colors, globalStyles }) {
       <div
         id="googleHiddenBtn"
         style={{
-          opacity: 50,
-          pointerEvents: "none",
+          // opacity: 50,
+          // pointerEvents: "none",
           position: "absolute",
-          width: 1,
-          height: 1,
+          width: 1000,
+          height: 1000,
           overflow: "hidden",
           zIndex: 100
         }}
