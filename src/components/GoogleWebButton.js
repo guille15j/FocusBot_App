@@ -17,7 +17,7 @@ export default function GoogleWebButton({ onSuccess }) {
         callback: async (response) => {
           const credential = response.credential;
           const res = await AuthService.googleLoggin(credential);
-          onSuccess(res.token);
+          onSuccess(res.token, res.user);
           console.log("Respuesta backend Google:", res);
 
         }

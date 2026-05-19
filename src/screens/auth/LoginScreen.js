@@ -212,19 +212,19 @@ export default function LoginScreen({ navigation }) {
             </View>
 
             {Platform.OS === 'web' ? (
-  <GoogleWebButton onSuccess={(token) => signIn(token)} />
-) : (
-  <Button
-    mode="outlined"
-    icon="google"
-    onPress={handleGooglePress} // solo móvil
-    disabled={!request || loading}
-    style={[globalStyles.buttonOutline, { marginTop: 0 }]}
-    contentStyle={{ paddingVertical: 2 }}
-  >
-    Continuar con Google
-  </Button>
-)}
+              <GoogleWebButton onSuccess={(token) => signIn(token)} />
+            ) : (
+              <Button
+                mode="outlined"
+                icon="google"
+                onPress={handleGooglePress} // solo móvil
+                disabled={!request || loading}
+                style={[globalStyles.buttonOutline, { marginTop: 0 }]}
+                contentStyle={{ paddingVertical: 2 }}
+              >
+                Continuar con Google
+              </Button>
+            )}
             <View
               style={{
                 flexDirection: 'row',
