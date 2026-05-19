@@ -1,7 +1,15 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState, useContext, useMemo, useEffect } from 'react';
-import { View, Alert, TouchableOpacity, KeyboardAvoidingView, Platform, useColorScheme, ScrollView } from 'react-native'; 
-import { TextInput, Button, Text, Divider as PaperDivider } from 'react-native-paper'; 
+import {
+  View,
+  Alert,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  useColorScheme,
+  ScrollView,
+} from 'react-native';
+import { TextInput, Button, Text, Divider as PaperDivider } from 'react-native-paper';
 import { AuthContext } from '../../context/AuthContext';
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
@@ -12,8 +20,10 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as AuthSession from 'expo-auth-session';
 
-// Maneja la finalización de la sesión de autenticación en la web
-WebBrowser.maybeCompleteAuthSession();
+// SOLO en móvil
+if (Platform.OS !== 'web') {
+  WebBrowser.maybeCompleteAuthSession();
+}
 
 export default function LoginScreen({ navigation }) {
   const scheme = useColorScheme();
@@ -27,57 +37,45 @@ export default function LoginScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useContext(AuthContext);
 
+  // Redirect fijo en Web, dinámico en móvil
+  const redirectUri =
+    Platform.OS === 'web'
+      ? 'https://focus-bot-app-web.vercel.app'
+      : AuthSession.makeRedirectUri({ scheme: 'focusapp' });
 
-
-console.log("REDIRECT URI REAL:", AuthSession.makeRedirectUri({
-  useProxy: false,
-  preferLocalhost: false,
-}));
-
-const redirectUri =
-  Platform.OS === "web"
-    ? "https://focus-bot-app-web.vercel.app"
-    : AuthSession.makeRedirectUri({ scheme: "focusapp" });
-
-  console.log("Redirect URI:", redirectUri)
-
-
-const [request, response, promptAsync] = Google.useAuthRequest({
-  webClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
-  iosClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
-  androidClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
-  responseType: "id_token",
-  scopes: ["openid", "profile", "email"],
-  redirectUri,
-});
-
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    webClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
+    iosClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
+    androidClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
+    responseType: 'id_token',
+    scopes: ['openid', 'profile', 'email'],
+    redirectUri,
+  });
 
   useEffect(() => {
-  console.log('Response recibido');
-  console.log(response);
-  if (response?.type === 'success') {
-    const idToken =
-      response.authentication?.idToken ||   // móvil
-      response.params?.id_token;            // web
+    console.log('Response recibido:', response);
 
-    if (!idToken) {
-      console.log("No se recibió idToken", response);
+    if (response?.type === 'success') {
+      const idToken =
+        response.authentication?.idToken || // móvil
+        response.params?.id_token;          // web
+
+      if (!idToken) {
+        console.log('No se recibió idToken');
+        setLoading(false);
+        return;
+      }
+
+      manejarLoginGoogle(idToken);
+    } else if (
+      response?.type === 'error' ||
+      response?.type === 'cancel' ||
+      response?.type === 'dismiss'
+    ) {
+      console.log('Login cancelado o bloqueado:', response?.type);
       setLoading(false);
-      return;
     }
-    console.log('Manejando toekrn recibido');
-    manejarLoginGoogle(idToken);
-    console.log('Fin manejo toekrn recibido');
-
-  } else if (response?.type === 'error' || response?.type === 'cancel') {
-    setLoading(false);
-    console.log('Response erroneo');
-
-  }
-  console.log('Response terminado');
-}, [response]);
-
-
+  }, [response]);
 
   const manejarLoginGoogle = async (token) => {
     setLoading(true);
@@ -86,10 +84,10 @@ const [request, response, promptAsync] = Google.useAuthRequest({
       if (res.token) {
         await signIn(res.token);
       } else {
-        Alert.alert("Error", "Error en validación: " + (res.message || "Token inválido"));
+        Alert.alert('Error', res.message || 'Token inválido');
       }
     } catch (err) {
-      Alert.alert("Error", "Error de conexión con el backend");
+      Alert.alert('Error', 'Error de conexión con el backend');
     } finally {
       setLoading(false);
     }
@@ -113,17 +111,36 @@ const [request, response, promptAsync] = Google.useAuthRequest({
     }
   };
 
+  const handleGooglePress = () => {
+    if (!request || loading) return;
+
+    if (Platform.OS === 'web') {
+      // 🔥 Web: redirección en la misma pestaña (NO popup)
+      promptAsync({ useProxy: false, redirectUri });
+    } else {
+      // 🔥 Móvil: popup normal
+      promptAsync();
+    }
+  };
+
   const irARegistro = () => navigation.replace('Register');
   const irAReset = () => navigation.navigate('Reset');
 
   return (
-    <LinearGradient colors={[colors.background, colors.primary,colors.background]} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} style={{ flex: 1 }}>
-      <KeyboardAvoidingView style={isWeb ? globalStyles.authContainer_web : globalStyles.authContainer} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <LinearGradient
+      colors={[colors.background, colors.primary, colors.background]}
+      start={{ x: 1, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={{ flex: 1 }}
+    >
+      <KeyboardAvoidingView
+        style={isWeb ? globalStyles.authContainer_web : globalStyles.authContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
           <View style={globalStyles.form} elevation={4}>
-
             <View style={globalStyles.logoContainer}>
-              <BotIcon size={100} state='IDLE' loading={loading}/>
+              <BotIcon size={100} state="IDLE" loading={loading} />
               <View style={globalStyles.logoContainer_name}>
                 <Text style={globalStyles.logo_focus}>Focus</Text>
                 <Text style={globalStyles.logo_bot}>.Bot</Text>
@@ -131,54 +148,91 @@ const [request, response, promptAsync] = Google.useAuthRequest({
               <Text style={globalStyles.logoSubtitle}>Deep in your Focus</Text>
             </View>
 
-            <TextInput label="Email o Usuario" value={email} onChangeText={setEmail} mode="outlined" autoCapitalize="none" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="account" />} />
-            <TextInput label="Contraseña" value={password} onChangeText={setPassword} mode="outlined" secureTextEntry={!showPassword} style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="lock" />} right={<TextInput.Icon icon={showPassword ? 'eye-off' : 'eye'} onPress={() => setShowPassword(!showPassword)} />} />
+            <TextInput
+              label="Email o Usuario"
+              value={email}
+              onChangeText={setEmail}
+              mode="outlined"
+              autoCapitalize="none"
+              style={globalStyles.input}
+              outlineStyle={{ borderRadius: 30 }}
+              left={<TextInput.Icon icon="account" />}
+            />
+
+            <TextInput
+              label="Contraseña"
+              value={password}
+              onChangeText={setPassword}
+              mode="outlined"
+              secureTextEntry={!showPassword}
+              style={globalStyles.input}
+              outlineStyle={{ borderRadius: 30 }}
+              left={<TextInput.Icon icon="lock" />}
+              right={
+                <TextInput.Icon
+                  icon={showPassword ? 'eye-off' : 'eye'}
+                  onPress={() => setShowPassword(!showPassword)}
+                />
+              }
+            />
 
             <TouchableOpacity onPress={irAReset} style={globalStyles.linkContainer}>
               <Text style={[globalStyles.link, { fontSize: 14 }]}>¿Has olvidado la contraseña?</Text>
             </TouchableOpacity>
 
-            {/* CAMBIO AQUÍ: Botón a ancho completo + Pregunta de Registro abajo */}
-            <Button 
-              icon="login" 
-              mode="contained" 
-              onPress={ejecutarLogin} 
-              loading={loading} 
-              disabled={loading} 
-              style={globalStyles.button} 
-              buttonColor={colors.primary} 
-              textColor={colors.background} 
+            <Button
+              icon="login"
+              mode="contained"
+              onPress={ejecutarLogin}
+              loading={loading}
+              disabled={loading}
+              style={globalStyles.button}
+              buttonColor={colors.primary}
+              textColor={colors.background}
               labelStyle={{ fontSize: 16, fontWeight: '600' }}
             >
               Iniciar sesión
             </Button>
 
-           
-
             <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 20 }}>
               <PaperDivider style={{ flex: 1 }} />
-              <Text style={{ marginHorizontal: 12, color: colors.textLight, fontSize: 12, fontWeight: '600' }}>o</Text>
+              <Text
+                style={{
+                  marginHorizontal: 12,
+                  color: colors.textLight,
+                  fontSize: 12,
+                  fontWeight: '600',
+                }}
+              >
+                o
+              </Text>
               <PaperDivider style={{ flex: 1 }} />
             </View>
 
             <Button
-              mode="outlined" 
+              mode="outlined"
               icon="google"
-              onPress={() => promptAsync()}
+              onPress={handleGooglePress}
               disabled={!request || loading}
-              style={[globalStyles.buttonOutline, {marginTop: 0}]}
+              style={[globalStyles.buttonOutline, { marginTop: 0 }]}
               contentStyle={{ paddingVertical: 2 }}
             >
               Continuar con Google
             </Button>
 
-             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 16 }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 16,
+              }}
+            >
               <Text style={{ color: colors.textLight, fontSize: 14 }}>¿No tienes una cuenta? </Text>
               <TouchableOpacity onPress={irARegistro}>
                 <Text style={[globalStyles.link, { fontSize: 14 }]}>Regístrate</Text>
               </TouchableOpacity>
             </View>
-
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
