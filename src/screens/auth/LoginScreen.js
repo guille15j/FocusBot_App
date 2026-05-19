@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useState, useContext, useMemo, useEffect } from 'react';
+import React, { useState, useContext, useMemo, useEffect, useRef } from 'react';
 import { View, Alert, TouchableOpacity, KeyboardAvoidingView, Platform, useColorScheme, ScrollView } from 'react-native'; 
 import { TextInput, Button, Text, Divider as PaperDivider } from 'react-native-paper'; 
 import { AuthContext } from '../../context/AuthContext';
@@ -9,8 +9,13 @@ import { AuthService } from '../../api/apiService';
 import BotIcon from '../../components/BotIcon';
 
 import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
-import * as AuthSession from 'expo-auth-session';
+
+// Solo importar expo-auth-session en móvil
+let Google, AuthSession;
+if (Platform.OS !== 'web') {
+  Google = require('expo-auth-session/providers/google');
+  AuthSession = require('expo-auth-session');
+}
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -27,17 +32,24 @@ export default function LoginScreen({ navigation }) {
   const { signIn } = useContext(AuthContext);
 
   // --- Configuración de Google OAuth para móvil (iOS/Android) ---
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    androidClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
-    iosClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
-    responseType: 'id_token',
-    redirectUri: AuthSession.makeRedirectUri({ scheme: 'focusapp' }),
-  });
+  const mobileAuthRef = useRef(null);
+  
+  if (Platform.OS !== 'web') {
+    // Esto se ejecuta en cada render pero solo en móvil
+    const [request, response, promptAsync] = Google.useAuthRequest({
+      androidClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
+      iosClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
+      responseType: 'id_token',
+      redirectUri: AuthSession.makeRedirectUri({ scheme: 'focusapp' }),
+    });
+    mobileAuthRef.current = { request, response, promptAsync };
+  }
 
   // Procesar respuesta de expo-auth-session en móvil
   useEffect(() => {
-    if (Platform.OS === 'web') return;
+    if (Platform.OS === 'web' || !mobileAuthRef.current) return;
     
+    const { response } = mobileAuthRef.current;
     if (response?.type === 'success') {
       const token = response.authentication?.idToken || response.params?.id_token;
       if (token) {
@@ -48,7 +60,7 @@ export default function LoginScreen({ navigation }) {
     } else if (response?.type === 'error' || response?.type === 'cancel') {
       setLoading(false);
     }
-  }, [response]);
+  }, [mobileAuthRef.current?.response]);
 
   // --- Configuración de Google Identity Services (GIS) para web ---
   const googleClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com';
@@ -169,7 +181,7 @@ export default function LoginScreen({ navigation }) {
                 if (Platform.OS === 'web') {
                   promptGIS();
                 } else {
-                  promptAsync();
+                  mobileAuthRef.current?.promptAsync();
                 }
               }}
               disabled={loading}
