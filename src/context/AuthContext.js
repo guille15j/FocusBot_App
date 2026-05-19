@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
         try {
             await authStorage.saveToken(token);
             await authStorage.saveUser(userData);
-            // IMPORTANTE: Esto actualiza el Header y todas las pantallas al instante
+            console.log("DENTRO DEL SIGNIN - ...USERDATA",...userData);
             setUser({ ...userData }); 
         } catch (e) {
             console.error("Error al iniciar sesión:", e);
