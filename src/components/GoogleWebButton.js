@@ -16,7 +16,7 @@ export default function GoogleWebButton({ onSuccess }) {
         client_id: "767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com",
         callback: async (response) => {
           const credential = response.credential;
-          const res = await AuthService.googleLogin(credential);
+          const res = await AuthService.googleLoggin(credential);
           onSuccess(res.token);
         }
       });
