@@ -33,6 +33,9 @@ export default function LoginScreen({ navigation }) {
     iosClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
     androidClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
 
+     responseType: 'id_token',
+     scopes: ['openid', 'profile', 'email'],
+
     redirectUri: AuthSession.makeRedirectUri({
       scheme: 'focusapp',
       // __DEV__ es true solo en desarrollo. 
