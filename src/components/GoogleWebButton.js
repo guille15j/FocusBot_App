@@ -41,18 +41,7 @@ export default function GoogleWebButton({ onSuccess, colors, globalStyles }) {
   return (
     <>
       {/* Botón nativo oculto pero funcional */}
-      <div
-        id="googleHiddenBtn"
-        style={{
-          opacity: 0,
-          pointerEvents: "none",
-          position: "absolute",
-          width: 1,
-          height: 1,
-          overflow: "hidden",
-          zIndex: 100
-        }}
-      ></div>
+      
 
       {/* Botón bonito con tus estilos */}
       <Button
@@ -72,6 +61,18 @@ export default function GoogleWebButton({ onSuccess, colors, globalStyles }) {
       >
         Continuar con Google
       </Button>
+      <div
+        id="googleHiddenBtn"
+        style={{
+          opacity: 0,
+          pointerEvents: "none",
+          position: "absolute",
+          width: 1,
+          height: 1,
+          overflow: "hidden",
+          zIndex: 100
+        }}
+      ></div>
     </>
   );
 }
