@@ -1,223 +1,157 @@
-import React, { useEffect, useRef, useState, useContext } from 'react';
-import { View, Text, StyleSheet, Animated, Easing, Dimensions } from 'react-native';
-import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg'; // 🚀 Cambiado a LinearGradient
-import { useAppColors } from '../../hooks/useAppColors';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useState, useContext, useMemo, useEffect } from 'react';
+import { View, Alert, TouchableOpacity, KeyboardAvoidingView, Platform, useColorScheme, ScrollView } from 'react-native'; 
+import { TextInput, Button, Text, Divider as PaperDivider } from 'react-native-paper'; 
+import { AuthContext } from '../../context/AuthContext';
+import { getColors, getglobalStyles } from '../../theme/theme';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import { AuthService } from '../../api/apiService';
 import BotIcon from '../../components/BotIcon';
 
-// Módulos integrados de tu arquitectura
-import { authStorage } from '../../core/authStorage';
-import { AuthContext } from '../../context/AuthContext';
-import apiService from '../../api/apiService'; 
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import * as AuthSession from 'expo-auth-session';
 
-const AnimatedView = Animated.createAnimatedComponent(View);
+// Maneja la finalización de la sesión de autenticación en la web
+WebBrowser.maybeCompleteAuthSession();
 
-const MESSAGES = [
-  "Iniciando Focus.Bot...",
-  "Validando credenciales de acceso...",
-  "Sincronizando perfil de usuario...",
-  "Casi listo..."
-];
+export default function LoginScreen({ navigation }) {
+  const scheme = useColorScheme();
+  const { isWeb } = useResponsiveLayout();
+  const colors = useMemo(() => getColors(scheme), [scheme]);
+  const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
 
-export default function LoadingScreen() {
-  const colors = useAppColors();
-  const { setAuthSession } = useContext(AuthContext);
-  const [messageIndex, setMessageIndex] = useState(0);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const { signIn } = useContext(AuthContext);
 
-  // Animaciones estéticas con rangos suavizados para mayor elegancia
-  const fadeAnim = useRef(new Animated.Value(0)).current;      
-  const pulseAnim = useRef(new Animated.Value(1)).current;     
-  const textTranslateY = useRef(new Animated.Value(6)).current;
-  const barProgressAnim = useRef(new Animated.Value(-140)).current;
+  // --- CONFIGURACIÓN HÍBRIDA DE GOOGLE ---
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    webClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
+    iosClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
+    androidClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
+
+    redirectUri: AuthSession.makeRedirectUri({
+      scheme: 'focusapp',
+      // __DEV__ es true solo en desarrollo. 
+      // En Web usa la URL del navegador; en móvil usa el Proxy solo en desarrollo.
+      useProxy: Platform.OS !== 'web' && __DEV__, 
+    }),
+  });
 
   useEffect(() => {
-    let isMounted = true;
+    if (response?.type === 'success') {
+      const { id_token } = response.params;
+      manejarLoginGoogle(id_token);
+    } else if (response?.type === 'error' || response?.type === 'cancel') {
+      setLoading(false);
+    }
+  }, [response]);
 
-    // 🚀 Escala del fondo suavizada (máximo 1.05) para un efecto premium sutil
-    const pulseLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, { toValue: 1.05, duration: 4000, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
-        Animated.timing(pulseAnim, { toValue: 1, duration: 4000, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
-      ])
-    );
-    pulseLoop.start();
-
-    const barLoop = Animated.loop(
-      Animated.timing(barProgressAnim, {
-        toValue: 140,
-        duration: 1600,
-        easing: Easing.inOut(Easing.sin),
-        useNativeDriver: true,
-      })
-    );
-    barLoop.start();
-
-    const messageInterval = setInterval(() => {
-      Animated.parallel([
-        Animated.timing(fadeAnim, { toValue: 0, duration: 350, useNativeDriver: true }),
-        Animated.timing(textTranslateY, { toValue: 6, duration: 350, useNativeDriver: true })
-      ]).start(() => {
-        if (!isMounted) return;
-        setMessageIndex((prev) => (prev + 1) % MESSAGES.length);
-        Animated.parallel([
-          Animated.timing(fadeAnim, { toValue: 1, duration: 350, useNativeDriver: true }),
-          Animated.timing(textTranslateY, { toValue: 0, duration: 350, useNativeDriver: true })
-        ]).start();
-      });
-    }, 3000);
-
-    Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
-      Animated.timing(textTranslateY, { toValue: 0, duration: 500, useNativeDriver: true })
-    ]).start();
-
-    const iniciarValidacionDeSesion = async () => {
-      try {
-        await new Promise(resolve => setTimeout(resolve, 2200));
-
-        const token = await authStorage.getToken();
-        if (!token) {
-          if (isMounted) setAuthSession(null, null);
-          return;
-        }
-
-        const isExpired = await authStorage.isTokenExpired(token);
-        if (isExpired) {
-          await authStorage.deleteToken();
-          await authStorage.deleteUser();
-          if (isMounted) setAuthSession(null, null);
-          return;
-        }
-
-        let userData = await authStorage.getUser();
-        if (!userData) {
-          try {
-            userData = await apiService.getUserProfile(token); 
-            await authStorage.saveUser(userData); 
-          } catch (apiError) {
-            await authStorage.deleteToken();
-            await authStorage.deleteUser();
-            if (isMounted) setAuthSession(null, null);
-            return;
-          }
-        }
-
-        if (isMounted) setAuthSession(token, userData);
-
-      } catch (error) {
-        if (isMounted) setAuthSession(null, null);
+  const manejarLoginGoogle = async (token) => {
+    setLoading(true);
+    try {
+      const res = await AuthService.googleLogin(token);
+      if (res.token) {
+        await signIn(res.token);
+      } else {
+        Alert.alert("Error", "Error en validación: " + (res.message || "Token inválido"));
       }
-    };
+    } catch (err) {
+      Alert.alert("Error", "Error de conexión con el backend");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    iniciarValidacionDeSesion();
+  const ejecutarLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Atención', 'Por favor, introduce tu email/usuario y contraseña');
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await AuthService.login(email, password);
+      if (response && response.token) {
+        await signIn(response.token, response.user);
+      }
+    } catch (error) {
+      Alert.alert('Error de acceso', error.message || 'Credenciales incorrectas');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return () => {
-      isMounted = false;
-      clearInterval(messageInterval);
-      pulseLoop.stop();
-      barLoop.stop();
-      fadeAnim.stopAnimation();
-      textTranslateY.stopAnimation();
-    };
-  }, []);
-
-  // Paleta refinada: usamos el background oscuro y una variante profunda para el gradiente
-  const bgBase = colors.background === '#FFFFFF' || colors.background === 'rgb(255, 255, 255)' ? '#F5F7FA' : colors.background;
-  const darkGradientAccent = '#090D1A'; // Tono noche profunda que blinda la lectura del texto blanco
+  const irARegistro = () => navigation.replace('Register');
+  const irAReset = () => navigation.navigate('Reset');
 
   return (
-    <View style={[styles.container, { backgroundColor: bgBase }]}>
-      
-      {/* 🚀 FONDO MEJORADO: GRADIENTE LINEAL SOFISTICADO EN ÁNGULO */}
-      <AnimatedView style={[StyleSheet.absoluteFill, { transform: [{ scale: pulseAnim }] }]}>
-        <Svg height="100%" width="100%">
-          <Defs>
-            <LinearGradient id="linearGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <Stop offset="0%" stopColor={bgBase} stopOpacity="1" />
-              <Stop offset="60%" stopColor={colors.primary} stopOpacity="0.4" />
-              <Stop offset="100%" stopColor={darkGradientAccent} stopOpacity="0.95" />
-            </LinearGradient>
-          </Defs>
-          <Rect x="0" y="0" width="100%" height="100%" fill="url(#linearGrad)" />
-        </Svg>
-      </AnimatedView>
+    <LinearGradient colors={[colors.background, colors.primary,colors.background]} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} style={{ flex: 1 }}>
+      <KeyboardAvoidingView style={isWeb ? globalStyles.authContainer_web : globalStyles.authContainer} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+          <View style={globalStyles.form} elevation={4}>
 
-      {/* 🚀 MÁSCARA OSCURA DE CONTRASTE: Asegura el 100% de legibilidad del texto en cualquier pantalla */}
-      <View style={[StyleSheet.absoluteFill, styles.overlayScrim]} />
+            <View style={globalStyles.logoContainer}>
+              <BotIcon size={100} state='IDLE' loading={loading}/>
+              <View style={globalStyles.logoContainer_name}>
+                <Text style={globalStyles.logo_focus}>Focus</Text>
+                <Text style={globalStyles.logo_bot}>.Bot</Text>
+              </View>
+              <Text style={globalStyles.logoSubtitle}>Deep in your Focus</Text>
+            </View>
 
-      {/* COMPONENTE CENTRAL */}
-      <View style={styles.content}>
-        <View style={styles.avatarShadowContainer}>
-          <BotIcon size={160} loading={true} state="IDLE" />
-        </View>
-        
-        {/* TEXTO Y BARRA CON ALTO CONTRASTE */}
-        <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: textTranslateY }], marginTop: 45, alignItems: 'center' }}>
-          <Text style={[styles.loadingText, { color: '#FFFFFF' }]}>
-            {MESSAGES[messageIndex]}
-          </Text>
-          
-          {/* Riel de la barra con opacidad equilibrada */}
-          <View style={styles.loaderBarContainer}>
-            <Animated.View 
-              style={[
-                styles.loaderProgress, 
-                { 
-                  backgroundColor: colors.primary || '#00EAFF',
-                  transform: [{ translateX: barProgressAnim }] 
-                }
-              ]} 
-            />
+            <TextInput label="Email o Usuario" value={email} onChangeText={setEmail} mode="outlined" autoCapitalize="none" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="account" />} />
+            <TextInput label="Contraseña" value={password} onChangeText={setPassword} mode="outlined" secureTextEntry={!showPassword} style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="lock" />} right={<TextInput.Icon icon={showPassword ? 'eye-off' : 'eye'} onPress={() => setShowPassword(!showPassword)} />} />
+
+            <TouchableOpacity onPress={irAReset} style={globalStyles.linkContainer}>
+              <Text style={[globalStyles.link, { fontSize: 14 }]}>¿Has olvidado la contraseña?</Text>
+            </TouchableOpacity>
+
+            {/* CAMBIO AQUÍ: Botón a ancho completo + Pregunta de Registro abajo */}
+            <Button 
+              icon="login" 
+              mode="contained" 
+              onPress={ejecutarLogin} 
+              loading={loading} 
+              disabled={loading} 
+              style={globalStyles.button} 
+              buttonColor={colors.primary} 
+              textColor={colors.background} 
+              labelStyle={{ fontSize: 16, fontWeight: '600' }}
+            >
+              Iniciar sesión
+            </Button>
+
+           
+
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 20 }}>
+              <PaperDivider style={{ flex: 1 }} />
+              <Text style={{ marginHorizontal: 12, color: colors.textLight, fontSize: 12, fontWeight: '600' }}>o</Text>
+              <PaperDivider style={{ flex: 1 }} />
+            </View>
+
+            <Button
+              mode="outlined" 
+              icon="google"
+              onPress={() => promptAsync()}
+              disabled={!request || loading}
+              style={[globalStyles.buttonOutline, {marginTop: 0}]}
+              contentStyle={{ paddingVertical: 2 }}
+            >
+              Continuar con Google
+            </Button>
+
+             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 16 }}>
+              <Text style={{ color: colors.textLight, fontSize: 14 }}>¿No tienes una cuenta? </Text>
+              <TouchableOpacity onPress={irARegistro}>
+                <Text style={[globalStyles.link, { fontSize: 14 }]}>Regístrate</Text>
+              </TouchableOpacity>
+            </View>
+
           </View>
-        </Animated.View>
-      </View>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center' 
-  },
-  overlayScrim: {
-    backgroundColor: 'rgba(0, 0, 0, 0.25)', // Capa de cine que unifica los tonos y descansa la vista
-    zIndex: 1,
-  },
-  content: { 
-    alignItems: 'center', 
-    zIndex: 10 
-  },
-  avatarShadowContainer: {
-    // Sutil efecto de elevación bajo el robot
-    // shadowColor: '#00EAFF',r
-    // shadowOffset: { width: 0, height: 12 },
-    // shadowOpacity: 0.2,
-    // shadowRadius: 16,
-    // elevation: 10,
-  },
-  loadingText: { 
-    fontSize: 15, 
-    fontWeight: '600', 
-    textAlign: 'center', 
-    letterSpacing: 0.6,
-    minHeight: 24,
-    // Sombra de texto suave de protección (text shadow) para que no se pierda jamás con el fondo
-    textShadowColor: 'rgba(0, 0, 0, 0.4)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
-  },
-  loaderBarContainer: { 
-    width: 140, 
-    height: 3, // Más fina = más minimalista y elegante
-    borderRadius: 1.5, 
-    marginTop: 22, 
-    overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-  },
-  loaderProgress: { 
-    width: '45%', 
-    height: '100%', 
-    borderRadius: 1.5 
-  }
-});
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
+  );}
