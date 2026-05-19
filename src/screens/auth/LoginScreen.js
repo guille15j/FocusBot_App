@@ -15,10 +15,12 @@ import { getColors, getglobalStyles } from '../../theme/theme';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { AuthService } from '../../api/apiService';
 import BotIcon from '../../components/BotIcon';
+import GoogleWebButton from '../../components/GoogleWebButton';
 
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as AuthSession from 'expo-auth-session';
+
 
 // SOLO en móvil
 if (Platform.OS !== 'web') {
@@ -209,17 +211,20 @@ export default function LoginScreen({ navigation }) {
               <PaperDivider style={{ flex: 1 }} />
             </View>
 
-            <Button
-              mode="outlined"
-              icon="google"
-              onPress={handleGooglePress}
-              disabled={!request || loading}
-              style={[globalStyles.buttonOutline, { marginTop: 0 }]}
-              contentStyle={{ paddingVertical: 2 }}
-            >
-              Continuar con Google
-            </Button>
-
+            {Platform.OS === 'web' ? (
+  <GoogleWebButton onSuccess={(token) => signIn(token)} />
+) : (
+  <Button
+    mode="outlined"
+    icon="google"
+    onPress={handleGooglePress} // solo móvil
+    disabled={!request || loading}
+    style={[globalStyles.buttonOutline, { marginTop: 0 }]}
+    contentStyle={{ paddingVertical: 2 }}
+  >
+    Continuar con Google
+  </Button>
+)}
             <View
               style={{
                 flexDirection: 'row',
