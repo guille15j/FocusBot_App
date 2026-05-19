@@ -16,12 +16,12 @@ const UserHeader = ({ user, navigation }) => {
 
   if (!user) return null;
   else {
-    console.log("--- DEBUG FOTO ---");
-    console.log("¿Existe objeto user?:", !!user);
-    console.log("¿Tiene profile_img?:", !!user?.profile_img);
-    console.log("Longitud del string:", user?.profile_img?.length);
-    console.log("Comienzo del string:", user?.profile_img?.substring(0, 50));
-    console.log("------------------");
+    // console.log("--- DEBUG FOTO ---");
+    // console.log("¿Existe objeto user?:", !!user);
+    // console.log("¿Tiene profile_img?:", !!user?.profile_img);
+    // console.log("Longitud del string:", user?.profile_img?.length);
+    // console.log("Comienzo del string:", user?.profile_img?.substring(0, 50));
+    // console.log("------------------");
   }
 
   const ejecutarLogout = async () => {
