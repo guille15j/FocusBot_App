@@ -46,6 +46,7 @@ export default function LoginScreen({ navigation }) {
 
   useEffect(() => {
   console.log('Response recibido');
+  console.log(response);
   if (response?.type === 'success') {
     const idToken =
       response.authentication?.idToken ||   // móvil
