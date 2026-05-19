@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
-import { Button } from 'react-native-paper';
 import { AuthService } from '../api/apiService';
 
-export default function GoogleWebButton({ onSuccess, colors, globalStyles }) {
+export default function GoogleWebButton({ onSuccess }) {
 
   useEffect(() => {
+    /* Cargar script de Google */
     const script = document.createElement('script');
     script.src = "https://accounts.google.com/gsi/client";
     script.async = true;
@@ -17,32 +17,37 @@ export default function GoogleWebButton({ onSuccess, colors, globalStyles }) {
         callback: async (response) => {
           const credential = response.credential;
           const res = await AuthService.googleLoggin(credential);
-
+          
           console.log("Respuesta backend Google:", res);
-          onSuccess(res.token, res.user);
+          
+          console.log("USUARIO:", res.user);
+          onSuccess(res.token, res.user); //NUESTRO SINGING
+
         }
       });
 
-      // Renderizamos el botón nativo pero lo ocultamos
       window.google.accounts.id.renderButton(
-        document.getElementById("googleHiddenBtn"),
+        document.getElementById("googleBtn"),
         { theme: "outline", size: "large" }
       );
     };
   }, []);
 
-  const handleCustomGoogleLogin = () => {
-    const hiddenBtn = document
-      .getElementById("googleHiddenBtn")
-      ?.querySelector("div");
-
-    if (hiddenBtn) hiddenBtn.click();
-  };
-
   return (
     <>
       {/* Botón nativo oculto */}
-      <div id="googleHiddenBtn" style={{ display: "none" }}></div>
+      <div
+  id="googleHiddenBtn"
+  style={{
+    opacity: 0,
+    pointerEvents: "none",
+    position: "absolute",
+    width: 1,
+    height: 1,
+    overflow: "hidden"
+  }}
+></div>
+
 
       {/* Botón bonito con tus estilos */}
       <Button
@@ -58,7 +63,7 @@ export default function GoogleWebButton({ onSuccess, colors, globalStyles }) {
         labelStyle={{
           fontSize: 16,
           fontWeight: '600',
-          color: colors.primary
+          color: colors.text
         }}
       >
         Continuar con Google
