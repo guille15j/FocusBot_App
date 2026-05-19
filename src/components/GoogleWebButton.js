@@ -49,7 +49,8 @@ export default function GoogleWebButton({ onSuccess, colors, globalStyles }) {
           position: "absolute",
           width: 1,
           height: 1,
-          overflow: "hidden"
+          overflow: "hidden",
+          zIndex: 100
         }}
       ></div>
 
