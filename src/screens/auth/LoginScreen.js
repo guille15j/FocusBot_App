@@ -45,18 +45,23 @@ export default function LoginScreen({ navigation }) {
   });
 
   useEffect(() => {
-    if (response?.type === 'success') {
-      const idToken = response.authentication?.idToken;
-      if (!idToken) {
-        console.log('No se recibió idToken en la respuesta de Google', response);
-        setLoading(false);
-        return;
-      }
-      manejarLoginGoogle(idToken);
-    } else if (response?.type === 'error' || response?.type === 'cancel') {
+  if (response?.type === 'success') {
+    const idToken =
+      response.authentication?.idToken ||   // móvil
+      response.params?.id_token;            // web
+
+    if (!idToken) {
+      console.log("No se recibió idToken", response);
       setLoading(false);
+      return;
     }
-  }, [response]);
+
+    manejarLoginGoogle(idToken);
+  } else if (response?.type === 'error' || response?.type === 'cancel') {
+    setLoading(false);
+  }
+}, [response]);
+
 
 
   const manejarLoginGoogle = async (token) => {
