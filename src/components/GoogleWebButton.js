@@ -66,7 +66,7 @@ export default function GoogleWebButton({ onSuccess, colors, globalStyles }) {
         labelStyle={{
           fontSize: 16,
           fontWeight: '600',
-          color: colors.primary
+          color: colors.text
         }}
       >
         Continuar con Google
