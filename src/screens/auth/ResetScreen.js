@@ -21,7 +21,7 @@ import { AuthService } from '../../api/apiService';
 
 export default function ResetScreen({ navigation }) {
   const scheme = useColorScheme();
-  const { isWeb } = useResponsiveLayout();
+  const { isWeb, platform } = useResponsiveLayout();
   
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
@@ -88,7 +88,7 @@ export default function ResetScreen({ navigation }) {
     
       <KeyboardAvoidingView 
         style={isWeb ? globalStyles.authContainer_web : globalStyles.authContainer}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={platform === 'ios' ? 'padding' : 'height'}
       >
         <View style={globalStyles.form} elevation={4}>
           

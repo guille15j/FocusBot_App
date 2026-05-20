@@ -6,6 +6,7 @@ import { Drawer, IconButton, Surface } from 'react-native-paper';
 // Rutas relativas correctas desde src/navigation/ hacia el resto de carpetas
 import { getColors } from '../theme/theme';
 import { AuthContext } from '../context/AuthContext';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 const { width } = Dimensions.get('window');
 const isLargeScreen = width >= 768;
@@ -20,7 +21,7 @@ export default function BottomNav({ navigation }) {
     return route?.name || 'Home';
   });
 
-  const isWeb = Platform.OS === 'web';
+  const { isWeb, platform } = useResponsiveLayout();
   const useSidebar = isWeb && isLargeScreen;
   const { signOut } = useContext(AuthContext);
 
@@ -122,7 +123,7 @@ export default function BottomNav({ navigation }) {
 
 const getStyles = (colors, useSidebar) => StyleSheet.create({
   sidebarContainer: {
-    position: isLargeScreen && Platform.OS === 'web' ? 'fixed' : 'absolute',
+    position: isLargeScreen && isWeb ? 'fixed' : 'absolute',
     top: 0, 
     left: 0,
     bottom: 0,
@@ -168,11 +169,11 @@ const getStyles = (colors, useSidebar) => StyleSheet.create({
     borderTopColor: colors.border || 'rgba(0,0,0,0.05)',
   },
   bottomBar: {
-    height: Platform.OS === 'ios' ? 76 : 64,
+    height: platform === 'ios' ? 76 : 64,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingBottom: Platform.OS === 'ios' ? 16 : 0,
+    paddingBottom: platform === 'ios' ? 16 : 0,
   },
   bottomBarBtn: {
     flex: 1,

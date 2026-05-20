@@ -11,17 +11,18 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { getColors } from '../../theme/theme';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 const DatePicker = ({ label, mode = 'date', value, onChange }) => {
   const scheme = useColorScheme();
   const AppColors = useMemo(() => getColors(scheme), [scheme]);
-
+  const { isWeb, platform } = useResponsiveLayout();
   const [show, setShow] = useState(false);
   const [currentMode, setCurrentMode] = useState(mode);
   const [tempDate, setTempDate] = useState(value instanceof Date ? value : new Date());
 
   const handleOnChange = (event, selectedDate) => {
-    if (event.type === 'dismissed' && Platform.OS === 'android') {
+    if (event.type === 'dismissed' && platform === 'android') {
       setShow(false);
       setCurrentMode(mode);
       return;
@@ -29,7 +30,7 @@ const DatePicker = ({ label, mode = 'date', value, onChange }) => {
 
     const currentDate = selectedDate || value;
 
-    if (Platform.OS === 'android') {
+    if (platform === 'android') {
       if (mode === 'datetime' && currentMode === 'date') {
         setCurrentMode('time');
         onChange(currentDate);
@@ -44,13 +45,13 @@ const DatePicker = ({ label, mode = 'date', value, onChange }) => {
   };
 
   const showPicker = () => {
-    if (Platform.OS === 'ios') {
+    if (platform === 'ios') {
       setTempDate(value instanceof Date ? value : new Date());
       setCurrentMode(mode);
     }
     setShow(true);
 
-    if (Platform.OS === 'android' && mode === 'datetime') {
+    if (platform === 'android' && mode === 'datetime') {
       setCurrentMode('date');
     }
   };
@@ -93,7 +94,7 @@ const DatePicker = ({ label, mode = 'date', value, onChange }) => {
         </Text>
       </Pressable>
 
-      {Platform.OS === 'ios' && (
+      {platform === 'ios' && (
         <Modal visible={show} transparent animationType="slide">
           <View style={styles.modalOverlay}>
             <View style={[styles.modalContent, { backgroundColor: scheme === 'dark' ? '#2C2C2C' : 'white' }]}>
@@ -125,7 +126,7 @@ const DatePicker = ({ label, mode = 'date', value, onChange }) => {
         </Modal>
       )}
 
-      {Platform.OS === 'android' && show && (
+      {platform === 'android' && show && (
         <DateTimePicker
           value={value instanceof Date ? value : new Date()}
           mode={currentMode === 'datetime' ? 'date' : currentMode}

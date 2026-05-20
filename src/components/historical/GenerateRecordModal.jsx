@@ -170,7 +170,7 @@ const GenerateRecordModal = ({ visible, onDismiss, onGenerate }) => {
           <DateTimePicker
             value={showPicker.startsWith('start') ? startDate : endDate}
             mode={showPicker.endsWith('date') ? 'date' : 'time'}
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            display={platform === 'ios' ? 'spinner' : 'default'}
             onChange={onChangeNative}
             maximumDate={new Date()}
           />

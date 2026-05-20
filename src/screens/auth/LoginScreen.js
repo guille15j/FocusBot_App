@@ -22,7 +22,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import * as AuthSession from 'expo-auth-session';
 
 
-const { isWeb } = useResponsiveLayout();
+const { isWeb, platform} = useResponsiveLayout();
 // SOLO en móvil
 if (isWeb) {
   WebBrowser.maybeCompleteAuthSession();
@@ -135,7 +135,7 @@ export default function LoginScreen({ navigation }) {
     >
       <KeyboardAvoidingView
         style={isWeb ? globalStyles.authContainer_web : globalStyles.authContainer}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={platform === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
           <View style={globalStyles.form} elevation={4}>
