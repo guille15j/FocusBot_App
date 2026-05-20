@@ -5,12 +5,12 @@ import { useResponsiveLayout } from '../hooks/useResponsiveLayout';
 
 const AnimatedG = Animated.createAnimatedComponent(G);
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
-const { isWeb, platform } = useResponsiveLayout();
 
 // 🚀 EXPORTACIÓN NOMBRADA (Satisface el import { BotIcon } de tu LoadingScreen)
 export const BotIcon = ({ size = 240, loading = false, state = 'IDLE' }) => {
   const scale = size / 240;
-
+  
+  const { isWeb, platform } = useResponsiveLayout();
   const rotationAnim = useRef(new Animated.Value(0)).current;
   const blinkAnim = useRef(new Animated.Value(60)).current; 
 

@@ -22,17 +22,15 @@ import * as Google from 'expo-auth-session/providers/google';
 import * as AuthSession from 'expo-auth-session';
 
 
-const { isWeb, platform} = useResponsiveLayout();
-// SOLO en móvil
-if (isWeb) {
+if (Platform.OS === 'web') {
   WebBrowser.maybeCompleteAuthSession();
 }
 
 export default function LoginScreen({ navigation }) {
   const scheme = useColorScheme();
   const colors = useMemo(() => getColors(scheme), [scheme]);
+  const { isWeb, platform} = useResponsiveLayout();
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);

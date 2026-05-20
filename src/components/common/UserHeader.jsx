@@ -6,14 +6,14 @@ import { AuthContext } from '../../context/AuthContext';
 import { BotIcon } from '../BotIcon';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
- const { isWeb, platform } = useResponsiveLayout();
+
 
 const UserHeader = ({ user, navigation }) => {
   const scheme = useColorScheme();
   const colors = useMemo(() => getColors(scheme), [scheme]);
- 
+  const { isWeb, platform } = useResponsiveLayout();
   const { signOut } = useContext(AuthContext);
-  const styles = useMemo(() => getStyles(colors), [colors]);
+  const styles = useMemo(() => getStyles(colors, isWeb), [colors]);
 
   if (!user) return null;
   else {
@@ -92,7 +92,7 @@ const UserHeader = ({ user, navigation }) => {
 };
 
 
-const getStyles = (colors) => StyleSheet.create({
+const getStyles = (colors, isWeb) => StyleSheet.create({
   topBarContainer: {
     backgroundColor: isWeb ? 'transparent' : colors.surface,
     borderRadius: isWeb ? 0 : 20,

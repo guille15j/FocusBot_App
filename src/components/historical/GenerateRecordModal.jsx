@@ -7,14 +7,14 @@ import { getColors } from '../../theme/theme';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-// Importación condicional segura para evitar errores de compilación en entornos web
-const { isWeb, platform } = useResponsiveLayout();
-const DateTimePicker = !isWeb ? require('@react-native-community/datetimepicker').default : null;
 
 const GenerateRecordModal = ({ visible, onDismiss, onGenerate }) => {
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
   const colors = useMemo(() => getColors(scheme), [scheme]);
+  
+  const { isWeb, platform } = useResponsiveLayout();
+  const DateTimePicker = !isWeb ? require('@react-native-community/datetimepicker').default : null;
 
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
@@ -192,7 +192,7 @@ const GenerateRecordModal = ({ visible, onDismiss, onGenerate }) => {
 };
 
 const styles = StyleSheet.create({
-  modal: { margin: 20, padding: 24, borderRadius: 28, maxWidth: 500, alignSelf: 'center', width: isWeb ? '100%' : 'auto' },
+  modal: { margin: 20, padding: 24, borderRadius: 28, maxWidth: 500, alignSelf: 'center', width: Platform.OS === 'web' ? '100%' : 'auto' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   title: { fontSize: 22, fontWeight: 'bold' },
   description: { fontSize: 14, marginBottom: 25, lineHeight: 20 },
