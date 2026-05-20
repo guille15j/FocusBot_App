@@ -1,9 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, View, StyleSheet, Platform } from 'react-native';
 import Svg, { Path, Circle, G, Defs, LinearGradient, Stop, Rect, ClipPath } from 'react-native-svg';
+import { useResponsiveLayout } from '../hooks/useResponsiveLayout';
 
 const AnimatedG = Animated.createAnimatedComponent(G);
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
+const { isWeb, platform } = useResponsiveLayout();
 
 // 🚀 EXPORTACIÓN NOMBRADA (Satisface el import { BotIcon } de tu LoadingScreen)
 export const BotIcon = ({ size = 240, loading = false, state = 'IDLE' }) => {
@@ -28,12 +30,12 @@ export const BotIcon = ({ size = 240, loading = false, state = 'IDLE' }) => {
           toValue: 1,
           duration: 2000,
           easing: Easing.linear,
-          useNativeDriver: Platform.OS !== 'web',
+          useNativeDriver: !isWeb,
         })
       );
       rotationLoop.start();
     } else {
-      Animated.timing(rotationAnim, { toValue: 0, duration: 300, useNativeDriver: Platform.OS !== 'web' }).start();
+      Animated.timing(rotationAnim, { toValue: 0, duration: 300, useNativeDriver: !isWeb }).start();
     }
 
     if (state === 'IDLE') {

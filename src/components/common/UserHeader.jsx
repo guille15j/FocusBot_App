@@ -4,11 +4,14 @@ import { Avatar, Text, IconButton } from 'react-native-paper';
 import { getColors } from '../../theme/theme';
 import { AuthContext } from '../../context/AuthContext';
 import { BotIcon } from '../BotIcon';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+
+ const { isWeb, platform } = useResponsiveLayout();
 
 const UserHeader = ({ user, navigation }) => {
   const scheme = useColorScheme();
   const colors = useMemo(() => getColors(scheme), [scheme]);
-  const isWeb = Platform.OS === 'web';
+ 
   const { signOut } = useContext(AuthContext);
 
   // 🚀 OPTIMIZACIÓN: Memorizamos los estilos acoplados al tema para evitar recrearlos en cada render
@@ -91,21 +94,21 @@ const UserHeader = ({ user, navigation }) => {
   );
 };
 
-// 🚀 ESTILOS DINÁMICOS OPTIMIZADOS
+
 const getStyles = (colors) => StyleSheet.create({
   topBarContainer: {
-    backgroundColor: Platform.OS === 'web' ? 'transparent' : colors.surface,
-    borderRadius: Platform.OS === 'web' ? 0 : 20, // 🚀 Ajustado de 60 a 20 para albergar mejor el diseño de tarjetas angulares del listado
-    marginHorizontal: Platform.OS === 'web' ? 0 : 16,
-    marginTop: Platform.OS === 'web' ? 0 : 8,
-    marginBottom: Platform.OS === 'web' ? 0 : 12,
+    backgroundColor: isWeb ? 'transparent' : colors.surface,
+    borderRadius: isWeb ? 0 : 20,
+    marginHorizontal: isWeb ? 0 : 16,
+    marginTop: isWeb ? 0 : 8,
+    marginBottom: isWeb ? 0 : 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    elevation: Platform.OS === 'web' ? 0 : 2, // Bajado de 5 a 2 para mantener homogeneidad con el resto de la app
-    shadowColor: Platform.OS === 'web' ? 'transparent' : '#000',
-    shadowOffset: Platform.OS === 'web' ? { width: 0, height: 0 } : { width: 0, height: 2 },
-    shadowOpacity: Platform.OS === 'web' ? 0 : 0.08,
-    shadowRadius: Platform.OS === 'web' ? 0 : 3,
+    elevation: isWeb ? 0 : 2, 
+    shadowColor: isWeb ? 'transparent' : '#000',
+    shadowOffset: isWeb ? { width: 0, height: 0 } : { width: 0, height: 2 },
+    shadowOpacity:isWeb ? 0 : 0.08,
+    shadowRadius: isWeb? 0 : 3,
   },
   userContainer: {
     flexDirection: 'row',

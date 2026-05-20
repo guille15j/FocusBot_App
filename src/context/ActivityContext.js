@@ -67,12 +67,12 @@ export const ActivityProvider = ({ children }) => {
         }
     };
 
-    // 2. EDITAR: Buscamos en el array local y cambiamos los campos al recibir 200
+    // EDITAR actividad, debemos de contemplar la edicion del tipo no solo de los campos de la actividad
     const updateActivity = async (id, updatedData) => {
         try {
             await ActivityService.updateActivity(id, updatedData);
             
-            // Editamos el contexto localmente de forma inmediata
+            // Editamos el contexto localmente de forma inmediata 
             setActivities(prev => prev.map(act => 
                 act.activity_id === id 
                     ? { ...act, ...updatedData } 

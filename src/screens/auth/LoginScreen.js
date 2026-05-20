@@ -22,14 +22,14 @@ import * as Google from 'expo-auth-session/providers/google';
 import * as AuthSession from 'expo-auth-session';
 
 
+const { isWeb } = useResponsiveLayout();
 // SOLO en móvil
-if (Platform.OS !== 'web') {
+if (isWeb) {
   WebBrowser.maybeCompleteAuthSession();
 }
 
 export default function LoginScreen({ navigation }) {
   const scheme = useColorScheme();
-  const { isWeb } = useResponsiveLayout();
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
 
@@ -41,7 +41,7 @@ export default function LoginScreen({ navigation }) {
 
   // Redirect fijo en Web, dinámico en móvil
   const redirectUri =
-    Platform.OS === 'web'
+    isWeb
       ? 'https://focus-bot-app-web.vercel.app'
       : AuthSession.makeRedirectUri({ scheme: 'focusapp' });
 
@@ -116,11 +116,9 @@ export default function LoginScreen({ navigation }) {
   const handleGooglePress = () => {
     if (!request || loading) return;
 
-    if (Platform.OS === 'web') {
-      // 🔥 Web: redirección en la misma pestaña (NO popup)
+    if (isWeb) {
       promptAsync({ useProxy: false, redirectUri });
     } else {
-      // 🔥 Móvil: popup normal
       promptAsync();
     }
   };
@@ -211,7 +209,7 @@ export default function LoginScreen({ navigation }) {
               <PaperDivider style={{ flex: 1 }} />
             </View>
 
-            {Platform.OS === 'web' ? (
+            {isWeb ? (
               <GoogleWebButton
                 nSuccess={(token, user) => signIn(token, user)}
                 colors={colors}

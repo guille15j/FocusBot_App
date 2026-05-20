@@ -119,14 +119,14 @@ export default function ProfilePage({ navigation }) {
       setIsEditing(false);
       
       // Adaptación multiplataforma para alertas
-      if (Platform.OS === 'web') {
+      if (isWeb) {
         alert("Perfil actualizado correctamente");
       } else {
         Alert.alert("Éxito", "Perfil actualizado correctamente");
       }
     } catch (error) {
       console.error("ERROR CRÍTICO EN ACTUALIZACIÓN:", error);
-      if (Platform.OS === 'web') {
+      if (isWeb) {
         alert("Ocurrió un fallo al sincronizar los datos locales.");
       } else {
         Alert.alert("Error", "Ocurrió un fallo al sincronizar los datos locales.");
@@ -144,7 +144,7 @@ export default function ProfilePage({ navigation }) {
   const seleccionarImagen = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      if (Platform.OS === 'web') alert('Necesitamos acceso a tus fotos.');
+      if (isWeb) alert('Necesitamos acceso a tus fotos.');
       else Alert.alert('Permiso denegado', 'Necesitamos acceso a tus fotos.');
       return;
     }

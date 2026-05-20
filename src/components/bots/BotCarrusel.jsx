@@ -11,12 +11,13 @@ import {
 import { IconButton, Surface, Text } from 'react-native-paper';
 import { getColors } from '../../theme/theme';
 import BotCard from './BotCard';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 const BotCarousel = ({ bots = [], onAddPress, onIndexChange, addProp = false }) => {
   const scheme = useColorScheme();
   const AppColors = useMemo(() => getColors(scheme), [scheme]);
   const { width: windowWidth } = useWindowDimensions();
-  const isWeb = Platform.OS === 'web';
+  const { isWeb, platform } = useResponsiveLayout();
 
   // Configuración de dimensiones calculadas con precisión
   const CARD_WIDTH = isWeb ? windowWidth * 0.5 : windowWidth * 0.82;

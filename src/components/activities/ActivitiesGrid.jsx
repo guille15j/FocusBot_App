@@ -2,10 +2,11 @@ import React, { useState, useRef, useMemo } from 'react';
 import { View, StyleSheet, useWindowDimensions, Pressable, Animated, Platform } from 'react-native';
 import { Text, IconButton } from 'react-native-paper';
 import ActivityCard from './ActivityCard';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, opened = true }) => {
   const { width } = useWindowDimensions();
-  
+  const { isWeb, platform } = useResponsiveLayout();
   const [isExpanded, setIsExpanded] = useState(opened);
   const [shouldRender, setShouldRender] = useState(opened);
   
@@ -23,7 +24,7 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
       Animated.timing(animatedValue, {
         toValue: 0,
         duration: 250,
-        useNativeDriver: Platform.OS !== 'web',
+        useNativeDriver: !isWeb,
       }).start(() => {
         setShouldRender(false);
       });
@@ -34,7 +35,7 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
       Animated.timing(animatedValue, {
         toValue: 1,
         duration: 300,
-        useNativeDriver: Platform.OS !== 'web',
+        useNativeDriver: !isWeb,
       }).start();
     }
   };

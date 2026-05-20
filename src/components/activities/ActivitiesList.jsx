@@ -3,11 +3,12 @@ import { View, StyleSheet, FlatList, useColorScheme, Platform } from 'react-nati
 import { Divider, Surface, Text, Icon } from 'react-native-paper';
 import { getColors } from '../../theme/theme';
 import ActivityListTile from './ActivityListTile';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 const ActivitiesList = ({ activities = [], onActivityPress, globalStyles }) => {
   const scheme = useColorScheme();
   const colors = useMemo(() => getColors(scheme), [scheme]);
-  const isWeb = Platform.OS === 'web';
+  const { isWeb, platform } = useResponsiveLayout();
 
   const renderItem = ({ item }) => (
     <ActivityListTile 
