@@ -6,7 +6,7 @@ import { Drawer, IconButton, Surface } from 'react-native-paper';
 // Rutas relativas correctas desde src/navigation/ hacia el resto de carpetas
 import { getColors } from '../theme/theme';
 import { AuthContext } from '../context/AuthContext';
-import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import { useResponsiveLayout } from '../hooks/useResponsiveLayout';
 
 const { width } = Dimensions.get('window');
 const isLargeScreen = width >= 768;
