@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "FocusApp_Correciones",
-    "slug": "FocusApp_Correciones",
+    "name": "FocusApp",
+    "slug": "FocusApp",
     "version": "1.0.0",
     "scheme": "focusapp",
     "orientation": "portrait",
@@ -15,6 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.guille15j.FocusApp_V01",
       "infoPlist": {
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
