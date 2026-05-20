@@ -209,7 +209,7 @@ export default function LoginScreen({ navigation }) {
 
             {isWeb ? (
               <GoogleWebButton
-                nSuccess={(token, user) => signIn(token, user)}
+                onSuccess={(token, user) => signIn(token, user)}
                 colors={colors}
                 globalStyles={globalStyles}
               />
