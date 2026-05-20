@@ -54,7 +54,6 @@ export default function ProfilePage({ navigation }) {
   const [timezoneMenuVisible, setTimezoneMenuVisible] = useState(false);
   const [errors, setErrors] = useState({});
 
-  // 🚀 Sincronizar y resetear campos cuando el usuario cambia o se cancela la edición
   const resetFormFields = () => {
     setFirstName(user?.first_name || '');
     setLastName(user?.last_name || '');

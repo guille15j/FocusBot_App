@@ -32,7 +32,6 @@ export default function LoadingScreen() {
   useEffect(() => {
     let isMounted = true;
 
-    // 🚀 Escala del fondo suavizada (máximo 1.05) para un efecto premium sutil
     const pulseLoop = Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, { toValue: 1.05, duration: 4000, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),

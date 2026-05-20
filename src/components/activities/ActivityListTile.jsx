@@ -30,7 +30,6 @@ const ActivityListTile = ({ item, onInfoPress, AppColors }) => {
   const rawState = item?.state ? String(item.state).toUpperCase().trim() : 'PENDIENTE';
   const stateColor = STATE_COLORS[rawState] || AppColors.placeholder;
 
-  // 🚀 Lógica de iconos y colores extraída limpiamente para legibilidad visual
   const isEnCurso = rawState === 'EN_CURSO' || rawState === 'EN CURSO';
   const isFinalizado = rawState === 'COMPLETADO' || rawState === 'CANCELADO';
 
@@ -94,12 +93,12 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     paddingVertical: 12, 
     paddingHorizontal: 16,
-    borderRadius: 16,          // 🚀 Modernizado a tarjetas suaves
-    marginVertical: 6,         // Margen entre elementos de la lista
-    marginHorizontal: 4,       // Separación sutil de los bordes de la pantalla
-    // borderWidth: 1,            // Borde premium sutil
-    // elevation: 1,              // Sombra ligera para Android
-    // shadowColor: '#000',       // Sombra ligera para iOS
+    borderRadius: 16,          
+    marginVertical: 6,         
+    marginHorizontal: 4,       
+    // borderWidth: 1,            
+    // elevation: 1,              
+    // shadowColor: '#000',       
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -125,7 +124,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     alignItems: 'center' 
   },
-  // 🚀 Nuevos estilos estéticos para la píldora de estado
   stateBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -146,7 +144,6 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     fontSize: 10,
   },
-  // 🚀 Nuevos estilos estéticos para el wrapper del botón de acción
   actionWrapper: {
     borderRadius: 22,
     width: 40,

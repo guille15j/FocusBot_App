@@ -13,8 +13,6 @@ const UserHeader = ({ user, navigation }) => {
   const colors = useMemo(() => getColors(scheme), [scheme]);
  
   const { signOut } = useContext(AuthContext);
-
-  // 🚀 OPTIMIZACIÓN: Memorizamos los estilos acoplados al tema para evitar recrearlos en cada render
   const styles = useMemo(() => getStyles(colors), [colors]);
 
   if (!user) return null;
@@ -32,7 +30,6 @@ const UserHeader = ({ user, navigation }) => {
     console.log("Sesión cerrada");
   };
 
-  // 🚀 UNIFICACIÓN: Fuente de la imagen de perfil optimizada para ambos entornos (Web y Móvil)
   const avatarSource = useMemo(() => {
     return user.profile_img 
       ? { uri: user.profile_img } 
