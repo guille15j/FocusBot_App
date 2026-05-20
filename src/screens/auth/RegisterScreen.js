@@ -12,7 +12,7 @@ import {
   Button,
   Text,
   Surface,
-  HelperText,
+  HelperText, 
 } from 'react-native-paper';
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from 'expo-linear-gradient';
