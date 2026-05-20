@@ -327,7 +327,17 @@ export default function CreateActivityScreen({ navigation, route }) {
           </View>
 
 
-          <Button mode="contained" onPress={activity ? handleEdit :handleSave} loading={loading} style={[globalStyles.button, { flex: 1 }]} buttonColor={colors.primary} textColor={colors.background} icon='playlist-plus'>Crear</Button>
+          <Button mode="contained" 
+            onPress={activity ? handleEdit :handleSave} 
+            loading={loading} style={[globalStyles.button, { flex: 1 }]} 
+            buttonColor={colors.primary} 
+            textColor={colors.background} 
+            icon={activity ? 'save' : 'playlist-plus'}
+          >
+            {activity ? 'Guardar Cambios' : 'Crear'}
+            
+            
+          </Button>
 
 
         </ScrollView>
