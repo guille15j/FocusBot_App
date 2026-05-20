@@ -229,12 +229,14 @@ export default function LoginScreen({ navigation }) {
                 Continuar con Google
               </Button>
             )}
+
             <View
               style={{
                 flexDirection: 'row',
                 justifyContent: 'center',
                 alignItems: 'center',
-                marginTop: 16,
+                // marginTop: 16,
+                
               }}
             >
               <Text style={{ color: colors.textLight, fontSize: 14 }}>¿No tienes una cuenta? </Text>
