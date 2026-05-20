@@ -13,7 +13,7 @@ const UserHeader = ({ user, navigation }) => {
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const { isWeb, platform } = useResponsiveLayout();
   const { signOut } = useContext(AuthContext);
-  const styles = useMemo(() => getStyles(colors, isWeb), [colors]);
+  const styles = useMemo(() => getStyles(colors, isWeb), [colors, isWeb]);
 
   if (!user) return null;
   else {
@@ -105,7 +105,7 @@ const getStyles = (colors, isWeb) => StyleSheet.create({
     shadowColor: isWeb ? 'transparent' : '#000',
     shadowOffset: isWeb ? { width: 0, height: 0 } : { width: 0, height: 2 },
     shadowOpacity:isWeb ? 0 : 0.08,
-    shadowRadius: isWeb? 0 : 3,
+    shadowRadius: isWeb ? 0 : 3,
   },
   userContainer: {
     flexDirection: 'row',
