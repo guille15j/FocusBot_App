@@ -61,8 +61,8 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
 
   const getActionButtonConfig = () => {
     if (!activity) return null;
-    if (activity.state === 'EN_CURSO') return { icon: 'pause', label: 'Pausar', action: 'pause' };
-    if (activity.state === 'PAUSADO') return { icon: 'play', label: 'Reanudar', action: 'resume' };
+    // if (activity.state === 'EN_CURSO') return { icon: 'pause', label: 'Pausar', action: 'pause' };
+    // if (activity.state === 'PAUSADO') return { icon: 'play', label: 'Reanudar', action: 'resume' };
     if (['PENDIENTE', 'POSPUESTO'].includes(activity.state)) return { icon: 'play', label: 'Iniciar', action: 'start' };
     return null;
   };
@@ -340,7 +340,7 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
                 {actionConfig.label}
               </Button>
 
-              {activity.state === 'EN_CURSO' && (
+              {/* {activity.state === 'EN_CURSO' && (
                 <Button 
                   mode="contained" 
                   onPress={() => onActionPress && onActionPress('finish', activity)}
@@ -351,7 +351,7 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
                 >
                   Finalizar
                 </Button>
-              )}
+              )} */}
             </View>
           )}
 
