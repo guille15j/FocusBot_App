@@ -84,16 +84,16 @@ export default function BottomNav({ navigation }) {
           </Drawer.Section>
         </View>
         <View style={styles.sidebarFooter}>
-          <IconButton icon="help" size={24} iconColor={colors.placeholder} />
+          {/* Solo se mantiene el botón de cerrar sesión */}
           <IconButton icon="logout" size={24} iconColor={colors.placeholder} onPress={ejecutarLogout} />
         </View>
       </Surface>
     );
   }
 
-  // RENDERIZADO PARA MÓVIL (BARRA INFERIOR)
+  // RENDERIZADO PARA MÓVIL (BARRA INFERIOR FLOTANTE)
   return (
-    <Surface style={styles.bottomBarContainer} elevation={4}>
+    <Surface style={styles.bottomBarContainer} elevation={8}>
       <View style={styles.bottomBar}>
         {navItems_app.map((item) => {
           const isActive = item.name === 'Activities' ? isActivityRelated : currentRouteName === item.name;
@@ -105,12 +105,12 @@ export default function BottomNav({ navigation }) {
               style={styles.bottomBarBtn}
               activeOpacity={0.7}
             >
-              <View style={isActive ? styles.activeWrapper : null}>
+              <View style={[styles.iconContainer, isActive && styles.activeIconContainer]}>
                 <IconButton
                   icon={isActive ? item.icon : item.iconOutline}
                   iconColor={isActive ? (colors.background || '#ffffff') : (colors.placeholder || '#757575')}
-                  size={isActive ? 28 : 24}
-                  style={isActive ? styles.iconActive : styles.iconBase}
+                  size={isActive ? 26 : 22}
+                  style={styles.iconBase}
                 />
               </View>
             </TouchableOpacity>
@@ -122,6 +122,7 @@ export default function BottomNav({ navigation }) {
 }
 
 const getStyles = (colors, useSidebar, platform, isWeb) => StyleSheet.create({
+  // Estilos para WEB (sidebar)
   sidebarContainer: {
     position: isLargeScreen && isWeb ? 'fixed' : 'absolute',
     top: 0, 
@@ -159,38 +160,54 @@ const getStyles = (colors, useSidebar, platform, isWeb) => StyleSheet.create({
     alignItems: 'center',
     gap: 10
   },
-  bottomBarContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.border || 'rgba(0,0,0,0.05)',
-  },
+
+  // Estilos para MÓVIL (barra inferior flotante)
+bottomBarContainer: {
+  position: 'absolute',
+  bottom: Platform.OS === 'ios' ? 20 : 10,
+  left: 20,
+  right: 20,
+  height: 70,
+  borderRadius: 35,
+  backgroundColor: colors.surface,
+  borderColor: colors.background + '80',
+  borderWidth: 2,
+
+  // ANDROID (lo máximo que permite)
+  elevation: 24,
+
+  // iOS + WEB (sombra fuerte)
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 10 },
+  shadowOpacity: 0.35,
+  shadowRadius: 20,
+},
+
+
   bottomBar: {
-    height: platform === 'ios' ? 76 : 64,
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingBottom: platform === 'ios' ? 16 : 0,
+    paddingHorizontal: 10,
   },
   bottomBarBtn: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    height: '100%',
   },
-  activeWrapper: {
-    borderRadius: 100,
-    backgroundColor: 'transparent',
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  activeIconContainer: {
+    backgroundColor: colors.primary + '80', // Fondo semitransparente para la píldora activa
   },
   iconBase: {
-    backgroundColor: 'transparent',
     margin: 0,
   },
-  iconActive: {
-    backgroundColor: colors.primary,
-    borderRadius: 100,
-    margin: 0,
-  }
 });
