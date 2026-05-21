@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useContext} from 'react';
 import { View, ScrollView, StyleSheet, useColorScheme, Pressable, RefreshControl } from 'react-native';
 import { Text, Surface, Icon} from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -10,13 +10,15 @@ import RecordDetailModal from '../../components/historical/RecordDetailModal';
 import GenerateRecordModal from '../../components/historical/GenerateRecordModal';
 import { useHistory } from '../../hooks/useHistory';
 
+import RecommendationButton  from '../../components/common/RecommendationButton';
+
 export default function HistoricalRecords({ navigation }) {
   const scheme = useColorScheme();
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(colors), [colors]);
   const { isWeb, platform } = useResponsiveLayout();
 
-  const { records = [], weeklyDashboard, loading, refresh, createRecord } = useHistory();
+  const { records = [], weeklyDashboard, loading, refresh, createRecord, recomendaciones } = useHistory();
   const [activeTab, setActiveTab] = useState('Semana');
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
@@ -64,7 +66,10 @@ export default function HistoricalRecords({ navigation }) {
   return (
     <ScreenWrapper withScroll={false}>
       <View style={[isWeb ? globalStyles.container_web : globalStyles.container_movil, { flex: 1, backgroundColor: colors.background }]}>
-        <Text style={[globalStyles.tituloPagina, { marginTop: 8, marginBottom: 16 }]}>Historial</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' , marginRight: 16}}>
+            <Text style={[globalStyles.tituloPagina, { marginTop: 8, marginBottom: 16 }]}>Historial</Text>
+            <RecommendationButton size={2} />
+        </View>
 
         <ScrollView 
           onScroll={onScroll} 
@@ -133,7 +138,7 @@ export default function HistoricalRecords({ navigation }) {
                 <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: '#E5989B' }]} /><Text style={[styles.legendText, { color: colors.textLight }]}>Cancelado</Text></View>
               </View>
             </Surface>
-
+          
             <Text style={[styles.sectionTitle, { color: colors.textLight, marginTop: 24 }]}>Registros</Text>
             <View style={styles.tabBar}>
               {['Semana', 'Mes', 'Todos'].map(tab => (
@@ -153,7 +158,7 @@ export default function HistoricalRecords({ navigation }) {
                 </Pressable>
               ))}
             </View>
-
+            
             <Surface style={[styles.recordList, { backgroundColor: colors.surface, minHeight: filteredRecords.length === 0 ? 150 : 0 }]}>
               {filteredRecords.length === 0 ? (
                 <View style={styles.emptyListContainer}>

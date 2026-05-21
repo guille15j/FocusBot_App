@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useContext } from 'react';
 import { View, ScrollView, useColorScheme, StyleSheet, Alert, RefreshControl } from 'react-native';
 import { Text, Searchbar, Icon } from 'react-native-paper';
 import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
@@ -7,9 +7,10 @@ import { getColors, getglobalStyles } from '../../theme/theme';
 import CustomAnimatedFAB from '../../components/common/CustomAnimatedFAB';
 import ActivitiesGrid from '../../components/activities/ActivitiesGrid';
 import ActivityDetailModal from '../../components/activities/ActivityDetailModal';
+import RecommendationButton from '../../components/common/RecommendationButton';
 
-// CUSTOM HOOKS
-import { useActivities } from '../../hooks/useActivities';
+// CONTEXTOS
+import { ActivityContext } from '../../context/ActivityContext';
 
 export default function Activities({ navigation }) {
   const scheme = useColorScheme();
@@ -27,13 +28,7 @@ export default function Activities({ navigation }) {
     setIsExtended(nativeEvent.contentOffset.y <= 0);
   };
 
-  const { 
-    activities, 
-    loading, 
-    refresh, 
-    updateActivityState, 
-    deleteActivity 
-  } = useActivities(true);
+  const { activities, loading, refresh, updateActivityState, deleteActivity} = useContext(ActivityContext);
 
   // Filtro adaptativo que cubre tanto campos de título de mockups antiguos como esquemas name reales
   const actividadesFiltradas = useMemo(() => {
@@ -105,7 +100,10 @@ export default function Activities({ navigation }) {
   return (
     <ScreenWrapper withScroll={false}>
       <View style={isWeb ? globalStyles.container_web : globalStyles.container_movil}>
-        <Text style={[globalStyles.tituloPagina, styles.pageTitle]}>Actividades</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' , marginRight: 16}}>
+            <Text style={[globalStyles.tituloPagina, { marginTop: 8, marginBottom: 16 }]}>Actividades</Text>
+            <RecommendationButton size={1} />
+        </View>
         
         <Searchbar 
           placeholder="Buscar actividad..." 
@@ -113,12 +111,12 @@ export default function Activities({ navigation }) {
           value={searchQuery} 
           style={styles.searchBar} 
           inputStyle={styles.searchInput}
-          placeholderTextColor={colors.placeholder}
-          iconColor={colors.placeholder}
+          placeholderTextColor={colors.text}
+          iconColor={colors.primary}
           theme={{
             colors: {
               elevation: {
-                level3: colors.surfaceVariant || 'rgba(0,0,0,0.04)'
+                level3: colors.surface || 'rgba(0,0,0,0.04)'
               }
             }
           }}
@@ -171,10 +169,10 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     marginHorizontal: 16,
-    marginVertical: 12,
-    borderRadius: 16,
-    height: 48,
-    justifyContent: 'center',
+    marginVertical: 5,
+    borderRadius: 40,
+    // height: 48,
+    // justifyContent: 'center',
   },
   searchInput: {
     fontSize: 15,

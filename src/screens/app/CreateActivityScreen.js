@@ -7,6 +7,7 @@ import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { getColors, getglobalStyles } from '../../theme/theme';
 import BotCarousel from '../../components/bots/BotCarrusel';
+import RecommendationButton from '../../components/common/RecommendationButton';
 
 // CONTEXTOS
 import { BotContext } from '../../context/BotContext';
@@ -44,6 +45,9 @@ const ACTIVITY_TYPE_INFO = {
 };
 
 export default function CreateActivityScreen({ navigation, route }) {
+  const { addFullActivity, updateActivity, createType, loading } = useContext(ActivityContext);
+  const { bots } = useContext(BotContext);
+
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
   const { isWeb } = useResponsiveLayout();
@@ -51,32 +55,28 @@ export default function CreateActivityScreen({ navigation, route }) {
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
 
   const activity = route?.params?.activity || null;
-  const { bots } = useContext(BotContext);
-  const { addFullActivity, updateActivity, loading } = useContext(ActivityContext);
   const isEditing = activity !== null;
 
   const [selectedBot, setSelectedBot] = useState(activity?.bot_id || null);     // id bot
   const [title, setTitle] = useState(activity?.title || '');                    // titulo actividad
   const [category, setCategory] = useState(activity?.category || '');           // Categoria enumerador en bbdd
-  const [activityType, setActivityType] = useState(activity?.type.name_type ||'POMODORO');  // titulo tipo de actividad
+    // titulo tipo de actividad
   
   const [audioProfile, setAudioProfile] = useState(activity?.extra_data.audio || 'ninguno');                  // confiugracion de audio - extra_data en bbdd
   const [audioMenuVisible, setAudioMenuVisible] = useState(false);              
 
-  const [focusTime, setFocusTime] = useState(activity?.type.work_duration.toString() || '25');                             
-  const [shortBreak, setShortBreak] = useState(activity?.type.short_break.toString() || '5');
-  const [longBreak, setLongBreak] = useState(activity?.type.long_break.toString() || '15');
-  const [cyclesBeforeLong, setCyclesBeforeLong] = useState(activity?.type.cycles_before_long.toString() ||  '4');
-  const [totalCycles, setTotalCycles] = useState(activity?.extra_data.total_ciclos || 4); 
+  const [focusTime, setFocusTime] = useState(activity?.type?.work_duration?.toString() || '25');
+  const [shortBreak, setShortBreak] = useState(activity?.type?.short_break?.toString() || '5');
+  const [longBreak, setLongBreak] = useState(activity?.type?.long_break?.toString() || '15');
+  const [cyclesBeforeLong, setCyclesBeforeLong] = useState(activity?.type?.cycles_before_long?.toString() || '4');
+  const [totalCycles, setTotalCycles] = useState(activity?.extra_data?.total_ciclos || 4); 
+  const [timerHours, setTimerHours] = useState(activity?.type?.work_duration != null ? Math.floor(activity.type.work_duration / 60).toString() : '0');
+  const [timerMinutes, setTimerMinutes] = useState(activity?.type?.work_duration != null ? (activity.type.work_duration % 60).toString() : '25');
+  const [activityType, setActivityType] = useState(activity?.type?.name_type || 'POMODORO');
 
   const [hitos, setHitos] = useState(
-  activity?.extra_data?.hitos?.map(hito => ({ nombre: hito })) || [{ nombre: '' }]
-);
-
-  const [timerHours, setTimerHours] = useState(
-    activity? Math.floor(activity?.type.work_duration / 60).toString() : '0'
+    activity?.extra_data?.hitos?.map(hito => ({ nombre: hito })) || [{ nombre: '' }]
   );
-  const [timerMinutes, setTimerMinutes] = useState(activity? (activity?.type.work_duration % 60).toString() :'25');
 
   const [categoryMenuVisible, setCategoryMenuVisible] = useState(false);
   const [typeMenuVisible, setTypeMenuVisible] = useState(false);
@@ -101,52 +101,42 @@ export default function CreateActivityScreen({ navigation, route }) {
     }
 
     try {
-      // añadimos ya el audio que a extra data ya que no necesita verificacion
       const extra_data = { audio: audioProfile };
 
-      // filtro de tipo de actividad para añadir a extradata algo si le toca tmepo es el unico que no mete nada
       if (activityType === 'POMODORO') {
         extra_data.total_ciclos = parseInt(totalCycles, 10);
       } else if (activityType === 'HITO') {
         extra_data.hitos = hitos.map(h => h.nombre).filter(n => n.trim() !== '');
       }
 
-      if (activityType !== 'POMODORO') {
-        setShortBreak('0');
-        setCyclesBeforeLong('0');
-        setTotalCycles(0);
-        setLongBreak('0');
-      }
-
       const shortBreakValue = activityType === 'POMODORO' ? parseInt(shortBreak || 0) : 0;
       const longBreakValue  = activityType === 'POMODORO' ? parseInt(longBreak || 0)  : 0;
       const cyclesValue     = activityType === 'POMODORO' ? parseInt(cyclesBeforeLong || 4) : 0;
+      const workDuration = activityType === 'TEMPORIZADOR'
+          ? (parseInt(timerHours || 0) * 60 + parseInt(timerMinutes || 0))
+          : parseInt(focusTime || 0);
 
-      //configuramos el payload-mensaje que le vamos a amndar a al fucnion para que cree el cuerpo de la fucnion
-      const payload = {
-        title: title.trim(),  //titulo de la actividad
-        bot_id: selectedBot,  //id del bot a usar
-        category: category,   //enumerador de la cateogira
-        init_date: null,      //se rellenan luego
-        end_date: null,       // se rellenena luego
-        config: {             //parametros del activity type
+      // 1. Crear o reutilizar el tipo
+      const tipoResponse = await createType({
           name_type: activityType,
-          work_duration:      // es especial si es de tipo temporizador porque hay que parsear los dos campos
-          activityType === 'TEMPORIZADOR' ? (parseInt(timerHours || 0) * 60 + parseInt(timerMinutes || 0)) 
-            : parseInt(( activityType === 'POMODORO' ? focusTime : 0)), //si no estan rellenos es posible que sea porque no se usan y es necesario que esten a cero
+          work_duration: workDuration,
           short_break: shortBreakValue,
           long_break: longBreakValue,
           cycles_before_long: cyclesValue,
-        },
-        extra_data: extra_data
-      };
+      });
+      const nuevoTypeId = tipoResponse.id;
 
+      // 2. Crear la actividad con el type_id obtenido
       const botObjeto = bots.find(b => b.bot_id === selectedBot);
-      
-      await addFullActivity(payload, botObjeto);
-      navigation.goBack();
+      await addFullActivity({ 
+          title: title.trim(),
+          bot_id: selectedBot,
+          category: category,
+          type_id: nuevoTypeId,
+          extra_data: extra_data,
+      }, botObjeto);
 
-      
+      navigation.goBack();
     } catch (error) {
       Alert.alert('Error', error.message || 'Error al guardar');
     }
@@ -156,54 +146,60 @@ export default function CreateActivityScreen({ navigation, route }) {
     if (!title.trim() || !selectedBot || !category || !activityType) {
       Alert.alert('Error', 'Por favor, rellena los campos obligatorios.');
       return;
-    }
+    } 
 
     try {
-      // añadimos ya el audio que a extra data ya que no necesita verificacion
+      // 1. Preparar extra_data
       const extra_data = { audio: audioProfile };
-
-      // filtro de tipo de actividad para añadir a extradata algo si le toca tmepo es el unico que no mete nada
       if (activityType === 'POMODORO') {
-        extra_data.total_ciclos = parseInt(totalCycles, 10);
+          extra_data.total_ciclos = parseInt(totalCycles, 10);
       } else if (activityType === 'HITO') {
-        extra_data.hitos = hitos.map(h => h.nombre).filter(n => n.trim() !== '');
+          extra_data.hitos = hitos.map(h => h.nombre).filter(n => n.trim() !== '');
       }
 
-      //configuramos el payload-mensaje que le vamos a amndar a al fucnion para que cree el cuerpo de la fucnion
-      const payload = {
-        title: title.trim(),  //titulo de la actividad
-        bot_id: selectedBot,  //id del bot a usar
-        category: category,   //enumerador de la cateogira
-        config: {             //parametros del activity type
-          name_type: activityType,
-          work_duration:      // es especial si es de tipo temporizador porque hay que parsear los dos campos
-          activityType === 'TEMPORIZADOR' ? 
-            (parseInt(timerHours || 0) * 60 + parseInt(timerMinutes || 0)) 
-            : parseInt(focusTime || 0), //si no estan rellenos es posible que sea porque no se usan y es necesario que esten a cero
-          short_break: parseInt(shortBreak || 0),
-          long_break: parseInt(longBreak || 0),
-          cycles_before_long: parseInt(cyclesBeforeLong || 4),
-        },
-        extra_data: extra_data
-      };
-      
-      await updateActivity(activity.activity_id, payload);
-      navigation.goBack();
+      // 2. Calcular parámetros del tipo
+      const shortBreakValue = activityType === 'POMODORO' ? parseInt(shortBreak || 0) : 0;
+      const longBreakValue  = activityType === 'POMODORO' ? parseInt(longBreak || 0)  : 0;
+      const cyclesValue     = activityType === 'POMODORO' ? parseInt(cyclesBeforeLong || 4) : 0;
+      const workDuration = activityType === 'TEMPORIZADOR'
+          ? (parseInt(timerHours || 0) * 60 + parseInt(timerMinutes || 0))
+          : parseInt(focusTime || 0);
 
-      
+      // 3. Crear o reutilizar el tipo (usa createType del contexto)
+      const tipoResponse = await createType({
+          name_type: activityType,
+          work_duration: workDuration,
+          short_break: shortBreakValue,
+          long_break: longBreakValue,
+          cycles_before_long: cyclesValue,
+      });
+      const nuevoTypeId = tipoResponse.id;
+
+      // 4. Actualizar la actividad con el nuevo type_id y demás campos (usa updateActivity del contexto)
+      await updateActivity(activity.activity_id, {
+          title: title.trim(),
+          bot_id: selectedBot,
+          category: category,
+          type_id: nuevoTypeId,
+          extra_data: extra_data,
+      });
+
+      navigation.goBack();
     } catch (error) {
-      Alert.alert('Error', error.message || 'Error al actualizar la actividad');
+        Alert.alert('Error', error.message || 'Error al actualizar la actividad');
     }
+    
   };
 
   return (
     <ScreenWrapper withScroll={true}>
       <View style={[isWeb ? globalStyles.container_web : globalStyles.container_movil, { flex: 1 }]}>
         
-        <View style={[styles.header, { borderBottomColor: colors.placeholder + '30' }]}>
+        <View style={[styles.header, { borderBottomColor: colors.placeholder + '30' , marginRight: 16}]}>
           <IconButton icon="arrow-left" size={24} onPress={() => navigation.goBack()} iconColor={colors.text} />
           <Text style={[styles.headerTitle, { color: colors.text }]}>{isEditing ? 'Editar Actividad' : 'Nueva Actividad'}</Text>
-          <View style={{ width: 48 }} />
+          
+          <RecommendationButton size={1} />
         </View>
 
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}>
@@ -332,7 +328,7 @@ export default function CreateActivityScreen({ navigation, route }) {
             loading={loading} style={[globalStyles.button, { flex: 1 }]} 
             buttonColor={colors.primary} 
             textColor={colors.background} 
-            icon={activity ? 'save' : 'playlist-plus'}
+            icon={activity ? 'content-save' : 'playlist-plus'}
           >
             {activity ? 'Guardar Cambios' : 'Crear'}
             

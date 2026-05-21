@@ -15,7 +15,7 @@ export const useBots = (autoRefresh = false, intervalMs = 45000) => {
         setError(null);
         try {
             const data = await BotService.getBots();
-            setBots(data);
+            setBots(data?.bots || []);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -46,9 +46,9 @@ export const useBots = (autoRefresh = false, intervalMs = 45000) => {
     const linkNewBot = async (macAddress, name) => {
         setLoading(true);
         try {
-            const newBot = await BotService.linkBot(macAddress, name);
-            setBots(prev => [...prev, newBot]);
-            return newBot;
+            const response = await BotService.linkBot(macAddress, name);
+            await fetchBots(true);
+            return response;
         } catch (err) {
             setError(err.message);
             throw err;
@@ -68,11 +68,20 @@ export const useBots = (autoRefresh = false, intervalMs = 45000) => {
         }
     };
 
+    const deleteBot = async (botId) => {
+        try {
+            await BotService.deleteBot(botId);
+            setBots(prev => prev.filter(b => b.bot_id !== botId));
+        } catch (err) {
+            setError(err.message);
+            throw err;
+        }
+    };
+
     return {
         bots,
         loading,
         error,
-        // AÑADE ESTA LÍNEA:
         refresh: () => fetchBots(true), 
         linkNewBot,
         updateBot,

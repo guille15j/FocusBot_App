@@ -13,12 +13,12 @@ import { ScreenWrapper }  from '../../components/layout/ScreenWrapper';
 import {BottomNav}        from '../../navigation/BottomTabs'
 
 //CUSTOM HOOKS
-import { useActivities }        from '../../hooks/useActivities';
 import { useResponsiveLayout }  from '../../hooks/useResponsiveLayout';
 
 //CONTEXTOS
 import { AuthContext }  from '../../context/AuthContext';
 import { BotContext }   from '../../context/BotContext';
+import { ActivityContext }  from '../../context/ActivityContext';
 
 export default function HomeScreen({ navigation }) {
   const scheme = useColorScheme();
@@ -30,16 +30,12 @@ export default function HomeScreen({ navigation }) {
 
   const { user, signOut } = useContext(AuthContext);
   
-  // Extraemos 'refresh' del contexto de Bots (que configuramos como fetchBots(true))
   const { bots, loading: loadingBots, linkNewBot, refresh: refreshBots } = useContext(BotContext);
+  const { activities, loading: loadingActs, refresh: refreshActs } = useContext(ActivityContext);
 
   const isFocused = useIsFocused();
   const [open, setOpen] = React.useState(false);
-
-  // Extraemos 'refresh' del hook de actividades
-  const { activities, loading: loadingActs, refresh: refreshActs } = useActivities(true);
   
-  // El estado de refresco depende de si cualquiera de los dos está cargando
   const isRefreshing = loadingBots || loadingActs;
 
   const onRefresh = useCallback(async () => {

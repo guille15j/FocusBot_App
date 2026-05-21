@@ -24,9 +24,9 @@ const ActivitiesList = ({ activities = [], onActivityPress, globalStyles }) => {
         style={[
           styles.surfaceList, 
           isWeb && styles.webWidth,
-          { backgroundColor: colors.surface + 80 }
+          { backgroundColor: colors.surface  }
         ]} 
-        elevation={1}
+        // elevation={1}
       >
         <FlatList
           data={activities}
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   surfaceList: {
     width: '100%',
     borderRadius: 33,
-    overflow: 'hidden',
+    // overflow: 'hidden',
     
     height: '100%',
   },

@@ -73,19 +73,39 @@ export const useActivities = (autoRefresh = false, intervalMs = 15 * 60 * 1000) 
         setError(null);
         try {
             const response = await ActivityService.createActivity(activityData);
-            
-            // En lugar de solo refrescar, añadimos la respuesta (que ya trae el ID de DB)
-            // al estado local. Así la UI se actualiza instantáneamente.
-            setActivities(prev => [response, ...prev]);
-            
+            // Refrescamos la lista completa para tener todos los campos
+            await fetchActivities(true);
             return response;
         } catch (err) {
-            // Aseguramos que el error que guardamos sea el mensaje string
             const errorMessage = err.response?.data?.message || err.message || 'Error al crear';
             setError(errorMessage);
             throw errorMessage; 
         } finally {
             setLoading(false);
+        }
+    };
+
+    const updateActivity = async (activityId, data) => {
+        try {
+            await ActivityService.updateActivity(activityId, data);
+            setActivities((prev) =>
+                prev.map((act) =>
+                    act.activity_id === activityId ? { ...act, ...data } : act
+                )
+            );
+        } catch (err) {
+            setError(err.message);
+            throw err;
+        }
+    };
+
+    const createType = async (typeData) => {
+        try {
+            const response = await ActivityService.createType(typeData);
+            return response; 
+        } catch (err) {
+            setError(err.message);
+            throw err;
         }
     };
 
@@ -96,6 +116,9 @@ export const useActivities = (autoRefresh = false, intervalMs = 15 * 60 * 1000) 
         refresh: () => fetchActivities(true),
         updateActivityState,
         deleteActivity,
+        updateActivity,
         addActivity,
+        createType,     
+
     };
 };

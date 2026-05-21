@@ -43,7 +43,7 @@ const ActivityListTile = ({ item, onInfoPress, AppColors }) => {
     <TouchableOpacity 
       activeOpacity={0.7} 
       onPress={() => onInfoPress && onInfoPress(item)}
-      style={[styles.container,]}
+      style={[styles.container,{}]}
     >
       {/* AVATAR DE CATEGORÍA */}
       <View style={styles.avatarWrapper}>
@@ -51,18 +51,16 @@ const ActivityListTile = ({ item, onInfoPress, AppColors }) => {
           size={40} 
           icon={category.icon} 
           style={{ backgroundColor: category.color }} 
-          // color="#121212" // Texto/Icono oscuro sobre fondos pastel/vivos para legibilidad premium
+          // color="#121212" 
         />
       </View>
 
-      {/* TEXTOS INFORMATIVOS */}
       <View style={styles.textContainer}>
         <Text variant="titleMedium" style={[styles.title, { color: AppColors.text }]} numberOfLines={1}>
           {item?.title ?? 'Sin título'}
         </Text>
         
         <View style={styles.subtitleRow}>
-          {/* 🚀 BADGE DE ESTADO PREMIUM: Encapsulado con fondo alpha de su propio color */}
           <View style={[styles.stateBadge, { backgroundColor: stateColor + '18' }]}>
             <View style={[styles.stateDot, { backgroundColor: stateColor }]} />
             <Text variant="labelSmall" style={[styles.stateText, { color: stateColor }]}>
@@ -72,7 +70,6 @@ const ActivityListTile = ({ item, onInfoPress, AppColors }) => {
         </View>
       </View>
       
-      {/* 🚀 BOTÓN DE ACCIÓN: Rediseñado con área interactiva destacada */}
       <View style={[styles.actionWrapper, { backgroundColor: actionBg }]}>
         <IconButton
           icon={actionIcon}

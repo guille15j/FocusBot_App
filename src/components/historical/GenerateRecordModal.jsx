@@ -178,11 +178,13 @@ const GenerateRecordModal = ({ visible, onDismiss, onGenerate }) => {
 
         <Button
           mode="contained"
+          icon= 'content-save'
           onPress={handleGenerate}
           loading={isSubmitting}
           disabled={isSubmitting}
-          style={styles.btn}
+          style={[styles.btn, {color: colors.text}]}
           contentStyle={{ height: 50 }}
+          textColor= {colors.surface}
         >
           Calcular Informe
         </Button>

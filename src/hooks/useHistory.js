@@ -3,8 +3,6 @@ import { HistoryService } from '../api/apiService';
 
 export const useHistory = () => {
     const [records, setRecords] = useState([]);
-    
-    // NUEVO: Estado para la tendencia semanal en vivo con una estructura inicial segura
     const [weeklyDashboard, setWeeklyDashboard] = useState({
         summary: {
             total_completados: 0,
@@ -14,25 +12,24 @@ export const useHistory = () => {
         },
         weekChartData: []
     });
-    
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    // ── NUEVO: estado para las recomendaciones ──
+    const [recomendaciones, setRecomendaciones] = useState([]);
 
     //Obtención combinada (Historicos Persistentes + Dashboard Semanal)
     const fetchHistoryData = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-            // Ejecutamos ambas peticiones en paralelo para optimizar el rendimiento de la red
             const [recordsResponse, dashboardResponse] = await Promise.all([
                 HistoryService.getRecords(),
                 HistoryService.getWeeklyDashboard()
             ]);
 
-            // Guardamos los informes manuales persistidos
             setRecords(recordsResponse.records || []);
 
-            // Guardamos los datos volátiles de la semana actual
             if (dashboardResponse) {
                 setWeeklyDashboard(dashboardResponse);
             }
@@ -44,15 +41,22 @@ export const useHistory = () => {
         }
     }, []);
 
-    // Mapeo de POST /history/calculate
+    // ── NUEVO: función para obtener las recomendaciones ──
+    const fetchRecommendations = useCallback(async () => {
+        try {
+            const data = await HistoryService.getRecommendations();
+            setRecomendaciones(data.recomendaciones || []);
+        } catch (err) {
+            console.error('Error al obtener recomendaciones:', err);
+            setRecomendaciones([]);
+        }
+    }, []);
+
     const createRecord = async (initDate, endDate) => {
         setLoading(true);
         try {
             const response = await HistoryService.calculateRecord(initDate, endDate);
-            
-            // Tras calcular un informe con éxito, refrescamos TODO de forma reactiva
             await fetchHistoryData();
-            
             return { success: true, record: response.record };
         } catch (err) {
             setError(err.message);
@@ -62,7 +66,6 @@ export const useHistory = () => {
         }
     };
 
-    // Mapeo de GET /history/<record_id>
     const getRecordDetail = async (recordId) => {
         try {
             const data = await HistoryService.getRecordById(recordId);
@@ -73,18 +76,21 @@ export const useHistory = () => {
         }
     };
 
-    // Efecto de carga inicial al montar la pantalla
+    // Carga inicial de todos los datos
     useEffect(() => {
         fetchHistoryData();
-    }, [fetchHistoryData]);
+        fetchRecommendations();    
+    }, [fetchHistoryData, fetchRecommendations]);
 
     return {
         records,
-        weeklyDashboard,       
+        weeklyDashboard,
         loading,
         error,
-        refresh: fetchHistoryData, 
+        recomendaciones,          
+        refresh: fetchHistoryData,
         createRecord,
-        getRecordDetail
+        getRecordDetail,
+        fetchRecommendations      
     };
 };

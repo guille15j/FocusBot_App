@@ -35,10 +35,10 @@ const ActivityCard = ({ activity, onPress }) => {
   };
 
   return (
-    <Card style={styles.card} onPress={onPress}>
+    <Card style={[styles.card, {backgroundColor : AppColors.text}]} onPress={onPress}>
       <View style={styles.mainContainer}>
         <View style={[styles.categoryIndicator, { backgroundColor: categoryInfo.color || AppColors.outline }]} />
-        <View style={styles.contentContainer}>
+        <View style={[styles.contentContainer, {backgroundColor: AppColors.surface}]}>
           <View style={styles.headerRow}>
             <Surface style={[styles.iconBadge, { backgroundColor: categoryInfo.color + '60' }]}>
               <MaterialCommunityIcons name={categoryInfo.icon} size={25} color={categoryInfo.color} />
@@ -97,7 +97,7 @@ const ActivityCard = ({ activity, onPress }) => {
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
-    marginBottom: 12,
+    marginBottom: 6,
     borderRadius: 16,
     elevation: 2,
     overflow: 'hidden',

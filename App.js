@@ -138,19 +138,17 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={authActions}>
-      <BotProvider>
-        <ActivityProvider>
-          <SafeAreaProvider>
-            <PaperProvider theme={theme}>
-              
-              <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-                <NavigationContainer ref={navigationRef}>
-                  
+      <SafeAreaProvider>
+        <PaperProvider theme={theme}>
+          <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+            <NavigationContainer ref={navigationRef}>
+              {/* Proveedores movidos DENTRO del NavigationContainer */}
+              <BotProvider>
+                <ActivityProvider>
                   <View style={{ flex: 1 }}>
                     <Stack.Navigator screenOptions={{ headerShown: false }}>
                       {userToken == null ? (
                         <>
-                        
                           <Stack.Screen name="Login" component={LoginScreen} />
                           <Stack.Screen name="Register" component={RegisterScreen} />
                           <Stack.Screen name="Reset" component={ResetScreen} />
@@ -174,14 +172,12 @@ export default function App() {
                       <BottomNav navigation={navigationRef.current} />
                     </View>
                   )}
-
-                </NavigationContainer>
-              </View>
-
-            </PaperProvider>
-          </SafeAreaProvider>
-        </ActivityProvider>
-      </BotProvider>
+                </ActivityProvider>
+              </BotProvider>
+            </NavigationContainer>
+          </View>
+        </PaperProvider>
+      </SafeAreaProvider>
     </AuthContext.Provider>
   );
 }

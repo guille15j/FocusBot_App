@@ -96,4 +96,5 @@ export const HistoryService = {
             end_date_range: end_date 
         }),
     getWeeklyDashboard: () => fetchApi('history/weekly-dashboard', 'GET'),
+    getRecommendations: () => fetchApi('history/recommendations', 'GET'), 
 };

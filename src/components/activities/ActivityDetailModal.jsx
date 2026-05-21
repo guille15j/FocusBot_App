@@ -354,7 +354,8 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
               )} */}
             </View>
           )}
-
+          
+         
           <View style={styles.secondaryActions}>
             <Button 
               mode="outlined" 
@@ -363,6 +364,7 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
               textColor={colors.primary}
               contentStyle={styles.buttonContent}
               icon="pencil"
+              disabled = {activity.state !== 'PENDIENTE' && activity.state !== 'POSPUESTO' }
             >
               Editar
             </Button>
@@ -374,10 +376,16 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
               textColor={colors.error}
               contentStyle={styles.buttonContent}
               icon="delete"
+              disabled = {activity.state !== 'PENDIENTE' && activity.state !== 'POSPUESTO' }
             >
               Eliminar
             </Button>
           </View>
+          
+
+          
+
+          
         </View>
       </Modal>
     </Portal>

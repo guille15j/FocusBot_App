@@ -412,7 +412,7 @@ export default function ProfilePage({ navigation }) {
               icon="logout"
               onPress={ejecutarLogout}
               style={globalStyles.buttonOutline}
-              textColor={colors.error} // Estilo UI destructivo limpio
+              textColor={colors.primary} 
             >
               Cerrar Sesión
             </Button>
