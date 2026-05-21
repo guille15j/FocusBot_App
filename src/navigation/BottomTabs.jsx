@@ -25,7 +25,7 @@ export default function BottomNav({ navigation }) {
   const useSidebar = isWeb && isLargeScreen;
   const { signOut } = useContext(AuthContext);
 
-  const styles = getStyles(colors, useSidebar, platform);
+  const styles = getStyles(colors, useSidebar, platform, isWeb);
 
   const isActivityRelated = currentRouteName === 'Activities' || currentRouteName === 'CreateActivity';
 
@@ -121,7 +121,7 @@ export default function BottomNav({ navigation }) {
   );
 }
 
-const getStyles = (colors, useSidebar, platform) => StyleSheet.create({
+const getStyles = (colors, useSidebar, platform, isWeb) => StyleSheet.create({
   sidebarContainer: {
     position: isLargeScreen && isWeb ? 'fixed' : 'absolute',
     top: 0, 

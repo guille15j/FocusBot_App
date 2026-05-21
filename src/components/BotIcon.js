@@ -6,7 +6,6 @@ import { useResponsiveLayout } from '../hooks/useResponsiveLayout';
 const AnimatedG = Animated.createAnimatedComponent(G);
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
 
-// 🚀 EXPORTACIÓN NOMBRADA (Satisface el import { BotIcon } de tu LoadingScreen)
 export const BotIcon = ({ size = 240, loading = false, state = 'IDLE' }) => {
   const scale = size / 240;
   
@@ -153,5 +152,4 @@ const styles = StyleSheet.create({
   }
 });
 
-// 🚀 EXPORTACIÓN POR DEFECTO (Escudo por si acaso otra pantalla lo pide sin llaves)
 export default BotIcon;

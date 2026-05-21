@@ -81,7 +81,7 @@ const UserHeader = ({ user, navigation }) => {
           <View style={styles.webWrapper}>
             <Avatar.Image size={80} source={avatarSource} style={styles.avatarShadow} />
             <View style={styles.textContainerWeb}>
-              <Text style={styles.userTitleWeb}>¡Hola de nuevo!</Text>
+              <Text style={styles.userTitleWeb}>¡Bienvenido!</Text>
               <Text style={styles.userNameWeb}>{user.first_name} {user.last_name}</Text>
             </View>
           </View>
