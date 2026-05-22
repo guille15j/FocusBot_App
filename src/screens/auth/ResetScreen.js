@@ -37,19 +37,19 @@ export default function ResetScreen({ navigation }) {
 
   const ejecutarReset = async () => {
     if (!identifier.trim()) {
-      Alert.alert("Error", "Introduce tu email o nombre de usuario");
+      showToast("Introduce tu email o nombre de usuario",'error');
       return;
     }
     if (!newPassword) {
-      Alert.alert("Error", "Introduce la nueva contraseña");
+      showToast( "Introduce la nueva contraseña",'error');
       return;
     }
     if (newPassword.length < 6) {
-      Alert.alert("Error", "La contraseña debe tener al menos 6 caracteres");
+      showToast("La contraseña debe tener al menos 6 caracteres",'error');
       return;
     }
     if (newPassword !== confirmPassword) {
-      Alert.alert("Error", "Las contraseñas no coinciden");
+      showToast("Las contraseñas no coinciden",'error');
       return;
     }
 
@@ -62,20 +62,24 @@ export default function ResetScreen({ navigation }) {
         password: newPassword
       });
       
-      Alert.alert(
-        "Contraseña actualizada", 
-        "Tu contraseña ha sido cambiada correctamente.",
-        [
-          { 
-            text: "Iniciar Sesión", 
-            onPress: () => navigation.replace('Login') 
-          }
-        ]
-      );
+      // Alert.alert(
+      //   "Contraseña actualizada", 
+      //   "Tu contraseña ha sido cambiada correctamente.",
+      //   [
+      //     { 
+      //       text: "Iniciar Sesión", 
+      //       onPress: () => navigation.replace('Login') 
+      //     }
+      //   ]
+      // );
+
+      showToast("Contraseña actualizada", 'success');
+
+      navigation.replace('Login')
       
     } catch (error) {
       console.error("Error en reset:", error);
-      Alert.alert("Error", error.message || "No se pudo restablecer la contraseña");
+      showToast( error.message || "No se pudo restablecer la contraseña",'error');
     } finally {
       setLoading(false);
     }

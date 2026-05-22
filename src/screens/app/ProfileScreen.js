@@ -124,15 +124,16 @@ export default function ProfilePage({ navigation }) {
       if (isWeb) {
         alert("Perfil actualizado correctamente");
       } else {
-        Alert.alert("Éxito", "Perfil actualizado correctamente");
+         showToast( "Perfil actualizado correctamente",'success');
       }
     } catch (error) {
       console.error("ERROR CRÍTICO EN ACTUALIZACIÓN:", error);
-      if (isWeb) {
-        alert("Ocurrió un fallo al sincronizar los datos locales.");
-      } else {
-        Alert.alert("Error", "Ocurrió un fallo al sincronizar los datos locales.");
-      }
+      showToast("Ocurrió un fallo al sincronizar los datos locales.",'error');
+      // if (isWeb) {
+      //   alert("Ocurrió un fallo al sincronizar los datos locales.");
+      // } else {
+      //    showToast("Ocurrió un fallo al sincronizar los datos locales.",'error');
+      // }
     } finally {
       setLoading(false);
     }
@@ -147,7 +148,7 @@ export default function ProfilePage({ navigation }) {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       if (isWeb) alert('Necesitamos acceso a tus fotos.');
-      else Alert.alert('Permiso denegado', 'Necesitamos acceso a tus fotos.');
+      else  showToast('Permiso denegado.Necesitamos acceso a tus fotos.');
       return;
     }
 

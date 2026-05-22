@@ -97,7 +97,7 @@ export default function CreateActivityScreen({ navigation, route }) {
 
   const handleSave = async () => {
     if (!title.trim() || !selectedBot || !category || !activityType) {
-      Alert.alert('Error', 'Por favor, rellena los campos obligatorios.');
+      showToast('Por favor, rellena los campos obligatorios.', 'error');
       return;
     }
 
@@ -138,13 +138,13 @@ export default function CreateActivityScreen({ navigation, route }) {
 
       navigation.goBack();
     } catch (error) {
-      Alert.alert('Error', error.message || 'Error al guardar');
+      showToast('Error', error.message || 'Error al guardar');
     }
   };
 
   const handleEdit = async () => {
     if (!title.trim() || !selectedBot || !category || !activityType) {
-      Alert.alert('Error', 'Por favor, rellena los campos obligatorios.');
+      showToast('Por favor, rellena los campos obligatorios.', 'error');
       return;
     } 
 
@@ -185,7 +185,7 @@ export default function CreateActivityScreen({ navigation, route }) {
 
       navigation.goBack();
     } catch (error) {
-        Alert.alert('Error', error.message || 'Error al actualizar la actividad');
+        showToast('Error', error.message || 'Error al actualizar la actividad');
     }
     
   };

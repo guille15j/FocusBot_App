@@ -88,10 +88,10 @@ export default function LoginScreen({ navigation }) {
       if (res.token) {
         await signIn(res.token);
       } else {
-        Alert.alert('Error', res.message || 'Token inválido');
+        showToast( res.message || 'Token inválido', 'error');
       }
     } catch (err) {
-      Alert.alert('Error', 'Error de conexión con el backend');
+      showToast('Error de conexión con el backend', 'error');
     } finally {
       setLoading(false);
     }
@@ -99,7 +99,7 @@ export default function LoginScreen({ navigation }) {
 
   const ejecutarLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert('Atención', 'Por favor, introduce tu email/usuario y contraseña');
+       showToast( 'Por favor, introduce tu email/usuario y contraseña', 'debug');
       return;
     }
     setLoading(true);
@@ -109,7 +109,7 @@ export default function LoginScreen({ navigation }) {
         await signIn(response.token, response.user);
       }
     } catch (error) {
-      Alert.alert('Error de acceso', error.message || 'Credenciales incorrectas');
+      showToast( error.message || 'Credenciales incorrectas', 'error');
     } finally {
       setLoading(false);
     }

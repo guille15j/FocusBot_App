@@ -36,7 +36,7 @@ export default function VerifyScreen({ navigation, route = 'coreo' }) {
 
   const ejecutarVerificacion = async () => {
     if (!code.trim() || code.length !== 6) {
-      Alert.alert('Error', 'Introduce el código de 6 dígitos.');
+      showToast('Introduce el código de 6 dígitos.', 'error');
       return;
     }
 
@@ -47,18 +47,18 @@ export default function VerifyScreen({ navigation, route = 'coreo' }) {
 
       // 2. Corregido el typo 'resposne'
       if (response && response.token) {
-        Alert.alert('¡Bienvenido!', 'Cuenta Verificada con éxito');
+       showToast('¡Bienvenido!', 'Cuenta Verificada con éxito','success');
 
         // 3. Corregido signUp -> signIn (que es lo que extraes del Contexto)
         await signIn(response.token, response.user);
       } else {
-        Alert.alert('Verificado', 'Cuenta Verificada con éxito. Ya puedes iniciar sesión');
+        showToast( 'Cuenta Verificada con éxito. Ya puedes iniciar sesión', 'success');
         navigation.navigate('Login');
       }
       
     } catch (error) {
       // Aquí el error.message ya funcionará bien con el fetchApi corregido
-      Alert.alert('Error de verificación', error.message || 'Código incorrecto o expirado');
+      showToast( error.message || 'Código incorrecto o expirado', 'error');
     } finally {
       setLoading(false);
     }
@@ -68,9 +68,9 @@ export default function VerifyScreen({ navigation, route = 'coreo' }) {
     setLoading(true);
     try {
       await AuthService.resendCode(email);
-      Alert.alert('Enviado', 'Se ha enviado un nuevo código a tu correo.');
+      showToast( 'Se ha enviado un nuevo código a tu correo.');
     } catch (error) {
-      Alert.alert('Error', error.message || 'No se pudo reenviar el código');
+      showToast(error.message || 'No se pudo reenviar el código','error');
     } finally {
       setLoading(false);
     }

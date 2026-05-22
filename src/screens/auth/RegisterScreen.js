@@ -96,11 +96,11 @@ export default function RegisterScreen({ navigation }) {
       // IMPORTANTE: Asegúrate de que AuthService.register esté recibiendo esto
       const response = await AuthService.register(userData);
 
-      Alert.alert('Éxito', 'Usuario registrado. Revisa tu correo para el código de verificación.');
+     showToast('Usuario registrado. Revisa tu correo para el código de verificación.', 'success');
       navigation.navigate('Verify', { email: email.toLowerCase() });
     } catch (error) {
       console.log("Detalle del error 422:", error);
-      Alert.alert('Error de registro', error.message || 'No se pudo completar el registro');
+      showToast( error.message || 'No se pudo completar el registro','error');
     } finally {
       setLoading(false);
     }
