@@ -19,12 +19,13 @@ import { useResponsiveLayout }  from '../../hooks/useResponsiveLayout';
 import { AuthContext }  from '../../context/AuthContext';
 import { BotContext }   from '../../context/BotContext';
 import { ActivityContext }  from '../../context/ActivityContext';
+import { useToast } from '../../context/ToastContext';
 
 export default function HomeScreen({ navigation }) {
   const scheme = useColorScheme();
   const { isWeb } = useResponsiveLayout();
   const [linkModalVisible, setLinkModalVisible] = useState(false);
-  
+  const showToast = useToast();
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
 
@@ -39,6 +40,8 @@ export default function HomeScreen({ navigation }) {
   const isRefreshing = loadingBots || loadingActs;
 
   const onRefresh = useCallback(async () => {
+    
+    showToast("HomeScreen: Refrescando datos de API...");
     console.log("HomeScreen: Refrescando datos de API...");
     try {
       // Ejecutamos ambas peticiones al servidor en paralelo

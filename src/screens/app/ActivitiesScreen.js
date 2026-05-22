@@ -11,11 +11,12 @@ import RecommendationButton from '../../components/common/RecommendationButton';
 
 // CONTEXTOS
 import { ActivityContext } from '../../context/ActivityContext';
+import { useToast } from '../../context/ToastContext';
 
 export default function Activities({ navigation }) {
   const scheme = useColorScheme();
   const { isWeb, platform } = useResponsiveLayout();
-  
+  const showToast = useToast();  
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
   
@@ -69,8 +70,10 @@ export default function Activities({ navigation }) {
     try {
       await updateActivityState(activity.activity_id, nuevoEstado);
       setDetailModalVisible(false);
+      showToast('Actividad editada correctamente', 'success');
     } catch (e) {
-      Alert.alert("Error", "No se pudo actualizar el estado.");
+      showToast("Error", "No se pudo actualizar el estado." + {e});
+      window.alert(e);
     }
   };
 

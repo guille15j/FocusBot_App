@@ -87,12 +87,8 @@ export const useActivities = (autoRefresh = false, intervalMs = 15 * 60 * 1000) 
 
     const updateActivity = async (activityId, data) => {
         try {
-            await ActivityService.updateActivity(activityId, data);
-            setActivities((prev) =>
-                prev.map((act) =>
-                    act.activity_id === activityId ? { ...act, ...data } : act
-                )
-            );
+           const response = await ActivityService.updateActivity(activityId, data);
+            await fetchActivities(true);
         } catch (err) {
             setError(err.message);
             throw err;

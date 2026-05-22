@@ -3,7 +3,6 @@ import { View, StyleSheet, TouchableOpacity, Platform, Dimensions, useColorSchem
 import { useNavigationState } from '@react-navigation/native';
 import { Drawer, IconButton, Surface } from 'react-native-paper';
 
-// Rutas relativas correctas desde src/navigation/ hacia el resto de carpetas
 import { getColors } from '../theme/theme';
 import { AuthContext } from '../context/AuthContext';
 import { useResponsiveLayout } from '../hooks/useResponsiveLayout';
@@ -12,9 +11,9 @@ const { width } = Dimensions.get('window');
 const isLargeScreen = width >= 768;
 
 export default function BottomNav({ navigation }) {
-  const scheme = useColorScheme(); 
+  const scheme = useColorScheme();
   const colors = useMemo(() => getColors(scheme), [scheme]);
-  
+
   const currentRouteName = useNavigationState((state) => {
     if (!state || !state.routes) return 'Home';
     const route = state.routes[state.index];
@@ -29,7 +28,7 @@ export default function BottomNav({ navigation }) {
 
   const isActivityRelated = currentRouteName === 'Activities' || currentRouteName === 'CreateActivity';
 
-  const navItems = [    
+  const navItems = [
     { name: 'Home', icon: 'home', iconOutline: 'home-outline' },
     { name: 'Bots', icon: 'robot', iconOutline: 'robot-outline' },
     { name: 'Activities', icon: 'calendar', iconOutline: 'calendar-outline' },
@@ -37,7 +36,7 @@ export default function BottomNav({ navigation }) {
     { name: 'Profile', icon: 'account', iconOutline: 'account-outline' },
   ];
 
-  const navItems_app = [    
+  const navItems_app = [
     { name: 'Records', icon: 'clock-outline', iconOutline: 'clock-outline' },
     { name: 'Bots', icon: 'robot', iconOutline: 'robot-outline' },
     { name: 'Home', icon: 'home', iconOutline: 'home-outline' },
@@ -62,7 +61,6 @@ export default function BottomNav({ navigation }) {
           <Drawer.Section showDivider={false} style={styles.drawerSection}>
             {navItems.map((item) => {
               const isActive = item.name === 'Activities' ? isActivityRelated : currentRouteName === item.name;
-
               return (
                 <Drawer.Item
                   key={item.name}
@@ -73,31 +71,27 @@ export default function BottomNav({ navigation }) {
                   style={styles.drawerItem}
                   activeColor={colors.background || '#ffffff'}
                   rippleColor={colors.primary}
-                  theme={{
-                    colors: {
-                      secondaryContainer: colors.primary, 
-                    }
-                  }}
+                  theme={{ colors: { secondaryContainer: colors.primary } }}
                 />
               );
             })}
           </Drawer.Section>
         </View>
         <View style={styles.sidebarFooter}>
-          {/* Solo se mantiene el botón de cerrar sesión */}
           <IconButton icon="logout" size={24} iconColor={colors.placeholder} onPress={ejecutarLogout} />
         </View>
       </Surface>
     );
   }
 
-  // RENDERIZADO PARA MÓVIL (BARRA INFERIOR FLOTANTE)
+  // RENDERIZADO PARA MÓVIL: ANDROID VS iOS
+  const containerStyle = Platform.OS === 'android' ? styles.androidBarContainer : styles.iosBarContainer;
+
   return (
-    <Surface style={styles.bottomBarContainer} elevation={8}>
+    <Surface style={containerStyle} elevation={8}>
       <View style={styles.bottomBar}>
         {navItems_app.map((item) => {
           const isActive = item.name === 'Activities' ? isActivityRelated : currentRouteName === item.name;
-
           return (
             <TouchableOpacity
               key={item.name}
@@ -111,6 +105,7 @@ export default function BottomNav({ navigation }) {
                   iconColor={isActive ? (colors.background || '#ffffff') : (colors.placeholder || '#757575')}
                   size={isActive ? 26 : 22}
                   style={styles.iconBase}
+                  label = {item.name.toString()}
                 />
               </View>
             </TouchableOpacity>
@@ -125,7 +120,7 @@ const getStyles = (colors, useSidebar, platform, isWeb) => StyleSheet.create({
   // Estilos para WEB (sidebar)
   sidebarContainer: {
     position: isLargeScreen && isWeb ? 'fixed' : 'absolute',
-    top: 0, 
+    top: 0,
     left: 0,
     bottom: 0,
     width: 80,
@@ -135,17 +130,9 @@ const getStyles = (colors, useSidebar, platform, isWeb) => StyleSheet.create({
     borderRightWidth: 1,
     borderRightColor: colors.border || 'rgba(0,0,0,0.08)',
   },
-  sidebarHeader: {
-    height: 60,
-  },
-  centeredNav: {
-    flex: 1,
-    justifyContent: 'center',
-    width: '100%',
-  },
-  drawerSection: {
-    backgroundColor: 'transparent',
-  },
+  sidebarHeader: { height: 60 },
+  centeredNav: { flex: 1, justifyContent: 'center', width: '100%' },
+  drawerSection: { backgroundColor: 'transparent' },
   drawerItem: {
     width: 50,
     height: 50,
@@ -154,36 +141,40 @@ const getStyles = (colors, useSidebar, platform, isWeb) => StyleSheet.create({
     justifyContent: 'center',
     marginVertical: 6,
   },
-  sidebarFooter: {
-    paddingBottom: 30,
-    width: '100%',
-    alignItems: 'center',
-    gap: 10
+  sidebarFooter: { paddingBottom: 30, width: '100%', alignItems: 'center', gap: 10 },
+
+  // Barra Android (estilo Material Design)
+  androidBarContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 65,
+    backgroundColor: colors.surface,
+    borderTopWidth: 0,
+    elevation: 8,
+    paddingBottom: 0,
   },
 
-  // Estilos para MÓVIL (barra inferior flotante)
-bottomBarContainer: {
-  position: 'absolute',
-  bottom: Platform.OS === 'ios' ? 20 : 10,
-  left: 20,
-  right: 20,
-  height: 70,
-  borderRadius: 35,
-  backgroundColor: colors.surface,
-  borderColor: colors.background + '80',
-  borderWidth: 2,
+  // Barra iOS (píldora flotante)
+  iosBarContainer: {
+    position: 'absolute',
+    bottom: Platform.OS === 'ios' ? 20 : 10,
+    left: 20,
+    right: 20,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: colors.surface,
+    borderColor: colors.background + '80',
+    borderWidth: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    elevation: 24,
+  },
 
-  // ANDROID (lo máximo que permite)
-  elevation: 24,
-
-  // iOS + WEB (sombra fuerte)
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 10 },
-  shadowOpacity: 0.35,
-  shadowRadius: 20,
-},
-
-
+  // Contenido interno (común)
   bottomBar: {
     flex: 1,
     flexDirection: 'row',
@@ -191,23 +182,15 @@ bottomBarContainer: {
     justifyContent: 'space-around',
     paddingHorizontal: 10,
   },
-  bottomBarBtn: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100%',
-  },
+  bottomBarBtn: { flex: 1, alignItems: 'center', justifyContent: 'center', height: '100%' },
   iconContainer: {
     width: 44,
     height: 44,
-    borderRadius: 22,
+    borderRadius: 202,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden'
   },
-  activeIconContainer: {
-    backgroundColor: colors.primary + '80', // Fondo semitransparente para la píldora activa
-  },
-  iconBase: {
-    margin: 0,
-  },
+  activeIconContainer: { backgroundColor: colors.primary + '80' },
+  iconBase: { margin: 0 },
 });

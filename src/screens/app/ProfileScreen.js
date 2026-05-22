@@ -11,6 +11,8 @@ import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { getColors, getglobalStyles } from '../../theme/theme';
 
 import { AuthContext } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+
 import { authStorage } from '../../core/authStorage';
 import { UserService } from '../../api/apiService';
 
@@ -32,6 +34,7 @@ export default function ProfilePage({ navigation }) {
   const scheme = useColorScheme();
   const { isWeb } = useResponsiveLayout();
 
+  const showToast = useToast();
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
 

@@ -12,11 +12,12 @@ import LinkBotModal from '../../components/bots/LinkBotModal';
 import EditBotModal from '../../components/bots/EditBotModal';
 
 import { BotContext } from '../../context/BotContext';
+import { useToast } from '../../context/ToastContext';
 
 export default function BotsPage() {
   const scheme = useColorScheme();
   const { isWeb, platform } = useResponsiveLayout();
-  
+  const showToast = useToast();
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
   

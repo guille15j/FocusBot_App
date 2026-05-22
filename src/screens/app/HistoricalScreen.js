@@ -12,12 +12,14 @@ import { useHistory } from '../../hooks/useHistory';
 
 import RecommendationButton  from '../../components/common/RecommendationButton';
 
+import { useToast } from '../../context/ToastContext';
+
 export default function HistoricalRecords({ navigation }) {
   const scheme = useColorScheme();
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(colors), [colors]);
   const { isWeb, platform } = useResponsiveLayout();
-
+  const showToast = useToast();
   const { records = [], weeklyDashboard, loading, refresh, createRecord, recomendaciones } = useHistory();
   const [activeTab, setActiveTab] = useState('Semana');
   const [selectedRecord, setSelectedRecord] = useState(null);

@@ -8,6 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { authStorage } from './src/core/authStorage'; 
 import { AuthContext } from './src/context/AuthContext';
 import { BotProvider } from './src/context/BotContext';
+import { ToastProvider } from './src/context/ToastContext';
 import { ActivityProvider } from './src/context/ActivityContext';
 import { getAppTheme } from './src/theme/theme';
 
@@ -140,6 +141,7 @@ export default function App() {
     <AuthContext.Provider value={authActions}>
       <SafeAreaProvider>
         <PaperProvider theme={theme}>
+          <ToastProvider>
           <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
             <NavigationContainer ref={navigationRef}>
               {/* Proveedores movidos DENTRO del NavigationContainer */}
@@ -176,6 +178,7 @@ export default function App() {
               </BotProvider>
             </NavigationContainer>
           </View>
+          </ToastProvider>
         </PaperProvider>
       </SafeAreaProvider>
     </AuthContext.Provider>

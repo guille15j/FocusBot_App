@@ -21,6 +21,7 @@ export const ActivityProvider = ({ children }) => {
             error: activitiesData.error,
             addFullActivity: activitiesData.addActivity,
             updateActivity: activitiesData.updateActivity,
+            updateActivityState: activitiesData.updateActivityState,  // ← añadir esta línea
             deleteActivity: activitiesData.deleteActivity,
             fetchActivities: activitiesData.refresh,
             createType: activitiesData.createType

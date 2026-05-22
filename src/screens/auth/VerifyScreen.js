@@ -13,6 +13,7 @@ import {
   Surface,
 } from 'react-native-paper';
 import { AuthContext } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
@@ -20,6 +21,7 @@ import {AuthService} from '../../api/apiService';
 
 export default function VerifyScreen({ navigation, route = 'coreo' }) {
   const scheme = useColorScheme();
+  const showToast = useToast();
   const { isWeb, platform } = useResponsiveLayout();
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);

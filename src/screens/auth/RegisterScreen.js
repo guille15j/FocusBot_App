@@ -18,9 +18,11 @@ import { getColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { AuthService } from '../../api/apiService';
+import { useToast } from '../../context/ToastContext';
 
 export default function RegisterScreen({ navigation }) {
   const scheme = useColorScheme();
+  const showToast = useToast();
   const { isWeb, platform } = useResponsiveLayout();
 
   const colors = useMemo(() => getColors(scheme), [scheme]);

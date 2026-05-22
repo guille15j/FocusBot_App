@@ -12,6 +12,7 @@ import RecommendationButton from '../../components/common/RecommendationButton';
 // CONTEXTOS
 import { BotContext } from '../../context/BotContext';
 import { ActivityContext } from '../../context/ActivityContext';
+import { useToast } from '../../context/ToastContext';
 
 const CATEGORY_LIST = [
   { label: 'Deporte', value: 'DEPORTES', icon: 'dumbbell', color: '#FFD54F' },
@@ -116,7 +117,7 @@ export default function CreateActivityScreen({ navigation, route }) {
           ? (parseInt(timerHours || 0) * 60 + parseInt(timerMinutes || 0))
           : parseInt(focusTime || 0);
 
-      // 1. Crear o reutilizar el tipo
+      // Crear o reutilizar el tipo
       const tipoResponse = await createType({
           name_type: activityType,
           work_duration: workDuration,
@@ -126,15 +127,14 @@ export default function CreateActivityScreen({ navigation, route }) {
       });
       const nuevoTypeId = tipoResponse.id;
 
-      // 2. Crear la actividad con el type_id obtenido
-      const botObjeto = bots.find(b => b.bot_id === selectedBot);
+      //Creamos la actividad
       await addFullActivity({ 
           title: title.trim(),
           bot_id: selectedBot,
           category: category,
           type_id: nuevoTypeId,
           extra_data: extra_data,
-      }, botObjeto);
+      });
 
       navigation.goBack();
     } catch (error) {
@@ -149,15 +149,14 @@ export default function CreateActivityScreen({ navigation, route }) {
     } 
 
     try {
-      // 1. Preparar extra_data
       const extra_data = { audio: audioProfile };
+
       if (activityType === 'POMODORO') {
           extra_data.total_ciclos = parseInt(totalCycles, 10);
       } else if (activityType === 'HITO') {
           extra_data.hitos = hitos.map(h => h.nombre).filter(n => n.trim() !== '');
       }
 
-      // 2. Calcular parámetros del tipo
       const shortBreakValue = activityType === 'POMODORO' ? parseInt(shortBreak || 0) : 0;
       const longBreakValue  = activityType === 'POMODORO' ? parseInt(longBreak || 0)  : 0;
       const cyclesValue     = activityType === 'POMODORO' ? parseInt(cyclesBeforeLong || 4) : 0;
@@ -165,7 +164,7 @@ export default function CreateActivityScreen({ navigation, route }) {
           ? (parseInt(timerHours || 0) * 60 + parseInt(timerMinutes || 0))
           : parseInt(focusTime || 0);
 
-      // 3. Crear o reutilizar el tipo (usa createType del contexto)
+      // Crear o reutilizar el tipo
       const tipoResponse = await createType({
           name_type: activityType,
           work_duration: workDuration,
@@ -175,7 +174,7 @@ export default function CreateActivityScreen({ navigation, route }) {
       });
       const nuevoTypeId = tipoResponse.id;
 
-      // 4. Actualizar la actividad con el nuevo type_id y demás campos (usa updateActivity del contexto)
+      // Actualizar la actividad con el nuevo type_id y demás campos 
       await updateActivity(activity.activity_id, {
           title: title.trim(),
           bot_id: selectedBot,

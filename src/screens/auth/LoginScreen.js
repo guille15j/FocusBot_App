@@ -10,7 +10,10 @@ import {
   ScrollView,
 } from 'react-native';
 import { TextInput, Button, Text, Divider as PaperDivider } from 'react-native-paper';
+
 import { AuthContext } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { AuthService } from '../../api/apiService';
@@ -28,6 +31,7 @@ if (Platform.OS === 'web') {
 
 export default function LoginScreen({ navigation }) {
   const scheme = useColorScheme();
+  const showToast = useToast();
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const { isWeb, platform} = useResponsiveLayout();
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);

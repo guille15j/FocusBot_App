@@ -7,6 +7,7 @@ import BotIcon from '../../components/BotIcon';
 // Módulos integrados de tu arquitectura
 import { authStorage } from '../../core/authStorage';
 import { AuthContext } from '../../context/AuthContext';
+
 import apiService from '../../api/apiService'; 
 
 const AnimatedView = Animated.createAnimatedComponent(View);
