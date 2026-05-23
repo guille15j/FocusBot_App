@@ -2,14 +2,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState, useContext, useMemo, useEffect } from 'react';
 import {
   View,
-  Alert,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   useColorScheme,
   ScrollView,
 } from 'react-native';
-import { TextInput, Button, Text, Divider as PaperDivider } from 'react-native-paper';
+import { TextInput, Button, Text, Divider as PaperDivider, HelperText } from 'react-native-paper';
 
 import { AuthContext } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -24,7 +23,6 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as AuthSession from 'expo-auth-session';
 
-
 if (Platform.OS === 'web') {
   WebBrowser.maybeCompleteAuthSession();
 }
@@ -33,50 +31,51 @@ export default function LoginScreen({ navigation }) {
   const scheme = useColorScheme();
   const showToast = useToast();
   const colors = useMemo(() => getColors(scheme), [scheme]);
-  const { isWeb, platform} = useResponsiveLayout();
+  const { isWeb, platform } = useResponsiveLayout();
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const { signIn } = useContext(AuthContext);
 
+  // IDs de Google desde variables de entorno
+  const webClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
+  const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_IOS;
+  const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_ANDROID;
+
   // Redirect fijo en Web, dinámico en móvil
-  const redirectUri =
-    isWeb
-      ? 'https://focus-bot-app-web.vercel.app'
-      : AuthSession.makeRedirectUri({ scheme: 'focusapp' });
+  const redirectUri = isWeb
+    ? 'https://focus-bot-app-web.vercel.app'
+    : AuthSession.makeRedirectUri({ scheme: 'focusapp' });
 
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
-    iosClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
-    androidClientId: '767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com',
+    webClientId,
+    iosClientId,
+    androidClientId,
     responseType: 'id_token',
     scopes: ['openid', 'profile', 'email'],
     redirectUri,
   });
 
   useEffect(() => {
-    console.log('Response recibido:', response);
-
     if (response?.type === 'success') {
       const idToken =
         response.authentication?.idToken || // móvil
         response.params?.id_token;          // web
 
       if (!idToken) {
-        console.log('No se recibió idToken');
         setLoading(false);
         return;
       }
-
       manejarLoginGoogle(idToken);
     } else if (
       response?.type === 'error' ||
       response?.type === 'cancel' ||
       response?.type === 'dismiss'
     ) {
-      console.log('Login cancelado o bloqueado:', response?.type);
       setLoading(false);
     }
   }, [response]);
@@ -88,7 +87,7 @@ export default function LoginScreen({ navigation }) {
       if (res.token) {
         await signIn(res.token);
       } else {
-        showToast( res.message || 'Token inválido', 'error');
+        showToast(res.message || 'Token inválido', 'error');
       }
     } catch (err) {
       showToast('Error de conexión con el backend', 'error');
@@ -98,8 +97,9 @@ export default function LoginScreen({ navigation }) {
   };
 
   const ejecutarLogin = async () => {
+    setSubmitted(true);
     if (!email.trim() || !password.trim()) {
-       showToast( 'Por favor, introduce tu email/usuario y contraseña', 'debug');
+      showToast('Por favor, introduce tu email/usuario y contraseña', 'error');
       return;
     }
     setLoading(true);
@@ -109,7 +109,7 @@ export default function LoginScreen({ navigation }) {
         await signIn(response.token, response.user);
       }
     } catch (error) {
-      showToast( error.message || 'Credenciales incorrectas', 'error');
+      showToast(error.message || 'Credenciales incorrectas', 'error');
     } finally {
       setLoading(false);
     }
@@ -117,7 +117,6 @@ export default function LoginScreen({ navigation }) {
 
   const handleGooglePress = () => {
     if (!request || loading) return;
-
     if (isWeb) {
       promptAsync({ useProxy: false, redirectUri });
     } else {
@@ -127,6 +126,9 @@ export default function LoginScreen({ navigation }) {
 
   const irARegistro = () => navigation.replace('Register');
   const irAReset = () => navigation.navigate('Reset');
+
+  const showEmailError = submitted && !email.trim();
+  const showPasswordError = submitted && !password.trim();
 
   return (
     <LinearGradient
@@ -158,8 +160,11 @@ export default function LoginScreen({ navigation }) {
               autoCapitalize="none"
               style={globalStyles.input}
               outlineStyle={{ borderRadius: 30 }}
+              outlineColor={showEmailError ? colors.error : undefined}
               left={<TextInput.Icon icon="account" />}
+              error={showEmailError}
             />
+            {showEmailError ? <HelperText type="error" visible={true}>El email o usuario es obligatorio</HelperText> : null}
 
             <TextInput
               label="Contraseña"
@@ -169,7 +174,9 @@ export default function LoginScreen({ navigation }) {
               secureTextEntry={!showPassword}
               style={globalStyles.input}
               outlineStyle={{ borderRadius: 30 }}
+              outlineColor={showPasswordError ? colors.error : undefined}
               left={<TextInput.Icon icon="lock" />}
+              error={showPasswordError}
               right={
                 <TextInput.Icon
                   icon={showPassword ? 'eye-off' : 'eye'}
@@ -177,6 +184,7 @@ export default function LoginScreen({ navigation }) {
                 />
               }
             />
+            {showPasswordError ? <HelperText type="error" visible={true}>La contraseña es obligatoria</HelperText> : null}
 
             <TouchableOpacity onPress={irAReset} style={globalStyles.linkContainer}>
               <Text style={[globalStyles.link, { fontSize: 14 }]}>¿Has olvidado la contraseña?</Text>
@@ -221,7 +229,7 @@ export default function LoginScreen({ navigation }) {
               <Button
                 mode="outlined"
                 icon="google"
-                onPress={handleGooglePress} // solo móvil
+                onPress={handleGooglePress}
                 disabled={!request || loading}
                 style={[globalStyles.buttonOutline, { marginTop: 0 }]}
                 contentStyle={{ paddingVertical: 2 }}
@@ -235,8 +243,6 @@ export default function LoginScreen({ navigation }) {
                 flexDirection: 'row',
                 justifyContent: 'center',
                 alignItems: 'center',
-                // marginTop: 16,
-                
               }}
             >
               <Text style={{ color: colors.textLight, fontSize: 14 }}>¿No tienes una cuenta? </Text>
