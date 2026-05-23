@@ -1,10 +1,11 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, useColorScheme } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { authStorage } from './src/core/authStorage';
 import { AuthProvider, AuthContext } from './src/context/AuthContext';
 import { BotProvider } from './src/context/BotContext';
 import { ToastProvider } from './src/context/ToastContext';
@@ -30,68 +31,85 @@ import BottomNav from './src/navigation/BottomTabs';
 
 const Stack = createStackNavigator();
 
-// Componente que maneja la navegación según el usuario autenticado
+// Componente interno que decide qué pantallas mostrar basándose en el TOKEN
 const AppNavigator = () => {
-  const { user, isLoading } = useContext(AuthContext);
+  const { user } = React.useContext(AuthContext); // solo para detectar cambios de sesión
+  const [token, setToken] = useState(null);
+  const [loadingToken, setLoadingToken] = useState(true);
   const [navReady, setNavReady] = useState(false);
   const navigationRef = useRef();
   const scheme = useColorScheme();
   const theme = getAppTheme(scheme);
 
-  // Cuando el usuario está autenticado, activamos la navegación inferior
+  // Cargar el token del almacenamiento al iniciar y cuando cambie el usuario (login/logout)
   useEffect(() => {
-    if (user) {
+    const loadToken = async () => {
+      try {
+        const storedToken = await authStorage.getToken();
+        setToken(storedToken);
+      } catch (error) {
+        console.error("Error leyendo token:", error);
+        setToken(null);
+      } finally {
+        setLoadingToken(false);
+      }
+    };
+    loadToken();
+  }, [user]); // Dependencia en 'user' para refrescar cuando se inicia/cierra sesión
+
+  // Controlar la barra de navegación inferior
+  useEffect(() => {
+    if (token) {
       const timer = setTimeout(() => setNavReady(true), 300);
       return () => clearTimeout(timer);
     } else {
       setNavReady(false);
     }
-  }, [user]);
+  }, [token]);
 
-  if (isLoading) {
+  if (loadingToken) {
     return <LoadingScreen />;
   }
+
+  const isAuthenticated = token !== null;
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <NavigationContainer ref={navigationRef}>
-        <BotProvider>
-          <ActivityProvider>
-            <View style={{ flex: 1 }}>
-              <Stack.Navigator screenOptions={{ headerShown: false }}>
-                {!user ? (
-                  <>
-                    <Stack.Screen name="Login" component={LoginScreen} />
-                    <Stack.Screen name="Register" component={RegisterScreen} />
-                    <Stack.Screen name="Reset" component={ResetScreen} />
-                    <Stack.Screen name="Verify" component={VerifyScreen} />
-                  </>
-                ) : (
-                  <>
-                    <Stack.Screen name="Home" component={HomeScreen} />
-                    <Stack.Screen name="Activities" component={ActivitiesScreen} />
-                    <Stack.Screen name="CreateActivity" component={CreateActivityScreen} />
-                    <Stack.Screen name="Bots" component={BotsPage} />
-                    <Stack.Screen name="Profile" component={ProfileScreen} />
-                    <Stack.Screen name="Records" component={HistoricalRecords} />
-                  </>
-                )}
-              </Stack.Navigator>
-            </View>
-
-            {user && navReady && (
-              <View style={{ backgroundColor: theme.colors.surface }}>
-                <BottomNav navigation={navigationRef.current} />
+        {!isAuthenticated ? (
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen name="Reset" component={ResetScreen} />
+            <Stack.Screen name="Verify" component={VerifyScreen} />
+          </Stack.Navigator>
+        ) : (
+          <BotProvider>
+            <ActivityProvider>
+              <View style={{ flex: 1 }}>
+                <Stack.Navigator screenOptions={{ headerShown: false }}>
+                  <Stack.Screen name="Home" component={HomeScreen} />
+                  <Stack.Screen name="Activities" component={ActivitiesScreen} />
+                  <Stack.Screen name="CreateActivity" component={CreateActivityScreen} />
+                  <Stack.Screen name="Bots" component={BotsPage} />
+                  <Stack.Screen name="Profile" component={ProfileScreen} />
+                  <Stack.Screen name="Records" component={HistoricalRecords} />
+                </Stack.Navigator>
               </View>
-            )}
-          </ActivityProvider>
-        </BotProvider>
+              {navReady && (
+                <View style={{ backgroundColor: theme.colors.surface }}>
+                  <BottomNav navigation={navigationRef.current} />
+                </View>
+              )}
+            </ActivityProvider>
+          </BotProvider>
+        )}
       </NavigationContainer>
     </View>
   );
 };
 
-// Componente principal
+// Componente raíz
 export default function App() {
   const scheme = useColorScheme();
   const theme = getAppTheme(scheme);
