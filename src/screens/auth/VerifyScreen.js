@@ -1,7 +1,6 @@
 import React, { useState, useContext, useMemo } from 'react';
 import {
   View,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   useColorScheme,
@@ -10,16 +9,16 @@ import {
   TextInput,
   Button,
   Text,
-  Surface,
+  HelperText,
 } from 'react-native-paper';
 import { AuthContext } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
-import {AuthService} from '../../api/apiService';
+import { AuthService } from '../../api/apiService';
 
-export default function VerifyScreen({ navigation, route = 'coreo' }) {
+export default function VerifyScreen({ navigation, route }) {
   const scheme = useColorScheme();
   const showToast = useToast();
   const { isWeb, platform } = useResponsiveLayout();
@@ -28,37 +27,50 @@ export default function VerifyScreen({ navigation, route = 'coreo' }) {
 
   const { signIn } = useContext(AuthContext);
 
-  // El email viene como parámetro desde RegisterScreen
   const email = route?.params?.email || '';
 
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const validarFormulario = () => {
+    const nuevosErrores = {};
+    if (!code.trim() || code.length !== 6) {
+      nuevosErrores.code = 'El código debe tener 6 dígitos';
+    }
+    setErrors(nuevosErrores);
+    return Object.keys(nuevosErrores).length === 0;
+  };
+
+  const handleChange = (text) => {
+    const soloNumeros = text.replace(/[^0-9]/g, '');
+    setCode(soloNumeros);
+    if (errors.code) {
+      setErrors((prev) => ({ ...prev, code: undefined }));
+    }
+  };
 
   const ejecutarVerificacion = async () => {
-    if (!code.trim() || code.length !== 6) {
+    setSubmitted(true);
+    if (!validarFormulario()) {
       showToast('Introduce el código de 6 dígitos.', 'error');
       return;
     }
 
     setLoading(true);
     try {
-      // 1. Llamada al servicio (asegúrate de que en AuthService envías 'codigo: code')
       const response = await AuthService.verify(email, code);
 
-      // 2. Corregido el typo 'resposne'
       if (response && response.token) {
-       showToast('¡Bienvenido!', 'Cuenta Verificada con éxito','success');
-
-        // 3. Corregido signUp -> signIn (que es lo que extraes del Contexto)
+        showToast('Cuenta verificada con éxito', 'success');
         await signIn(response.token, response.user);
       } else {
-        showToast( 'Cuenta Verificada con éxito. Ya puedes iniciar sesión', 'success');
+        showToast('Cuenta verificada. Ya puedes iniciar sesión', 'success');
         navigation.navigate('Login');
       }
-      
     } catch (error) {
-      // Aquí el error.message ya funcionará bien con el fetchApi corregido
-      showToast( error.message || 'Código incorrecto o expirado', 'error');
+      showToast(error.message || 'Código incorrecto o expirado', 'error');
     } finally {
       setLoading(false);
     }
@@ -68,9 +80,9 @@ export default function VerifyScreen({ navigation, route = 'coreo' }) {
     setLoading(true);
     try {
       await AuthService.resendCode(email);
-      showToast( 'Se ha enviado un nuevo código a tu correo.');
+      showToast('Se ha enviado un nuevo código a tu correo.', 'success');
     } catch (error) {
-      showToast(error.message || 'No se pudo reenviar el código','error');
+      showToast(error.message || 'No se pudo reenviar el código', 'error');
     } finally {
       setLoading(false);
     }
@@ -82,8 +94,8 @@ export default function VerifyScreen({ navigation, route = 'coreo' }) {
 
   return (
     <LinearGradient
-      colors={[colors.background, colors.primary]}
-      start={{ x: 0, y: 0 }}
+      colors={[colors.background, colors.primary, colors.background]}
+      start={{ x: 1, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={{ flex: 1 }}
     >
@@ -107,14 +119,16 @@ export default function VerifyScreen({ navigation, route = 'coreo' }) {
           <TextInput
             label="Código de verificación"
             value={code}
-            onChangeText={(text) => setCode(text.replace(/[^0-9]/g, ''))}
+            onChangeText={handleChange}
             mode="outlined"
             keyboardType="number-pad"
             maxLength={6}
             style={globalStyles.input}
             outlineStyle={{ borderRadius: 30 }}
             left={<TextInput.Icon icon="shield-check" />}
+            error={!!errors.code}
           />
+          {errors.code ? <HelperText type="error" visible={true}>{errors.code}</HelperText> : null}
 
           <View style={globalStyles.botonera}>
             <Button

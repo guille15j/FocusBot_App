@@ -1,17 +1,15 @@
 import React, { useState, useMemo } from 'react';
 import { 
   View, 
-  Alert, 
   KeyboardAvoidingView,
   Platform,
-  TouchableOpacity,
   useColorScheme
 } from 'react-native';
 import { 
   TextInput, 
   Button, 
   Text, 
-  Surface 
+  HelperText
 } from 'react-native-paper';
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from "expo-linear-gradient";
@@ -34,52 +32,54 @@ export default function ResetScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const validarFormulario = () => {
+    const nuevosErrores = {};
+    if (!identifier.trim()) nuevosErrores.identifier = 'El email o usuario es obligatorio';
+    if (!newPassword) {
+      nuevosErrores.newPassword = 'La nueva contraseña es obligatoria';
+    } else if (newPassword.length < 6) {
+      nuevosErrores.newPassword = 'La contraseña debe tener al menos 6 caracteres';
+    }
+    if (!confirmPassword) {
+      nuevosErrores.confirmPassword = 'Confirma tu nueva contraseña';
+    } else if (newPassword !== confirmPassword) {
+      nuevosErrores.confirmPassword = 'Las contraseñas no coinciden';
+    }
+    setErrors(nuevosErrores);
+    return Object.keys(nuevosErrores).length === 0;
+  };
+
+  const handleChange = (setter, field) => (text) => {
+    setter(text);
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
 
   const ejecutarReset = async () => {
-    if (!identifier.trim()) {
-      showToast("Introduce tu email o nombre de usuario",'error');
-      return;
-    }
-    if (!newPassword) {
-      showToast( "Introduce la nueva contraseña",'error');
-      return;
-    }
-    if (newPassword.length < 6) {
-      showToast("La contraseña debe tener al menos 6 caracteres",'error');
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      showToast("Las contraseñas no coinciden",'error');
+    setSubmitted(true);
+    if (!validarFormulario()) {
+      showToast('Revisa los campos marcados en rojo', 'error');
       return;
     }
 
     setLoading(true);
     
     try {
-      
-      const response = await AuthService.resetPassword({
+      await AuthService.resetPassword({
         identifier: identifier.trim(),
         password: newPassword
       });
-      
-      // Alert.alert(
-      //   "Contraseña actualizada", 
-      //   "Tu contraseña ha sido cambiada correctamente.",
-      //   [
-      //     { 
-      //       text: "Iniciar Sesión", 
-      //       onPress: () => navigation.replace('Login') 
-      //     }
-      //   ]
-      // );
 
-      showToast("Contraseña actualizada", 'success');
-
-      navigation.replace('Login')
+      showToast("Contraseña actualizada correctamente", 'success');
+      navigation.replace('Login');
       
     } catch (error) {
       console.error("Error en reset:", error);
-      showToast( error.message || "No se pudo restablecer la contraseña",'error');
+      showToast(error.message || "No se pudo restablecer la contraseña", 'error');
     } finally {
       setLoading(false);
     }
@@ -90,7 +90,7 @@ export default function ResetScreen({ navigation }) {
   };
 
   return (
-        <LinearGradient colors={[colors.background, colors.primary,colors.background]} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} style={{ flex: 1 }}>
+    <LinearGradient colors={[colors.background, colors.primary, colors.background]} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} style={{ flex: 1 }}>
     
       <KeyboardAvoidingView 
         style={isWeb ? globalStyles.authContainer_web : globalStyles.authContainer}
@@ -103,24 +103,26 @@ export default function ResetScreen({ navigation }) {
               <Text style={globalStyles.logo_focus}>Focus</Text>
               <Text style={globalStyles.logo_bot}>.Bot</Text>
             </View>
-            <Text style={globalStyles.logoSubtitle}>Reset Password</Text>
+            <Text style={globalStyles.logoSubtitle}>Restablecer contraseña</Text>
           </View>
           
           <TextInput
-            label="Email o Username"
+            label="Email o Usuario"
             value={identifier}
-            onChangeText={setIdentifier}
+            onChangeText={handleChange(setIdentifier, 'identifier')}
             mode="outlined"
             autoCapitalize="none"
             style={globalStyles.input}
             outlineStyle={{ borderRadius: 30 }}
             left={<TextInput.Icon icon="account" />}
+            error={!!errors.identifier}
           />
+          {errors.identifier ? <HelperText type="error" visible={true}>{errors.identifier}</HelperText> : null}
           
           <TextInput
-            label="New Password"
+            label="Nueva contraseña"
             value={newPassword}
-            onChangeText={setNewPassword}
+            onChangeText={handleChange(setNewPassword, 'newPassword')}
             mode="outlined"
             secureTextEntry={!showPassword}
             style={globalStyles.input}
@@ -132,12 +134,14 @@ export default function ResetScreen({ navigation }) {
                 onPress={() => setShowPassword(!showPassword)}
               />
             }
+            error={!!errors.newPassword}
           />
+          {errors.newPassword ? <HelperText type="error" visible={true}>{errors.newPassword}</HelperText> : null}
           
           <TextInput
-            label="Confirm New Password"
+            label="Confirmar nueva contraseña"
             value={confirmPassword}
-            onChangeText={setConfirmPassword}
+            onChangeText={handleChange(setConfirmPassword, 'confirmPassword')}
             mode="outlined"
             secureTextEntry={!showConfirmPassword}
             style={globalStyles.input}
@@ -149,7 +153,9 @@ export default function ResetScreen({ navigation }) {
                 onPress={() => setShowConfirmPassword(!showConfirmPassword)}
               />
             }
+            error={!!errors.confirmPassword}
           />
+          {errors.confirmPassword ? <HelperText type="error" visible={true}>{errors.confirmPassword}</HelperText> : null}
 
           <View style={globalStyles.botonera}>
             <Button
@@ -161,7 +167,7 @@ export default function ResetScreen({ navigation }) {
               style={[globalStyles.button, { flex: 1 }]}
               labelStyle={{ fontSize: 16 }}
             >
-              Reset
+              Restablecer
             </Button>
             
             <Button
@@ -170,7 +176,7 @@ export default function ResetScreen({ navigation }) {
               disabled={loading}
               style={[globalStyles.buttonOutline, { flex: 1 }]}
             >
-              Cancel
+              Cancelar
             </Button>
           </View>
         </View>

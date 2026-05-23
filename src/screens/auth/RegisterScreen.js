@@ -1,24 +1,28 @@
 import React, { useState, useMemo } from 'react';
 import {
   View,
-  Alert,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
   useColorScheme,
+  Pressable,
 } from 'react-native';
 import {
   TextInput,
   Button,
   Text,
-  Surface,
-  HelperText, 
+  HelperText,
 } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { AuthService } from '../../api/apiService';
 import { useToast } from '../../context/ToastContext';
+
+const DateTimePicker = !Platform.isWeb
+  ? require('@react-native-community/datetimepicker').default
+  : null;
 
 export default function RegisterScreen({ navigation }) {
   const scheme = useColorScheme();
@@ -34,18 +38,17 @@ export default function RegisterScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [birthdate, setBirthdate] = useState('');
+  const [birthdate, setBirthdate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Estado para los mensajes de error
   const [errors, setErrors] = useState({});
 
   const validarFormulario = () => {
     const nuevosErrores = {};
-
     if (!firstName.trim()) nuevosErrores.firstName = 'El nombre es obligatorio';
     if (!lastName.trim()) nuevosErrores.lastName = 'Los apellidos son obligatorios';
     if (!nickname.trim()) nuevosErrores.nickname = 'El nombre de usuario es obligatorio';
@@ -64,24 +67,35 @@ export default function RegisterScreen({ navigation }) {
     } else if (password !== confirmPassword) {
       nuevosErrores.confirmPassword = 'Las contraseñas no coinciden';
     }
-
     setErrors(nuevosErrores);
     return Object.keys(nuevosErrores).length === 0;
   };
 
-  // Borra el error de un campo al empezar a escribir
   const handleChange = (setter, field) => (text) => {
     setter(text);
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
+
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const onChangeDate = (event, selectedDate) => {
+    if (Platform.OS === 'android') setShowDatePicker(false);
+    if (event.type === 'dismissed' || !selectedDate) return;
+    setBirthdate(selectedDate);
+    if (Platform.OS === 'ios') setShowDatePicker(false);
   };
 
   const ejecutarRegistro = async () => {
-    if (!validarFormulario()) return;
-
+    if (!validarFormulario()) {
+      showToast('Revisa los campos marcados en rojo', 'error');
+      return;
+    }
     setLoading(true);
-
     try {
       const userData = {
         first_name: firstName.trim(),
@@ -89,30 +103,24 @@ export default function RegisterScreen({ navigation }) {
         nickname: nickname.trim(),
         email: email.trim().toLowerCase(),
         password: password,
-        birth_date: birthdate, // Validado por tu DatePicker (YYYY-MM-DD)
-        // timezone se omite intencionadamente para usar el default del server
+        birth_date: formatDate(birthdate),
       };
-
-      // IMPORTANTE: Asegúrate de que AuthService.register esté recibiendo esto
-      const response = await AuthService.register(userData);
-
-     showToast('Usuario registrado. Revisa tu correo para el código de verificación.', 'success');
+      await AuthService.register(userData);
+      showToast('Usuario registrado. Revisa tu correo para el código de verificación.', 'success');
       navigation.navigate('Verify', { email: email.toLowerCase() });
     } catch (error) {
-      console.log("Detalle del error 422:", error);
-      showToast( error.message || 'No se pudo completar el registro','error');
+      showToast(error.message || 'No se pudo completar el registro', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  const volverAlLogin = () => {
-    navigation.replace('Login');
-  };
+  const volverAlLogin = () => navigation.replace('Login');
+  const birthdateString = formatDate(birthdate);
 
   return (
     <LinearGradient
-      colors={[colors.background, colors.primary,colors.background]}
+      colors={[colors.background, colors.primary, colors.background]}
       start={{ x: 1, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={{ flex: 1 }}
@@ -133,149 +141,82 @@ export default function RegisterScreen({ navigation }) {
                 <Text style={globalStyles.logo_focus}>Focus</Text>
                 <Text style={globalStyles.logo_bot}>.Bot</Text>
               </View>
-              <Text style={globalStyles.logoSubtitle}>Create Account</Text>
+              <Text style={globalStyles.logoSubtitle}>Crear cuenta</Text>
             </View>
 
-            {/* First Name */}
-            <TextInput
-              label="First Name"
-              value={firstName}
-              onChangeText={handleChange(setFirstName, 'firstName')}
-              mode="outlined"
-              style={globalStyles.input}
-              outlineStyle={{ borderRadius: 30 }}
-              left={<TextInput.Icon icon="account" />}
-              error={!!errors.firstName}
-            />
-            <HelperText type="error" visible={!!errors.firstName}>
-              {errors.firstName}
-            </HelperText>
+            <TextInput label="Nombre" value={firstName} onChangeText={handleChange(setFirstName, 'firstName')} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="account" />} error={!!errors.firstName} />
+            {errors.firstName ? <HelperText type="error" visible={true}>{errors.firstName}</HelperText> : null}
 
-            {/* Last Name */}
-            <TextInput
-              label="Last Name"
-              value={lastName}
-              onChangeText={handleChange(setLastName, 'lastName')}
-              mode="outlined"
-              style={globalStyles.input}
-              outlineStyle={{ borderRadius: 30 }}
-              left={<TextInput.Icon icon="account-group" />}
-              error={!!errors.lastName}
-            />
-            <HelperText type="error" visible={!!errors.lastName}>
-              {errors.lastName}
-            </HelperText>
+            <TextInput label="Apellidos" value={lastName} onChangeText={handleChange(setLastName, 'lastName')} mode="outlined" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="account-group" />} error={!!errors.lastName} />
+            {errors.lastName ? <HelperText type="error" visible={true}>{errors.lastName}</HelperText> : null}
 
-            {/* Nickname */}
-            <TextInput
-              label="Nickname"
-              value={nickname}
-              onChangeText={handleChange(setNickname, 'nickname')}
-              mode="outlined"
-              autoCapitalize="none"
-              style={globalStyles.input}
-              outlineStyle={{ borderRadius: 30 }}
-              left={<TextInput.Icon icon="at" />}
-              error={!!errors.nickname}
-            />
-            <HelperText type="error" visible={!!errors.nickname}>
-              {errors.nickname}
-            </HelperText>
+            <TextInput label="Usuario" value={nickname} onChangeText={handleChange(setNickname, 'nickname')} mode="outlined" autoCapitalize="none" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="at" />} error={!!errors.nickname} />
+            {errors.nickname ? <HelperText type="error" visible={true}>{errors.nickname}</HelperText> : null}
 
-            {/* Email */}
-            <TextInput
-              label="Email"
-              value={email}
-              onChangeText={handleChange(setEmail, 'email')}
-              mode="outlined"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              style={globalStyles.input}
-              outlineStyle={{ borderRadius: 30 }}
-              left={<TextInput.Icon icon="email" />}
-              error={!!errors.email}
-            />
-            <HelperText type="error" visible={!!errors.email}>
-              {errors.email}
-            </HelperText>
+            <TextInput label="Email" value={email} onChangeText={handleChange(setEmail, 'email')} mode="outlined" keyboardType="email-address" autoCapitalize="none" style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="email" />} error={!!errors.email} />
+            {errors.email ? <HelperText type="error" visible={true}>{errors.email}</HelperText> : null}
 
-            {/* Password */}
-            <TextInput
-              label="Password"
-              value={password}
-              onChangeText={handleChange(setPassword, 'password')}
-              mode="outlined"
-              secureTextEntry={!showPassword}
-              style={globalStyles.input}
-              outlineStyle={{ borderRadius: 30 }}
-              left={<TextInput.Icon icon="lock" />}
-              right={
-                <TextInput.Icon
-                  icon={showPassword ? 'eye-off' : 'eye'}
-                  onPress={() => setShowPassword(!showPassword)}
-                />
-              }
-              error={!!errors.password}
-            />
-            <HelperText type="error" visible={!!errors.password}>
-              {errors.password}
-            </HelperText>
+            <TextInput label="Contraseña" value={password} onChangeText={handleChange(setPassword, 'password')} mode="outlined" secureTextEntry={!showPassword} style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="lock" />} right={<TextInput.Icon icon={showPassword ? 'eye-off' : 'eye'} onPress={() => setShowPassword(!showPassword)} />} error={!!errors.password} />
+            {errors.password ? <HelperText type="error" visible={true}>{errors.password}</HelperText> : null}
 
-            {/* Confirm Password */}
-            <TextInput
-              label="Confirm Password"
-              value={confirmPassword}
-              onChangeText={handleChange(setConfirmPassword, 'confirmPassword')}
-              mode="outlined"
-              secureTextEntry={!showConfirmPassword}
-              style={globalStyles.input}
-              outlineStyle={{ borderRadius: 30 }}
-              left={<TextInput.Icon icon="lock-check" />}
-              right={
-                <TextInput.Icon
-                  icon={showConfirmPassword ? 'eye-off' : 'eye'}
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                />
-              }
-              error={!!errors.confirmPassword}
-            />
-            <HelperText type="error" visible={!!errors.confirmPassword}>
-              {errors.confirmPassword}
-            </HelperText>
+            <TextInput label="Confirmar contraseña" value={confirmPassword} onChangeText={handleChange(setConfirmPassword, 'confirmPassword')} mode="outlined" secureTextEntry={!showConfirmPassword} style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="lock-check" />} right={<TextInput.Icon icon={showConfirmPassword ? 'eye-off' : 'eye'} onPress={() => setShowConfirmPassword(!showConfirmPassword)} />} error={!!errors.confirmPassword} />
+            {errors.confirmPassword ? <HelperText type="error" visible={true}>{errors.confirmPassword}</HelperText> : null}
 
-            {/* Birthdate */}
-            <TextInput
-              label="Birthdate (YYYY-MM-DD)"
-              value={birthdate}
-              onChangeText={handleChange(setBirthdate, 'birthdate')}
-              mode="outlined"
-              placeholder="1990-01-01"
-              style={globalStyles.input}
-              outlineStyle={{ borderRadius: 30 }}
-              left={<TextInput.Icon icon="calendar" />}
-            />
+            {/* Fecha de nacimiento con aspecto de TextInput */}
+            {isWeb ? (
+              <input
+                type="date"
+                value={birthdateString}
+                onChange={(e) => {
+                  const newDate = new Date(e.target.value + 'T00:00:00');
+                  if (!isNaN(newDate.getTime())) setBirthdate(newDate);
+                }}
+                max={new Date().toISOString().split('T')[0]}
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  borderRadius: '30px',
+                  border: `1px solid ${errors.birthdate ? colors.error : colors.border || 'rgba(0,0,0,0.12)'}`,
+                  backgroundColor: colors.background,
+                  color: colors.text,
+                  fontFamily: 'inherit',
+                  fontSize: '15px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  marginBottom: 8,
+                }}
+              />
+            ) : (
+              <Pressable onPress={() => setShowDatePicker(true)}>
+                <View pointerEvents="none">
+                  <TextInput
+                    label="Fecha de nacimiento"
+                    value={birthdateString}
+                    mode="outlined"
+                    editable={false}
+                    style={globalStyles.input}
+                    outlineStyle={{ borderRadius: 30 }}
+                    left={<TextInput.Icon icon="calendar" />}
+                    error={!!errors.birthdate}
+                  />
+                </View>
+              </Pressable>
+            )}
+            {errors.birthdate ? <HelperText type="error" visible={true}>{errors.birthdate}</HelperText> : null}
+
+            {showDatePicker && DateTimePicker && (
+              <DateTimePicker
+                value={birthdate}
+                mode="date"
+                display={platform === 'ios' ? 'spinner' : 'default'}
+                onChange={onChangeDate}
+                maximumDate={new Date()}
+              />
+            )}
 
             <View style={globalStyles.botonera}>
-              <Button
-                mode="contained"
-                onPress={ejecutarRegistro}
-                loading={loading}
-                disabled={loading}
-                style={[globalStyles.button, { flex: 1 }]}
-                buttonColor={colors.primary} textColor={colors.background}
-                labelStyle={{ fontSize: 16, fontWeight: '600' }}
-              >
-                Register
-              </Button>
-
-              <Button
-                mode="outlined"
-                onPress={volverAlLogin}
-                disabled={loading}
-                style={[globalStyles.buttonOutline, { flex: 1 }]}
-              >
-                Cancel
-              </Button>
+              <Button mode="contained" onPress={ejecutarRegistro} loading={loading} disabled={loading} style={[globalStyles.button, { flex: 1 }]} buttonColor={colors.primary} textColor={colors.background} labelStyle={{ fontSize: 16, fontWeight: '600' }}>Registrarse</Button>
+              <Button mode="outlined" onPress={volverAlLogin} disabled={loading} style={[globalStyles.buttonOutline, { flex: 1 }]}>Cancelar</Button>
             </View>
           </View>
         </ScrollView>

@@ -63,6 +63,7 @@ export const AuthService = {
 export const UserService = {
     getUser: () => fetchApi('users/user', 'GET'),
     updateUser: (userData) => fetchApi('users/update', 'PATCH', userData),
+    deleteAccount: () => fetchApi('auth/delete-account', 'DELETE'),
 }
 
 export const BotService = {
