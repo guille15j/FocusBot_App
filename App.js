@@ -10,6 +10,8 @@ import { AuthContext } from './src/context/AuthContext';
 import { BotProvider } from './src/context/BotContext';
 import { ToastProvider } from './src/context/ToastContext';
 import { ActivityProvider } from './src/context/ActivityContext';
+import { ConfirmProvider } from './src/context/ConfirmContext';
+
 import { getAppTheme } from './src/theme/theme';
 
 import LoadingScreen from './src/screens/auth/LoadingScreen';
@@ -141,6 +143,7 @@ export default function App() {
     <AuthContext.Provider value={authActions}>
       <SafeAreaProvider>
         <PaperProvider theme={theme}>
+          <ConfirmProvider>
           <ToastProvider>
           <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
             <NavigationContainer ref={navigationRef}>
@@ -179,6 +182,7 @@ export default function App() {
             </NavigationContainer>
           </View>
           </ToastProvider>
+          </ConfirmProvider>
         </PaperProvider>
       </SafeAreaProvider>
     </AuthContext.Provider>

@@ -6,7 +6,7 @@ export const ActivityContext = createContext();
 
 export const ActivityProvider = ({ children }) => {
     const { user } = useContext(AuthContext);
-    const activitiesData = useActivities(false); //NUEVO
+    const activitiesData = useActivities(true);
 
     useEffect(() => {
         if (user) {
@@ -24,6 +24,7 @@ export const ActivityProvider = ({ children }) => {
             updateActivityState: activitiesData.updateActivityState,  // ← añadir esta línea
             deleteActivity: activitiesData.deleteActivity,
             fetchActivities: activitiesData.refresh,
+            refresh: activitiesData.refresh,
             createType: activitiesData.createType
         }}>
             {children}

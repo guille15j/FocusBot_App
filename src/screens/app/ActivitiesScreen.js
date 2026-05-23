@@ -1,9 +1,11 @@
 import React, { useState, useMemo, useContext } from 'react';
 import { View, ScrollView, useColorScheme, StyleSheet, Alert, RefreshControl } from 'react-native';
 import { Text, Searchbar, Icon } from 'react-native-paper';
-import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
+
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { getColors, getglobalStyles } from '../../theme/theme';
+
+import { ScreenWrapper } from '../../components/layout/ScreenWrapper';
 import CustomAnimatedFAB from '../../components/common/CustomAnimatedFAB';
 import ActivitiesGrid from '../../components/activities/ActivitiesGrid';
 import ActivityDetailModal from '../../components/activities/ActivityDetailModal';
@@ -12,11 +14,13 @@ import RecommendationButton from '../../components/common/RecommendationButton';
 // CONTEXTOS
 import { ActivityContext } from '../../context/ActivityContext';
 import { useToast } from '../../context/ToastContext';
+import { useConfirm } from '../../context/ConfirmContext';
 
 export default function Activities({ navigation }) {
   const scheme = useColorScheme();
   const { isWeb, platform } = useResponsiveLayout();
   const showToast = useToast();  
+  const showConfirm = useConfirm();
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
   
@@ -78,21 +82,24 @@ export default function Activities({ navigation }) {
   };
 
   const handleDeletePress = (activity) => {
-    Alert.alert(
-      "Eliminar",
-      "¿Seguro que quieres borrar esta actividad?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        { 
-          text: "Borrar", 
-          style: "destructive", 
+    showConfirm({
+      title: 'Eliminar Actividad',
+      message: '¿Seguro que quieres borrar esta actividaewrfd?',
+      icon: 'delete-alert-outline',
+      iconColor: '#F44336',
+      actions: [
+        { label: 'Cancelar', onPress: () => {} },
+        {
+          label: 'Eliminar',
+          primary: true,
           onPress: async () => {
             await deleteActivity(activity.activity_id);
             setDetailModalVisible(false);
-          } 
-        }
-      ]
-    );
+            showToast('Actividad eliminada', 'success');   // ← si también tienes el toast
+          },
+        },
+      ],
+    });
   };
 
   const handleEditPress = (activity) => {
