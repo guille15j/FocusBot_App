@@ -81,20 +81,21 @@ export default function LoginScreen({ navigation }) {
   }, [response]);
 
   const manejarLoginGoogle = async (token) => {
-    setLoading(true);
-    try {
-      const res = await AuthService.googleLoggin(token);
-      if (res.token) {
-        await signIn(res.token);
-      } else {
-        showToast(res.message || 'Token inválido', 'error');
-      }
-    } catch (err) {
-      showToast('Error de conexión con el backend', 'error');
-    } finally {
-      setLoading(false);
+  setLoading(true);
+  try {
+    const res = await AuthService.googleLoggin(token);
+    if (res.token) {
+      await signIn(res.token, res.user);
+    } else {
+      showToast(res.message || 'Token inválido', 'error');
     }
-  };
+  } catch (err) {
+    console.error("Error en googleLoggin:", err);
+    showToast('Error de conexión con el backend', 'error');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const ejecutarLogin = async () => {
     setSubmitted(true);
@@ -224,6 +225,7 @@ export default function LoginScreen({ navigation }) {
                 onSuccess={(token, user) => signIn(token, user)}
                 colors={colors}
                 globalStyles={globalStyles}
+                clientId={webClientId}   
               />
             ) : (
               <Button
