@@ -56,14 +56,13 @@ export const AuthService = {
     resendCode: (email) => fetchApi('auth/resend-code', 'POST', { email }),
     resetPassword: (data) => fetchApi('auth/change/password', 'POST', data),
     googleLoggin: (googleToken) => fetchApi('auth/google', 'POST', { token: googleToken }),
-
+    deleteAccount: () => fetchApi('auth/delete-account', 'DELETE'),
 
 };
 
 export const UserService = {
     getUser: () => fetchApi('users/user', 'GET'),
     updateUser: (userData) => fetchApi('users/update', 'PATCH', userData),
-    deleteAccount: () => fetchApi('auth/delete-account', 'DELETE'),
 }
 
 export const BotService = {

@@ -52,12 +52,7 @@ export const authStorage = {
 
   // Eliminar token
   deleteToken: async () => {
-    try {
-      await AsyncStorage.removeItem(TOKEN_KEY);
-      console.log('Token eliminado');
-    } catch (error) {
-      console.error('Error eliminando token:', error);
-    }
+    await AsyncStorage.removeItem(TOKEN_KEY);
   },
 
   // Función para verificar si un token JWT está caducado
@@ -88,12 +83,7 @@ export const authStorage = {
   },
 
   // Eliminar usuario
-  deleteUser: async () => {
-    try {
-      await AsyncStorage.removeItem(USER_KEY);
-      console.log('Usuario eliminado');
-    } catch (error) {
-      console.error('Error eliminando usuario:', error);
-    }
-  }
+   deleteUser: async () => {
+    await AsyncStorage.removeItem(USER_KEY);
+  },
 };

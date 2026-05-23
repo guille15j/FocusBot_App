@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { authStorage } from '../core/authStorage';
+import { AuthService } from '../api/apiService';
 
 export const AuthContext = createContext({});
 
@@ -44,7 +45,6 @@ export const AuthProvider = ({ children }) => {
         try {
             await authStorage.saveToken(token);
             await authStorage.saveUser(userData);
-            console.log("DENTRO DEL SIGNIN - ...USERDATA",...userData);
             setUser({ ...userData }); 
         } catch (e) {
             console.error("Error al iniciar sesión:", e);
@@ -52,13 +52,32 @@ export const AuthProvider = ({ children }) => {
     };
 
     const signOut = async () => {
-        await authStorage.removeToken();
-        await authStorage.removeUser();
-        setUser(null);
+        try {
+            console.log("Cerrando sesión...");
+            await authStorage.deleteToken();   
+            await authStorage.deleteUser();    
+            setUser(null);
+            console.log("Sesión cerrada correctamente");
+        } catch (error) {
+            console.error("Error en signOut:", error);
+        }
+    };
+
+    const deleteAccount = async () => {
+        try {
+            console.log('Borrando...');
+            await AuthService.deleteAccount();
+            await authStorage.deleteToken();
+            await authStorage.deleteUserc();
+            setUser(null);
+        } catch (error) {
+            console.error("Error en deleteAccount (contexto):", error);
+            throw error; 
+        }
     };
 
     return (
-        <AuthContext.Provider value={{ user, signIn, signOut, isLoading }}>
+        <AuthContext.Provider value={{ user, signIn, signOut, deleteAccount, isLoading }}>
             {children}
         </AuthContext.Provider>
     );

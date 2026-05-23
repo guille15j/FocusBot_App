@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Platform, StyleSheet, Text, TouchableOpacity, View, } from 'react-native';
 import { Portal } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -70,7 +70,7 @@ const StatusToast = ({ message, type = 'info', visible, onDismiss }) => {
       <Animated.View
         style={[
           styles.container,
-          { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+          { opacity: fadeAnim, transform: [{ translateY: Platform.OS === 'web' ? null : slideAnim }] },
         ]}
       >
         <TouchableOpacity onPress={hideToast} activeOpacity={0.9}>
@@ -94,11 +94,12 @@ const StatusToast = ({ message, type = 'info', visible, onDismiss }) => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 90,
-    left: 20,
-    right: 20,
+    bottom: Platform.OS === 'web' ? 303 : 90,
+    left: Platform.OS === 'web' ? null : 20,
+    right:  Platform.OS === 'web' ? 10: 20,
     alignItems: 'center',
     zIndex: 9999,
+    
   },
   pill: {
     flexDirection: 'row',
@@ -113,7 +114,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 10,
-    minWidth: 200,
+    minWidth: Platform.OS === 'web' ? null : 300,
   },
   message: {
     color: '#FFFFFF',
