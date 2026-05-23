@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, StyleSheet, Alert, useColorScheme } from 'react-native';
+import { View, StyleSheet, useColorScheme } from 'react-native';
 import { Portal, Modal, TextInput, Button, Text, IconButton, HelperText } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import { useConfirm } from '../../context/ConfirmContext';
+import { useToast } from '../../context/ToastContext';
 
 const EditBotModal = ({ visible, bot, onDismiss, onUpdate, onDelete }) => {
   const insets = useSafeAreaInsets();
@@ -13,12 +15,14 @@ const EditBotModal = ({ visible, bot, onDismiss, onUpdate, onDelete }) => {
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
   
+  const showConfirm = useConfirm();
+  const showToast = useToast();
+
   const [botName, setBotName] = useState('');
   const [error, setError] = useState('');
   const [touched, setTouched] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Sincronizamos el nombre cuando se abre el modal o cambia el bot
   useEffect(() => {
     if (bot) {
       setBotName(bot.name || bot.custom_name || '');
@@ -57,39 +61,40 @@ const EditBotModal = ({ visible, bot, onDismiss, onUpdate, onDelete }) => {
     if (!validationError && bot) {
       try {
         setLoading(true);
-        // Llamamos a la función del contexto. Enviamos el ID y el nuevo nombre.
         await onUpdate(bot.bot_id, { custom_name: botName });
         setLoading(false);
+        showToast('Bot actualizado correctamente', 'success');
         onDismiss();
       } catch (err) {
         setLoading(false);
-        console.error("Error al actualizar:", err);
-        Alert.alert("Error", "No se pudo actualizar el bot.");
+        showToast('Error al actualizar el bot', 'error');
       }
     }
   };
 
   const handleDelete = () => {
-    Alert.alert(
-      'Eliminar Bot',
-      `¿Estás seguro de que deseas eliminar "${bot?.name || bot?.custom_name}"? Esta acción no se puede deshacer.`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'Eliminar', 
-          style: 'destructive',
+    showConfirm({
+      title: 'Eliminar Bot',
+      message: `¿Estás seguro de que deseas eliminar "${bot?.name || bot?.custom_name}"? Esta acción no se puede deshacer.`,
+      icon: 'delete-alert-outline',
+      iconColor: colors.error,
+      actions: [
+        { label: 'Cancelar', onPress: () => {} },
+        {
+          label: 'Eliminar',
+          primary: true,
           onPress: async () => {
             try {
               await onDelete(bot.bot_id);
               onDismiss();
+              showToast('Bot eliminado correctamente', 'success');
             } catch (err) {
-              console.error("Error al eliminar:", err);
-              Alert.alert("Error", "No se pudo eliminar el bot.");
+              showToast('Error al eliminar el bot', 'error');
             }
-          }
+          },
         },
-      ]
-    );
+      ],
+    });
   };
 
   const handleDismiss = () => {

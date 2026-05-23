@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useContext } from 'react';
-import { View, ScrollView, StyleSheet, Alert, useColorScheme } from 'react-native';
+import { View, ScrollView, StyleSheet, useColorScheme } from 'react-native';
 import { Text, TextInput, Button, IconButton, Menu, TouchableRipple, Surface, Portal, Modal } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -39,15 +39,15 @@ const AUDIO_LIST = [
 ];
 
 const ACTIVITY_TYPE_INFO = {
-  POMODORO: 'Técnica de gestión del tiempo que alterna periodos de trabajo enfocado con descansos cortos. Tras varios ciclos, se toma un descanso largo.\n\nLos ciclos totales representan cuantos tiempos de trabajo quieres realizar. Si se deja a cero serán ifninitos y se acabara de manera manual.',
+  POMODORO: 'Técnica de gestión del tiempo que alterna periodos de trabajo enfocado con descansos cortos. Tras varios ciclos, se toma un descanso largo.\n\nLos ciclos totales representan cuantos tiempos de trabajo quieres realizar. Si se deja a cero serán infinitos y se acabara de manera manual.',
   HITO: 'Divide tu objetivo en pasos concretos y medibles. Puedes añadir hasta 10 hitos indicando el nombre de la tarea.',
   TEMPORIZADOR: 'Cuenta regresiva simple. Configura horas y minutos para tu actividad.',
-  
 };
 
 export default function CreateActivityScreen({ navigation, route }) {
   const { addFullActivity, updateActivity, createType, loading } = useContext(ActivityContext);
   const { bots } = useContext(BotContext);
+  const showToast = useToast();
 
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
@@ -58,30 +58,32 @@ export default function CreateActivityScreen({ navigation, route }) {
   const activity = route?.params?.activity || null;
   const isEditing = activity !== null;
 
-  const [selectedBot, setSelectedBot] = useState(activity?.bot_id || null);     // id bot
-  const [title, setTitle] = useState(activity?.title || '');                    // titulo actividad
-  const [category, setCategory] = useState(activity?.category || '');           // Categoria enumerador en bbdd
-    // titulo tipo de actividad
-  
-  const [audioProfile, setAudioProfile] = useState(activity?.extra_data.audio || 'ninguno');                  // confiugracion de audio - extra_data en bbdd
-  const [audioMenuVisible, setAudioMenuVisible] = useState(false);              
+  const [selectedBot, setSelectedBot] = useState(activity?.bot_id || null);
+  const [title, setTitle] = useState(activity?.title || '');
+  const [category, setCategory] = useState(activity?.category || '');
+  const [activityType, setActivityType] = useState(activity?.type?.name_type || 'POMODORO');
+
+  const [audioProfile, setAudioProfile] = useState(activity?.extra_data?.audio || 'ninguno');
+  const [audioMenuVisible, setAudioMenuVisible] = useState(false);
 
   const [focusTime, setFocusTime] = useState(activity?.type?.work_duration?.toString() || '25');
   const [shortBreak, setShortBreak] = useState(activity?.type?.short_break?.toString() || '5');
   const [longBreak, setLongBreak] = useState(activity?.type?.long_break?.toString() || '15');
   const [cyclesBeforeLong, setCyclesBeforeLong] = useState(activity?.type?.cycles_before_long?.toString() || '4');
-  const [totalCycles, setTotalCycles] = useState(activity?.extra_data?.total_ciclos || 4); 
+  const [totalCycles, setTotalCycles] = useState(activity?.extra_data?.total_ciclos || 4);
   const [timerHours, setTimerHours] = useState(activity?.type?.work_duration != null ? Math.floor(activity.type.work_duration / 60).toString() : '0');
   const [timerMinutes, setTimerMinutes] = useState(activity?.type?.work_duration != null ? (activity.type.work_duration % 60).toString() : '25');
-  const [activityType, setActivityType] = useState(activity?.type?.name_type || 'POMODORO');
 
   const [hitos, setHitos] = useState(
     activity?.extra_data?.hitos?.map(hito => ({ nombre: hito })) || [{ nombre: '' }]
   );
+  const [hitosError, setHitosError] = useState(false);
 
   const [categoryMenuVisible, setCategoryMenuVisible] = useState(false);
   const [typeMenuVisible, setTypeMenuVisible] = useState(false);
   const [infoModalVisible, setInfoModalVisible] = useState(false);
+
+  const [submitted, setSubmitted] = useState(false);
 
   const selectedCategory = CATEGORY_LIST.find(c => c.value === category);
   const selectedType = ACTIVITY_TYPE_LIST.find(t => t.value === activityType);
@@ -96,19 +98,27 @@ export default function CreateActivityScreen({ navigation, route }) {
   };
 
   const handleSave = async () => {
+    setSubmitted(true);
     if (!title.trim() || !selectedBot || !category || !activityType) {
       showToast('Por favor, rellena los campos obligatorios.', 'error');
       return;
     }
 
+    // Validación para hitos
+    if (activityType === 'HITO') {
+      const hitosValidos = hitos.filter(h => h.nombre.trim() !== '');
+      if (hitosValidos.length === 0) {
+        setHitosError(true);
+        showToast('Debes añadir al menos un hito.', 'error');
+        return;
+      }
+      setHitosError(false);
+    }
+
     try {
       const extra_data = { audio: audioProfile };
-
-      if (activityType === 'POMODORO') {
-        extra_data.total_ciclos = parseInt(totalCycles, 10);
-      } else if (activityType === 'HITO') {
-        extra_data.hitos = hitos.map(h => h.nombre).filter(n => n.trim() !== '');
-      }
+      if (activityType === 'POMODORO') extra_data.total_ciclos = parseInt(totalCycles, 10);
+      else if (activityType === 'HITO') extra_data.hitos = hitos.map(h => h.nombre).filter(n => n.trim() !== '');
 
       const shortBreakValue = activityType === 'POMODORO' ? parseInt(shortBreak || 0) : 0;
       const longBreakValue  = activityType === 'POMODORO' ? parseInt(longBreak || 0)  : 0;
@@ -117,7 +127,6 @@ export default function CreateActivityScreen({ navigation, route }) {
           ? (parseInt(timerHours || 0) * 60 + parseInt(timerMinutes || 0))
           : parseInt(focusTime || 0);
 
-      // Crear o reutilizar el tipo
       const tipoResponse = await createType({
           name_type: activityType,
           work_duration: workDuration,
@@ -127,7 +136,6 @@ export default function CreateActivityScreen({ navigation, route }) {
       });
       const nuevoTypeId = tipoResponse.id;
 
-      //Creamos la actividad
       await addFullActivity({ 
           title: title.trim(),
           bot_id: selectedBot,
@@ -138,24 +146,32 @@ export default function CreateActivityScreen({ navigation, route }) {
 
       navigation.goBack();
     } catch (error) {
-      showToast('Error', error.message || 'Error al guardar');
+      showToast(error.message || 'Error al guardar', 'error');
     }
   };
 
   const handleEdit = async () => {
+    setSubmitted(true);
     if (!title.trim() || !selectedBot || !category || !activityType) {
       showToast('Por favor, rellena los campos obligatorios.', 'error');
       return;
-    } 
+    }
+
+    // Validación para hitos
+    if (activityType === 'HITO') {
+      const hitosValidos = hitos.filter(h => h.nombre.trim() !== '');
+      if (hitosValidos.length === 0) {
+        setHitosError(true);
+        showToast('Debes añadir al menos un hito.', 'error');
+        return;
+      }
+      setHitosError(false);
+    }
 
     try {
       const extra_data = { audio: audioProfile };
-
-      if (activityType === 'POMODORO') {
-          extra_data.total_ciclos = parseInt(totalCycles, 10);
-      } else if (activityType === 'HITO') {
-          extra_data.hitos = hitos.map(h => h.nombre).filter(n => n.trim() !== '');
-      }
+      if (activityType === 'POMODORO') extra_data.total_ciclos = parseInt(totalCycles, 10);
+      else if (activityType === 'HITO') extra_data.hitos = hitos.map(h => h.nombre).filter(n => n.trim() !== '');
 
       const shortBreakValue = activityType === 'POMODORO' ? parseInt(shortBreak || 0) : 0;
       const longBreakValue  = activityType === 'POMODORO' ? parseInt(longBreak || 0)  : 0;
@@ -164,7 +180,6 @@ export default function CreateActivityScreen({ navigation, route }) {
           ? (parseInt(timerHours || 0) * 60 + parseInt(timerMinutes || 0))
           : parseInt(focusTime || 0);
 
-      // Crear o reutilizar el tipo
       const tipoResponse = await createType({
           name_type: activityType,
           work_duration: workDuration,
@@ -174,7 +189,6 @@ export default function CreateActivityScreen({ navigation, route }) {
       });
       const nuevoTypeId = tipoResponse.id;
 
-      // Actualizar la actividad con el nuevo type_id y demás campos 
       await updateActivity(activity.activity_id, {
           title: title.trim(),
           bot_id: selectedBot,
@@ -185,41 +199,64 @@ export default function CreateActivityScreen({ navigation, route }) {
 
       navigation.goBack();
     } catch (error) {
-        showToast('Error', error.message || 'Error al actualizar la actividad');
+      showToast(error.message || 'Error al actualizar la actividad', 'error');
     }
-    
+  };
+
+  const showError = (value, isDropdown = false) => {
+    if (!submitted) return false;
+    if (isDropdown) return !value;
+    return !(value || '').trim();
   };
 
   return (
     <ScreenWrapper withScroll={true}>
       <View style={[isWeb ? globalStyles.container_web : globalStyles.container_movil, { flex: 1 }]}>
-        
         <View style={[styles.header, { borderBottomColor: colors.placeholder + '30' , marginRight: 16}]}>
           <IconButton icon="arrow-left" size={24} onPress={() => navigation.goBack()} iconColor={colors.text} />
           <Text style={[styles.headerTitle, { color: colors.text }]}>{isEditing ? 'Editar Actividad' : 'Nueva Actividad'}</Text>
-          
           <RecommendationButton size={1} />
         </View>
 
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}>
-          
-          <Text style={[styles.label, { color: colors.textLight, marginTop: 20 }]}>SELECCIONAR BOT</Text>
+          <Text style={[styles.label, { color: colors.textLight, marginTop: 20 }]}>
+            SELECCIONAR BOT <Text style={{ color: colors.error }}>*</Text>
+          </Text>
           <BotCarousel 
             bots={bots} 
             selectedBot={selectedBot} 
             onIndexChange={(bot) => { if (bot && !bot.isAddButton) setSelectedBot(bot.bot_id); }} 
             globalStyles={globalStyles} 
             colors={colors} 
+            selectedBotId={selectedBot}
           />
+          {showError(selectedBot, true) && (
+            <Text style={[styles.errorHint, { color: colors.error }]}>Debes seleccionar un bot</Text>
+          )}
 
-          <TextInput label="Título de la actividad" mode="outlined" outlineStyle={{ borderRadius: 30 }} style={globalStyles.input} value={title} onChangeText={setTitle} />
+          <TextInput
+            label="Título de la actividad"
+            mode="outlined"
+            outlineStyle={{ borderRadius: 30, borderColor: showError(title) ? colors.error : undefined }}
+            outlineColor={showError(title) ? colors.error : undefined}
+            style={globalStyles.input}
+            value={title}
+            onChangeText={setTitle}
+          />
+          {showError(title) && (
+            <Text style={[styles.errorHint, { color: colors.error }]}>El título es obligatorio</Text>
+          )}
 
-          {/* categoria */}
           <View style={styles.dropdownRow}>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.label, { color: colors.textLight }]}>CATEGORÍA</Text>
+              <Text style={[styles.label, { color: colors.textLight }]}>
+                CATEGORÍA <Text style={{ color: colors.error }}>*</Text>
+              </Text>
               <Menu visible={categoryMenuVisible} onDismiss={() => setCategoryMenuVisible(false)} anchor={
-                <TouchableRipple onPress={() => setCategoryMenuVisible(true)} style={[styles.dropdown, { backgroundColor: selectedCategory ? selectedCategory.color + '15' : colors.surface, borderColor: selectedCategory ? selectedCategory.color : colors.placeholder + '40' }]}>
+                <TouchableRipple onPress={() => setCategoryMenuVisible(true)} style={[styles.dropdown, { 
+                  backgroundColor: selectedCategory ? selectedCategory.color + '15' : colors.surface, 
+                  borderColor: showError(category, true) ? colors.error : (selectedCategory ? selectedCategory.color : colors.placeholder + '40')
+                }]}>
                   <View style={styles.dropdownContent}>
                     {selectedCategory && <MaterialCommunityIcons name={selectedCategory.icon} size={20} color={selectedCategory.color} style={{ marginRight: 8 }} />}
                     <Text style={{ color: selectedCategory ? selectedCategory.color : colors.placeholder, fontWeight: '600' }}>{selectedCategory ? selectedCategory.label : 'Seleccionar'}</Text>
@@ -232,16 +269,13 @@ export default function CreateActivityScreen({ navigation, route }) {
               </Menu>
             </View>
             
-            {/* audioo */}
             <View style={{ flex: 1 }}>
               <Text style={[styles.label, { color: colors.textLight }]}>AUDIO AMBIENTE</Text>
               <Menu visible={audioMenuVisible} onDismiss={() => setAudioMenuVisible(false)} anchor={
-                <TouchableRipple 
-                  onPress={() => setAudioMenuVisible(true)} 
-                  style={[styles.dropdown, { 
-                    backgroundColor: selectedAudio ? selectedAudio.color + '15' : colors.surface, 
-                    borderColor: selectedAudio ? selectedAudio.color : colors.placeholder + '40' }]}
-                >
+                <TouchableRipple onPress={() => setAudioMenuVisible(true)} style={[styles.dropdown, { 
+                  backgroundColor: selectedAudio ? selectedAudio.color + '15' : colors.surface, 
+                  borderColor: selectedAudio ? selectedAudio.color : colors.placeholder + '40'
+                }]}>
                   <View style={styles.dropdownContent}>
                     <MaterialCommunityIcons name={selectedAudio?.icon} size={20} color={selectedAudio?.color} style={{ marginRight: 8 }} />
                     <Text style={{ color: selectedAudio?.color || colors.placeholder, fontWeight: '600' }}>{selectedAudio?.label || 'Sin sonido'}</Text>
@@ -255,10 +289,14 @@ export default function CreateActivityScreen({ navigation, route }) {
             </View>
           </View>
 
-          {/* tipo */}
-          <Text style={[styles.label, { color: colors.textLight, marginTop: 24 }]}>TIPO DE ACTIVIDAD</Text>
+          <Text style={[styles.label, { color: colors.textLight, marginTop: 24 }]}>
+            TIPO DE ACTIVIDAD <Text style={{ color: colors.error }}>*</Text>
+          </Text>
           <Menu visible={typeMenuVisible} onDismiss={() => setTypeMenuVisible(false)} anchor={
-            <TouchableRipple onPress={() => setTypeMenuVisible(true)} style={[styles.dropdown, { height: 55, borderColor: selectedType?.color || colors.placeholder + '40' }]}>
+            <TouchableRipple onPress={() => setTypeMenuVisible(true)} style={[styles.dropdown, { 
+              height: 55, 
+              borderColor: showError(activityType, true) ? colors.error : (selectedType?.color || colors.placeholder + '40')
+            }]}>
               <View style={styles.dropdownContent}>
                 <MaterialCommunityIcons name={selectedType?.icon} size={24} color={selectedType?.color} style={{ marginRight: 12 }} />
                 <Text style={{ flex: 1, fontSize: 16, fontWeight: 'bold', color: selectedType?.color }}>{selectedType?.label}</Text>
@@ -292,9 +330,11 @@ export default function CreateActivityScreen({ navigation, route }) {
             )}
 
             {activityType === 'HITO' && (
-              <View>
+              <View style={[hitosError && { borderColor: colors.error, borderWidth: 1, borderRadius: 12, padding: 8 }]}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                  <Text style={[styles.label, { marginBottom: 0 }]}>Hitos de la actividad</Text>
+                  <Text style={[styles.label, { marginBottom: 0 }]}>
+                    Hitos de la actividad <Text style={{ color: colors.error }}>*</Text>
+                  </Text>
                   <Text style={[styles.label, { color: hitos.length >= 10 ? colors.error : colors.primary }]}>{hitos.length}/10</Text>
                 </View>
                 {hitos.map((hito, index) => (
@@ -304,9 +344,21 @@ export default function CreateActivityScreen({ navigation, route }) {
                       <Text style={{ marginLeft: 8, fontWeight: '600' }}>Hito {index + 1}</Text>
                       <IconButton icon="close" size={18} onPress={() => removeHito(index)} style={{ marginLeft: 'auto', margin: 0 }} />
                     </View>
-                    <TextInput label="¿Qué hay que hacer?" mode="outlined" dense outlineStyle={{ borderRadius: 20 }} value={hito.nombre} onChangeText={(t) => updateHito(index, t)} />
+                    <TextInput
+                      label="¿Qué hay que hacer?"
+                      mode="outlined"
+                      dense
+                      outlineStyle={{ borderRadius: 20 }}
+                      value={hito.nombre}
+                      onChangeText={(t) => updateHito(index, t)}
+                    />
                   </Surface>
                 ))}
+                {hitosError && (
+                  <Text style={[styles.errorHint, { color: colors.error, marginBottom: 8 }]}>
+                    Al menos un hito es obligatorio.
+                  </Text>
+                )}
                 {hitos.length < 10 && (
                   <Button icon="plus" mode="outlined" onPress={addHito} style={{ marginTop: 5, borderRadius: 20 }}>Hito</Button>
                 )}
@@ -321,20 +373,15 @@ export default function CreateActivityScreen({ navigation, route }) {
             )}
           </View>
 
-
           <Button mode="contained" 
-            onPress={activity ? handleEdit :handleSave} 
+            onPress={activity ? handleEdit : handleSave} 
             loading={loading} style={[globalStyles.button, { flex: 1 }]} 
             buttonColor={colors.primary} 
             textColor={colors.background} 
             icon={activity ? 'content-save' : 'playlist-plus'}
           >
             {activity ? 'Guardar Cambios' : 'Crear'}
-            
-            
           </Button>
-
-
         </ScrollView>
 
         <Portal>
@@ -370,5 +417,6 @@ const styles = StyleSheet.create({
   btn: { flex: 1, borderRadius: 25, height: 48, justifyContent: 'center' },
   modal: { padding: 25, margin: 20, borderRadius: 28 },
   modalHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-  modalTitle: { fontSize: 22, fontWeight: 'bold' }
+  modalTitle: { fontSize: 22, fontWeight: 'bold' },
+  errorHint: { fontSize: 12, marginLeft: 4, marginTop: 2, marginBottom: 4 },
 });

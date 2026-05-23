@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, Alert, Pressable, Platform } from 'react-native';
+import { View, StyleSheet, Pressable, Platform } from 'react-native';
 import { Portal, Modal, Button, Text, IconButton, Surface } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
 import { getColors } from '../../theme/theme';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-
+import { useToast } from '../../context/ToastContext';
 
 const GenerateRecordModal = ({ visible, onDismiss, onGenerate }) => {
   const insets = useSafeAreaInsets();
@@ -16,14 +16,14 @@ const GenerateRecordModal = ({ visible, onDismiss, onGenerate }) => {
   const { isWeb, platform } = useResponsiveLayout();
   const DateTimePicker = !isWeb ? require('@react-native-community/datetimepicker').default : null;
 
+  const showToast = useToast();
+
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   
-  // En móviles gestionamos los flujos independientes 'date' y 'time'
-  const [showPicker, setShowPicker] = useState(null); // 'start_date' | 'start_time' | 'end_date' | 'end_time' | null
+  const [showPicker, setShowPicker] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Manejador nativo móvil para acoplar fecha y hora de forma fluida
   const onChangeNative = (event, selectedDate) => {
     if (event.type === 'dismissed' || !selectedDate) {
       setShowPicker(null);
@@ -34,7 +34,7 @@ const GenerateRecordModal = ({ visible, onDismiss, onGenerate }) => {
       const updated = new Date(startDate);
       updated.setFullYear(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
       setStartDate(updated);
-      setShowPicker('start_time'); // Salto automático a la hora para mejorar la usabilidad
+      setShowPicker('start_time');
     } else if (showPicker === 'start_time') {
       const updated = new Date(startDate);
       updated.setHours(selectedDate.getHours(), selectedDate.getMinutes());
@@ -53,7 +53,6 @@ const GenerateRecordModal = ({ visible, onDismiss, onGenerate }) => {
     }
   };
 
-  // Manejador adaptativo para entornos web estándar
   const onChangeWeb = (type, value) => {
     if (!value) return;
     const selectedDate = new Date(value);
@@ -63,28 +62,26 @@ const GenerateRecordModal = ({ visible, onDismiss, onGenerate }) => {
 
   const handleGenerate = async () => {
     if (startDate >= endDate) {
-      Alert.alert("Rango Inválido", "La fecha de inicio debe ser anterior a la de fin.");
+      showToast('La fecha de inicio debe ser anterior a la de fin.', 'error');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // Envío seguro controlando variaciones estructurales de la respuesta de la API
       const result = await onGenerate(startDate.toISOString(), endDate.toISOString());
       
       if (result && (result.success || result.status === 200 || result.status === 201 || result.id)) {
         onDismiss();
       } else {
-        onDismiss(); // Cierre por cortesía si el proceso finalizó correctamente sin payload explícito
+        onDismiss();
       }
     } catch (error) {
-      Alert.alert("Error", "Ocurrió un problema al procesar el reporte.");
+      showToast('Ocurrió un problema al procesar el reporte.', 'error');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Conversión a formato local de inputs HTML5 (YYYY-MM-DDTHH:MM)
   const toHTML5DateTimeString = (date) => {
     const tzOffset = date.getTimezoneOffset() * 60000;
     const localISOTime = (new Date(date.getTime() - tzOffset)).toISOString().slice(0, 16);

@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, Alert, useColorScheme } from 'react-native';
+import { View, StyleSheet, useColorScheme } from 'react-native';
 import { Portal, Modal, TextInput, Button, Text, IconButton, HelperText } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import MacAddressInput from '../forms/MACInput';
+import { useToast } from '../../context/ToastContext';
 
 const LinkBotModal = ({ visible, onDismiss, onLink }) => {
   const insets = useSafeAreaInsets();
@@ -14,6 +15,8 @@ const LinkBotModal = ({ visible, onDismiss, onLink }) => {
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
   
+  const showToast = useToast();
+
   const [macAddress, setMacAddress] = useState('');
   const [botName, setBotName] = useState('FocusBot');
   const [errors, setErrors] = useState({});
@@ -86,16 +89,12 @@ const LinkBotModal = ({ visible, onDismiss, onLink }) => {
     }
 
     try {
-      // Llamamos a la función del contexto que inyectamos vía props
       await onLink(macAddress, botName);
-      
-      // Si todo va bien, limpiamos y cerramos
       resetForm();
       onDismiss();
     } catch (err) {
-      // Aquí podrías manejar el error visualmente si quieres
       console.error("Error al vincular:", err);
-      Alert.alert("Error", "No se pudo vincular el bot. Revisa la dirección MAC.");
+      showToast('No se pudo vincular el bot. Revisa la dirección MAC.', 'error');
     }
   };
 

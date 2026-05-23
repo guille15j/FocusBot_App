@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useContext, useEffect } from 'react';
-import { View, Pressable, useColorScheme, Alert, StyleSheet, Platform } from 'react-native';
+import { View, Pressable, useColorScheme, StyleSheet, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 import {
@@ -51,7 +51,7 @@ export default function ProfilePage({ navigation }) {
   const [severity, setSeverity] = useState('LEVE');
 
   const [loading, setLoading] = useState(false);
-  const [isEditing, setIsEditing] = useState(false); // 🚀 Corregido nombre semántico
+  const [isEditing, setIsEditing] = useState(false);
 
   const [severityMenuVisible, setSeverityMenuVisible] = useState(false);
   const [timezoneMenuVisible, setTimezoneMenuVisible] = useState(false);
@@ -108,32 +108,22 @@ export default function ProfilePage({ navigation }) {
         description_detail: description_detail,
         severity: severity,
       };
-      
+
       await UserService.updateUser(datosActualizados);
       const tokenActual = await authStorage.getToken();
-      
+
       const usuarioParaContexto = {
         ...user,
         ...datosActualizados
       };
-      
-      await signIn(tokenActual, usuarioParaContexto); 
+
+      await signIn(tokenActual, usuarioParaContexto);
       setIsEditing(false);
-      
-      // Adaptación multiplataforma para alertas
-      if (isWeb) {
-        alert("Perfil actualizado correctamente");
-      } else {
-         showToast( "Perfil actualizado correctamente",'success');
-      }
+
+      showToast('Perfil actualizado correctamente', 'success');
     } catch (error) {
       console.error("ERROR CRÍTICO EN ACTUALIZACIÓN:", error);
-      showToast("Ocurrió un fallo al sincronizar los datos locales.",'error');
-      // if (isWeb) {
-      //   alert("Ocurrió un fallo al sincronizar los datos locales.");
-      // } else {
-      //    showToast("Ocurrió un fallo al sincronizar los datos locales.",'error');
-      // }
+      showToast('Ocurrió un fallo al sincronizar los datos locales.', 'error');
     } finally {
       setLoading(false);
     }
@@ -147,8 +137,7 @@ export default function ProfilePage({ navigation }) {
   const seleccionarImagen = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      if (isWeb) alert('Necesitamos acceso a tus fotos.');
-      else  showToast('Permiso denegado.Necesitamos acceso a tus fotos.');
+      showToast('Necesitamos acceso a tus fotos.', 'error');
       return;
     }
 
@@ -156,7 +145,7 @@ export default function ProfilePage({ navigation }) {
       mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 0.2, // Compresión estratégica para no sobrecargar almacenamiento Base64
+      quality: 0.2,
       base64: true,
     });
 
@@ -166,25 +155,37 @@ export default function ProfilePage({ navigation }) {
     }
   };
 
+  const handleCancelar = () => {
+    resetFormFields();
+    setIsEditing(false);
+  };
+
   const severityLabel = SEVERITY_OPTIONS.find(opt => opt.value === severity)?.label || severity;
   const descLength = description_detail?.length || 0;
 
   return (
     <ScreenWrapper withScroll={true}>
       <View style={isWeb ? globalStyles.container_web : globalStyles.container_movil}>
-        
+
         {/* SECCIÓN DEL AVATAR */}
         <View style={styles.avatarSection}>
           <View style={styles.avatarContainer}>
             <Avatar.Image
               size={120}
               source={profileImg ? { uri: profileImg } : require('../../assets/avatar.png')}
-              style={{ backgroundColor: colors.surfaceVariant + '40'}}
+              style={{ backgroundColor: colors.surfaceVariant + '40' }}
             />
             {isEditing && (
-              <Surface style={[styles.editBadge, { backgroundColor: colors.primary }]} elevation={4}>
-                <IconButton icon="camera" size={18} iconColor={colors.surface} onPress={seleccionarImagen} style={styles.noMargin} />
-              </Surface>
+              <View style={styles.editActions}>
+                <Surface style={[styles.editBadge, { backgroundColor: colors.primary }]} elevation={4}>
+                  <IconButton icon="camera" size={18} iconColor={colors.surface} onPress={seleccionarImagen} style={styles.noMargin} />
+                </Surface>
+                {profileImg && (
+                  <Surface style={[styles.editBadge, { backgroundColor: colors.error }]} elevation={4}>
+                    <IconButton icon="delete" size={18} iconColor={colors.surface} onPress={() => setProfileImg(null)} style={styles.noMargin} />
+                  </Surface>
+                )}
+              </View>
             )}
           </View>
           <Text style={[styles.headerNickname, { color: colors.text }]}>
@@ -195,7 +196,7 @@ export default function ProfilePage({ navigation }) {
         {/* MODO EDICIÓN FORMULARIO */}
         {isEditing ? (
           <View style={[styles.formWrapper, isWeb && styles.webFormWidth]}>
-            
+
             <TextInput
               label="Nombre"
               value={firstName}
@@ -206,7 +207,7 @@ export default function ProfilePage({ navigation }) {
               left={<TextInput.Icon icon="account" />}
               error={!!errors.firstName}
             />
-            <HelperText type="error" visible={!!errors.firstName}>{errors.firstName}</HelperText>
+            {errors.firstName ? <HelperText type="error" visible={true}>{errors.firstName}</HelperText> : null}
 
             <TextInput
               label="Apellidos"
@@ -218,7 +219,7 @@ export default function ProfilePage({ navigation }) {
               left={<TextInput.Icon icon="account-group" />}
               error={!!errors.lastName}
             />
-            <HelperText type="error" visible={!!errors.lastName}>{errors.lastName}</HelperText>
+            {errors.lastName ? <HelperText type="error" visible={true}>{errors.lastName}</HelperText> : null}
 
             <TextInput
               label="Usuario"
@@ -230,7 +231,7 @@ export default function ProfilePage({ navigation }) {
               left={<TextInput.Icon icon="at" />}
               error={!!errors.nickname}
             />
-            <HelperText type="error" visible={!!errors.nickname}>{errors.nickname}</HelperText>
+            {errors.nickname ? <HelperText type="error" visible={true}>{errors.nickname}</HelperText> : null}
 
             <TextInput
               label="Email"
@@ -243,7 +244,7 @@ export default function ProfilePage({ navigation }) {
               left={<TextInput.Icon icon="email" />}
               error={!!errors.email}
             />
-            <HelperText type="error" visible={!!errors.email}>{errors.email}</HelperText>
+            {errors.email ? <HelperText type="error" visible={true}>{errors.email}</HelperText> : null}
 
             {/* Selector de Zona Horaria */}
             <Menu
@@ -284,7 +285,6 @@ export default function ProfilePage({ navigation }) {
                 />
               ))}
             </Menu>
-            <View style={styles.smallSpacer} />
 
             <TextInput
               label="Detalle / Condición"
@@ -295,7 +295,6 @@ export default function ProfilePage({ navigation }) {
               outlineStyle={styles.inputRound}
               left={<TextInput.Icon icon="information" />}
             />
-            <View style={styles.smallSpacer} />
 
             {/* Selector de Severidad */}
             <Menu
@@ -336,9 +335,7 @@ export default function ProfilePage({ navigation }) {
                 />
               ))}
             </Menu>
-            <View style={styles.smallSpacer} />
 
-            {/* 🚀 MODIFICADO: Retirado icono izquierdo para evitar desalineación en multiline */}
             <TextInput
               label="Descripción"
               value={description_detail}
@@ -357,9 +354,7 @@ export default function ProfilePage({ navigation }) {
                 />
               }
             />
-            <HelperText type={errors.description ? 'error' : 'info'} visible={true}>
-              {errors.description ? errors.description : `${250 - descLength} caracteres restantes`}
-            </HelperText>
+            {errors.description ? <HelperText type="error" visible={true}>{errors.description}</HelperText> : <HelperText type="info" visible={true}>{`${250 - descLength} caracteres restantes`}</HelperText>}
 
             {/* Botones de acción formulario */}
             <View style={styles.rowButtons}>
@@ -375,7 +370,7 @@ export default function ProfilePage({ navigation }) {
               </Button>
               <Button
                 mode="outlined"
-                onPress={resetFormFields} // 🚀 Limpia cambios alterados al cancelar
+                onPress={handleCancelar}
                 style={styles.flexButton}
               >
                 Cancelar
@@ -383,7 +378,7 @@ export default function ProfilePage({ navigation }) {
             </View>
           </View>
         ) : (
-          
+
           /* MODO VISTA DE PERFIL */
           <View style={[styles.formWrapper, isWeb && styles.webFormWidth]}>
             <Surface style={[styles.cardSurface, { backgroundColor: colors.surface }]} elevation={1}>
@@ -416,7 +411,7 @@ export default function ProfilePage({ navigation }) {
               icon="logout"
               onPress={ejecutarLogout}
               style={globalStyles.buttonOutline}
-              textColor={colors.primary} 
+              textColor={colors.primary}
             >
               Cerrar Sesión
             </Button>
@@ -429,16 +424,20 @@ export default function ProfilePage({ navigation }) {
 
 const styles = StyleSheet.create({
   avatarSection: {
-    alignItems: 'center', 
+    alignItems: 'center',
     marginVertical: 20
   },
   avatarContainer: {
     position: 'relative'
   },
+  editActions: {
+    flexDirection: 'row',
+    gap: 8,
+    position: 'absolute',
+    right: -4,
+    bottom: -4,
+  },
   editBadge: {
-    position: 'absolute', 
-    right: -4, 
-    bottom: -4, 
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center'
@@ -447,8 +446,8 @@ const styles = StyleSheet.create({
     margin: 0
   },
   headerNickname: {
-    marginTop: 12, 
-    fontWeight: '700', 
+    marginTop: 12,
+    fontWeight: '700',
     fontSize: 20,
     letterSpacing: 0.3
   },
@@ -468,24 +467,21 @@ const styles = StyleSheet.create({
     borderRadius: 16
   },
   multilineInput: {
-    height: 110, 
+    height: 110,
     paddingTop: 8
   },
-  smallSpacer: {
-    height: 6
-  },
   rowButtons: {
-    flexDirection: 'row', 
-    marginTop: 24, 
+    flexDirection: 'row',
+    marginTop: 24,
     gap: 12
   },
   flexButton: {
-    flex: 1, 
+    flex: 1,
     borderRadius: 28
   },
   cardSurface: {
-    borderRadius: 20, 
-    paddingVertical: 6, 
+    borderRadius: 20,
+    paddingVertical: 6,
     paddingHorizontal: 4,
     marginBottom: 20
   }

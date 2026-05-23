@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useContext } from 'react';
-import { View, ScrollView, useColorScheme, StyleSheet, Alert, RefreshControl } from 'react-native';
+import { View, ScrollView, useColorScheme, StyleSheet, RefreshControl } from 'react-native';
 import { Text, Searchbar, Icon } from 'react-native-paper';
 
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
@@ -35,7 +35,6 @@ export default function Activities({ navigation }) {
 
   const { activities, loading, refresh, updateActivityState, deleteActivity} = useContext(ActivityContext);
 
-  // Filtro adaptativo que cubre tanto campos de título de mockups antiguos como esquemas name reales
   const actividadesFiltradas = useMemo(() => {
     const safeActivities = Array.isArray(activities) ? activities : [];
     const query = (searchQuery || '').trim().toLowerCase();
@@ -74,17 +73,16 @@ export default function Activities({ navigation }) {
     try {
       await updateActivityState(activity.activity_id, nuevoEstado);
       setDetailModalVisible(false);
-      showToast('Actividad editada correctamente', 'success');
+      showToast('Estado actualizado correctamente', 'success');
     } catch (e) {
-      showToast("Error", "No se pudo actualizar el estado." + {e});
-      window.alert(e);
+      showToast('No se pudo actualizar el estado', 'error');
     }
   };
 
   const handleDeletePress = (activity) => {
     showConfirm({
       title: 'Eliminar Actividad',
-      message: '¿Seguro que quieres borrar esta actividaewrfd?',
+      message: '¿Seguro que quieres borrar esta actividad?',
       icon: 'delete-alert-outline',
       iconColor: '#F44336',
       actions: [
@@ -95,7 +93,7 @@ export default function Activities({ navigation }) {
           onPress: async () => {
             await deleteActivity(activity.activity_id);
             setDetailModalVisible(false);
-            showToast('Actividad eliminada', 'success');   // ← si también tienes el toast
+            showToast('Actividad eliminada', 'success');
           },
         },
       ],
@@ -181,8 +179,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginVertical: 5,
     borderRadius: 40,
-    // height: 48,
-    // justifyContent: 'center',
   },
   searchInput: {
     fontSize: 15,
