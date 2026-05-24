@@ -9,6 +9,7 @@ import UserHeader         from '../../components/common/UserHeader';
 import BotCarousel        from '../../components/bots/BotCarrusel';
 import ActivitiesList     from '../../components/activities/ActivitiesList';
 import LinkBotModal       from '../../components/bots/LinkBotModal';
+import EditBotModal       from '../../components/bots/EditBotModal';
 import ActivityDetailModal from '../../components/activities/ActivityDetailModal';
 import { ScreenWrapper }  from '../../components/layout/ScreenWrapper';
 import {BottomNav}        from '../../navigation/BottomTabs'
@@ -26,6 +27,8 @@ export default function HomeScreen({ navigation }) {
   const scheme = useColorScheme();
   const { isWeb } = useResponsiveLayout();
   const [linkModalVisible, setLinkModalVisible] = useState(false);
+  const [editBotVisible, setEditBotVisible] = useState(false);
+  const [selectedBot, setSelectedBot] = useState(null);
   
   // NÚEVOS ESTADOS PARA CONTROLAR EL MODAL DE DETALLE
   const [detailModalVisible, setDetailModalVisible] = useState(false);
@@ -37,7 +40,7 @@ export default function HomeScreen({ navigation }) {
 
   const { user, signOut } = useContext(AuthContext);
   
-  const { bots, loading: loadingBots, linkNewBot, refresh: refreshBots } = useContext(BotContext);
+  const { bots, loading: loadingBots, linkNewBot, updateBot, deleteBot, refresh: refreshBots } = useContext(BotContext);
   const { activities, loading: loadingActs, refresh: refreshActs } = useContext(ActivityContext);
 
   const isFocused = useIsFocused();
@@ -68,6 +71,16 @@ export default function HomeScreen({ navigation }) {
   const ejecutarLogout = async () => {
     await signOut();
     console.log("Sesión cerrada");
+  };
+
+  const handleOpenEditBotModal = (bot) => {
+    setSelectedBot(bot);
+    setEditBotVisible(true);
+  };
+
+  const handleCloseEditBotModal = () => {
+    setEditBotVisible(false);
+    setSelectedBot(null);
   };
 
   // MANEJADORES PARA ABRIR Y CERRAR EL MODAL
@@ -108,7 +121,7 @@ export default function HomeScreen({ navigation }) {
             <BotCarousel 
               bots={bots} 
               onAddPress={() => setLinkModalVisible(true)}
-              onBotPress={(bot) => console.log("Seleccionado:", bot.name)}
+              onBotPress={handleOpenEditBotModal}
               globalStyles={globalStyles}
               addProp = {true}
             />
@@ -131,7 +144,10 @@ export default function HomeScreen({ navigation }) {
           <LinkBotModal 
             visible={linkModalVisible}
             onDismiss={() => setLinkModalVisible(false)}
-            onLink={linkNewBot}
+            onLink={async (data) => {
+              await linkNewBot(data);
+              if (refreshBots) await refreshBots();
+            }}
           />
         </ScrollView>
 
@@ -167,6 +183,22 @@ export default function HomeScreen({ navigation }) {
           }
           color={colors.background}
           backdropColor="rgba(0,0,0,0.5)"
+        />
+
+        <EditBotModal
+          visible={editBotVisible}
+          bot={selectedBot}
+          onDismiss={handleCloseEditBotModal}
+          onUpdate={async (id, data) => {
+            await updateBot(id, data);
+            if (refreshBots) await refreshBots();
+            handleCloseEditBotModal();
+          }}
+          onDelete={async (id) => {
+            await deleteBot(id);
+            if (refreshBots) await refreshBots();
+            handleCloseEditBotModal();
+          }}
         />
 
         {/* CORDÓN DE RENDERIZADO DEL MODAL DETALLE DE ACTIVIDAD */}

@@ -13,7 +13,7 @@ import { getColors } from '../../theme/theme';
 import BotCard from './BotCard';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
-const BotCarousel = ({ bots = [], onAddPress, onIndexChange, addProp = false }) => {
+const BotCarousel = ({ bots = [], onAddPress, onIndexChange, onBotPress, addProp = false }) => {
   const scheme = useColorScheme();
   const AppColors = useMemo(() => getColors(scheme), [scheme]);
   const { width: windowWidth } = useWindowDimensions();
@@ -102,7 +102,7 @@ const BotCarousel = ({ bots = [], onAddPress, onIndexChange, addProp = false }) 
     return (
       <View style={{ width: FULL_ITEM_WIDTH, alignItems: 'center' }}>
         <View style={localStyles.cardContainer}>
-          <BotCard item={item} AppColors={AppColors} onClick={() => {}} />
+          <BotCard item={item} AppColors={AppColors} onClick={() => onBotPress && onBotPress(item)} />
         </View>
       </View>
     );
