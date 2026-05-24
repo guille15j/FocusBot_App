@@ -3,7 +3,7 @@
     "name": "FocusApp",
     "slug": "FocusApp",
     "version": "1.0.0",
-    "scheme": "focusapp",
+    "scheme": ["com.guille15j.FocusApp_V01", "focusapp"],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",

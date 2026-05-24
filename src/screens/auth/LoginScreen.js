@@ -46,18 +46,27 @@ export default function LoginScreen({ navigation }) {
   const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_IOS;
   const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_ANDROID;
 
-  // Redirect fijo en Web, dinámico en móvil
-  const redirectUri = isWeb
-    ? 'https://focus-bot-app-web.vercel.app'
-    : AuthSession.makeRedirectUri({ scheme: 'focusapp' });
+  // Reemplaza la declaración actual de redirectUri por esto:
+  let redirectUri;
+  if (isWeb) {
+    // Web: usar la URL de producción o localhost según entorno
+    const isLocal = typeof window !== 'undefined' && 
+                    (window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1');
+    redirectUri = isLocal ? 'http://localhost:19006' : 'https://focus-bot-app-web.vercel.app';
+  } else {
+    // Móvil: no definir redirectUri, se usará el valor por defecto basado en android.package
+    redirectUri = undefined;
+  }
 
+  // En Google.useAuthRequest, pasar redirectUri solo si existe
   const [request, response, promptAsync] = Google.useAuthRequest({
     webClientId,
     iosClientId,
     androidClientId,
     responseType: 'id_token',
     scopes: ['openid', 'profile', 'email'],
-    redirectUri,
+    ...(redirectUri && { redirectUri }), // solo incluir si redirectUri tiene valor
   });
 
   useEffect(() => {
@@ -119,7 +128,7 @@ export default function LoginScreen({ navigation }) {
   const handleGooglePress = () => {
     if (!request || loading) return;
     if (isWeb) {
-      promptAsync({ useProxy: false, redirectUri });
+      promptAsync({ useProxy: false, redirectUri: 'https://focus-bot-app-web.vercel.app' });
     } else {
       promptAsync();
     }
