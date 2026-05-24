@@ -49,7 +49,13 @@
     "plugins": [
       "@react-native-community/datetimepicker",
       "expo-web-browser",
-      "@react-native-google-signin/google-signin"
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "webClientId": "767551510601-m46aklgg3tsrhr64viqd9pcpi8rbr4bb.apps.googleusercontent.com",
+          "iosUrlScheme": "com.googleusercontent.apps.focusbot"
+        }
+      ]
     ]
   }
 }

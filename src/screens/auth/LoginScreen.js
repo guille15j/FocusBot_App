@@ -1,8 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState, useContext, useMemo, useEffect } from 'react';
-import {View,TouchableOpacity,KeyboardAvoidingView, Platform,useColorScheme,ScrollView,} from 'react-native';
+import {View,TouchableOpacity,KeyboardAvoidingView, Platform,useColorScheme,ScrollView, } from 'react-native';
 import { TextInput, Button, Text, Divider as PaperDivider, HelperText } from 'react-native-paper';
-
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 import { AuthContext } from '../../context/AuthContext';
@@ -108,27 +107,53 @@ export default function LoginScreen({ navigation }) {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    try {
-      await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
-      const idToken = userInfo.idToken;
+  
 
-      if (!idToken) {
-        showToast('No se pudo obtener el token de Google', 'error');
-        setLoading(false);
-        return;
-      }
-
-      // Reutilizamos la función existente que ya hace la llamada al backend
-      await manejarLoginGoogle(idToken);
-    } catch (error) {
-      console.error("Error en Google Sign-In nativo:", error);
-      showToast('Error al iniciar sesión con Google', 'error');
+const handleGoogleSignIn = async () => {
+  setLoading(true);
+  
+  // 1. Verificar Play Services
+  try {
+    const hasPlayServices = await GoogleSignin.hasPlayServices();
+    Alert.alert('Debug', `Play Services disponibles: ${hasPlayServices}`);
+    if (!hasPlayServices) {
+      showToast('Google Play Services no disponible', 'error');
       setLoading(false);
+      return;
     }
-  };
+  } catch (err) {
+    Alert.alert('Error Play Services', err.message);
+    showToast('Error al verificar Play Services', 'error');
+    setLoading(false);
+    return;
+  }
+
+  // 2. Intentar iniciar sesión
+  try {
+    const userInfo = await GoogleSignin.signIn();
+    Alert.alert('Debug', `userInfo recibido: ${JSON.stringify(userInfo, null, 2)}`);
+    
+    const idToken = userInfo?.data.idToken;
+    if (!idToken) {
+      Alert.alert('Error', 'No se recibió idToken. userInfo: ' + JSON.stringify(userInfo));
+      showToast('No se pudo obtener el token de Google', 'error');
+      setLoading(false);
+      return;
+    }
+    
+    // 3. Llamar al backend
+    await manejarLoginGoogle(idToken);
+  } catch (error) {
+    // Mostrar el error completo
+    let errorMsg = error.message;
+    if (error.code) errorMsg += `\nCódigo: ${error.code}`;
+    if (error.userInfo) errorMsg += `\nuserInfo: ${JSON.stringify(error.userInfo)}`;
+    Alert.alert('Error en Google Sign-In', errorMsg);
+    console.error("Error detallado:", error);
+    showToast('Error al iniciar sesión con Google', 'error');
+    setLoading(false);
+  }
+};
 
   const ejecutarLogin = async () => {
     setSubmitted(true);
