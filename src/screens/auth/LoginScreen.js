@@ -1,14 +1,9 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState, useContext, useMemo, useEffect } from 'react';
-import {
-  View,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  useColorScheme,
-  ScrollView,
-} from 'react-native';
+import {View,TouchableOpacity,KeyboardAvoidingView, Platform,useColorScheme,ScrollView,} from 'react-native';
 import { TextInput, Button, Text, Divider as PaperDivider, HelperText } from 'react-native-paper';
+
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 import { AuthContext } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -40,6 +35,13 @@ export default function LoginScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const { signIn } = useContext(AuthContext);
+  
+  // Configuración de GoogleSignin para Android
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID, // ¡Es el ID de cliente de tipo WEB!
+    });
+  }, []); 
 
   // IDs de Google desde variables de entorno
   const webClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
@@ -90,21 +92,43 @@ export default function LoginScreen({ navigation }) {
   }, [response]);
 
   const manejarLoginGoogle = async (token) => {
-  setLoading(true);
-  try {
-    const res = await AuthService.googleLoggin(token);
-    if (res.token) {
-      await signIn(res.token, res.user);
-    } else {
-      showToast(res.message || 'Token inválido', 'error');
+    setLoading(true);
+    try {
+      const res = await AuthService.googleLoggin(token);
+      if (res.token) {
+        await signIn(res.token, res.user);
+      } else {
+        showToast(res.message || 'Token inválido', 'error');
+      }
+    } catch (err) {
+      console.error("Error en googleLoggin:", err);
+      showToast('Error de conexión con el backend', 'error');
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Error en googleLoggin:", err);
-    showToast('Error de conexión con el backend', 'error');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      const idToken = userInfo.idToken;
+
+      if (!idToken) {
+        showToast('No se pudo obtener el token de Google', 'error');
+        setLoading(false);
+        return;
+      }
+
+      // Reutilizamos la función existente que ya hace la llamada al backend
+      await manejarLoginGoogle(idToken);
+    } catch (error) {
+      console.error("Error en Google Sign-In nativo:", error);
+      showToast('Error al iniciar sesión con Google', 'error');
+      setLoading(false);
+    }
+  };
 
   const ejecutarLogin = async () => {
     setSubmitted(true);
@@ -240,8 +264,8 @@ export default function LoginScreen({ navigation }) {
               <Button
                 mode="outlined"
                 icon="google"
-                onPress={handleGooglePress}
-                disabled={!request || loading}
+                onPress={handleGoogleSignIn}
+                disabled={loading}
                 style={[globalStyles.buttonOutline, { marginTop: 0 }]}
                 contentStyle={{ paddingVertical: 2 }}
               >

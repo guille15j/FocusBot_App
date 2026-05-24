@@ -3,7 +3,10 @@
     "name": "FocusApp",
     "slug": "FocusApp",
     "version": "1.0.0",
-    "scheme": ["com.guille15j.FocusApp_V01", "focusapp"],
+    "scheme": [
+      "com.guille15j.FocusApp_V01",
+      "focusapp"
+    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -45,7 +48,8 @@
     },
     "plugins": [
       "@react-native-community/datetimepicker",
-      "expo-web-browser"
+      "expo-web-browser",
+      "@react-native-google-signin/google-signin"
     ]
   }
 }
