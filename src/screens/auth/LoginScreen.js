@@ -112,17 +112,17 @@ export default function LoginScreen({ navigation }) {
 const handleGoogleSignIn = async () => {
   setLoading(true);
   
-  // 1. Verificar Play Services
   try {
     const hasPlayServices = await GoogleSignin.hasPlayServices();
-    Alert.alert('Debug', `Play Services disponibles: ${hasPlayServices}`);
+    // Alert.alert('Debug', `Play Services disponibles: ${hasPlayServices}`);
+
     if (!hasPlayServices) {
       showToast('Google Play Services no disponible', 'error');
       setLoading(false);
       return;
     }
   } catch (err) {
-    Alert.alert('Error Play Services', err.message);
+    // Alert.alert('Error Play Services', err.message);
     showToast('Error al verificar Play Services', 'error');
     setLoading(false);
     return;
@@ -131,11 +131,11 @@ const handleGoogleSignIn = async () => {
   // 2. Intentar iniciar sesión
   try {
     const userInfo = await GoogleSignin.signIn();
-    Alert.alert('Debug', `userInfo recibido: ${JSON.stringify(userInfo, null, 2)}`);
+    // Alert.alert('Debug', `userInfo recibido: ${JSON.stringify(userInfo, null, 2)}`);
     
     const idToken = userInfo?.data.idToken;
     if (!idToken) {
-      Alert.alert('Error', 'No se recibió idToken. userInfo: ' + JSON.stringify(userInfo));
+      // Alert.alert('Error', 'No se recibió idToken. userInfo: ' + JSON.stringify(userInfo));
       showToast('No se pudo obtener el token de Google', 'error');
       setLoading(false);
       return;
@@ -148,8 +148,8 @@ const handleGoogleSignIn = async () => {
     let errorMsg = error.message;
     if (error.code) errorMsg += `\nCódigo: ${error.code}`;
     if (error.userInfo) errorMsg += `\nuserInfo: ${JSON.stringify(error.userInfo)}`;
-    Alert.alert('Error en Google Sign-In', errorMsg);
-    console.error("Error detallado:", error);
+    // Alert.alert('Error en Google Sign-In', errorMsg);
+    // console.error("Error detallado:", error);
     showToast('Error al iniciar sesión con Google', 'error');
     setLoading(false);
   }
