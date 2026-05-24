@@ -9,6 +9,7 @@ import UserHeader         from '../../components/common/UserHeader';
 import BotCarousel        from '../../components/bots/BotCarrusel';
 import ActivitiesList     from '../../components/activities/ActivitiesList';
 import LinkBotModal       from '../../components/bots/LinkBotModal';
+import ActivityDetailModal from '../../components/activities/ActivityDetailModal';
 import { ScreenWrapper }  from '../../components/layout/ScreenWrapper';
 import {BottomNav}        from '../../navigation/BottomTabs'
 
@@ -25,6 +26,11 @@ export default function HomeScreen({ navigation }) {
   const scheme = useColorScheme();
   const { isWeb } = useResponsiveLayout();
   const [linkModalVisible, setLinkModalVisible] = useState(false);
+  
+  // NÚEVOS ESTADOS PARA CONTROLAR EL MODAL DE DETALLE
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState(null);
+
   const showToast = useToast();
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
@@ -40,11 +46,9 @@ export default function HomeScreen({ navigation }) {
   const isRefreshing = loadingBots || loadingActs;
 
   const onRefresh = useCallback(async () => {
-    
     showToast("HomeScreen: Refrescando datos de API...");
     console.log("HomeScreen: Refrescando datos de API...");
     try {
-      // Ejecutamos ambas peticiones al servidor en paralelo
       await Promise.all([
         refreshBots ? refreshBots() : Promise.resolve(),
         refreshActs ? refreshActs() : Promise.resolve()
@@ -64,6 +68,17 @@ export default function HomeScreen({ navigation }) {
   const ejecutarLogout = async () => {
     await signOut();
     console.log("Sesión cerrada");
+  };
+
+  // MANEJADORES PARA ABRIR Y CERRAR EL MODAL
+  const handleOpenDetailModal = (activity) => {
+    setSelectedActivity(activity);
+    setDetailModalVisible(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setDetailModalVisible(false);
+    setSelectedActivity(null);
   };
 
   return (
@@ -102,13 +117,12 @@ export default function HomeScreen({ navigation }) {
               Actividades Recientes
             </Text>
 
-            {/* Spinner central solo si no hay datos y está cargando */}
             {isRefreshing && activities.length === 0 ? (
               <ActivityIndicator animating={true} color={colors.primary} style={{ marginVertical: 20 }} />
             ) : (
               <ActivitiesList 
                 activities={recentActivities} 
-                onActivityPress={(activity) => navigation.navigate('Activities')}
+                onActivityPress={handleOpenDetailModal} // <-- CAMBIADO: Ahora abre el modal en vez de navegar
                 globalStyles={globalStyles} 
               />
             )}
@@ -154,10 +168,16 @@ export default function HomeScreen({ navigation }) {
           color={colors.background}
           backdropColor="rgba(0,0,0,0.5)"
         />
+
+        {/* CORDÓN DE RENDERIZADO DEL MODAL DETALLE DE ACTIVIDAD */}
+        <ActivityDetailModal
+          visible={detailModalVisible}
+          onDismiss={handleCloseDetailModal}
+          activity={selectedActivity}
+          // Si necesitas manejar eventos dentro del modal (pausar, completar, etc.)
+          // puedes pasarle la función correspondiente aquí del ActivityContext si existe
+        />
       </Portal>
-
-      {/* <BottomNav navigation={navigationRef.current} /> */}
-
     </ScreenWrapper>
   );
 }

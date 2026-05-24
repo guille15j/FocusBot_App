@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { Portal, Modal, Text, IconButton, Button, Surface } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -41,6 +41,8 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const categoryInfo = CATEGORIES_CONFIG[activity?.category] || CATEGORIES_CONFIG.OTRAS;
   const typeInfo = ACTIVITY_TYPE_CONFIG[activity?.type?.name_type] || { label: activity?.type?.name_type || 'Desconocido', icon: 'help-circle', color: '#757575' };
   const audioInfo = AUDIO_CONFIG[activity?.extra_data?.audio] || AUDIO_CONFIG.ninguno;
@@ -61,14 +63,22 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
 
   const getActionButtonConfig = () => {
     if (!activity) return null;
-    // if (activity.state === 'EN_CURSO') return { icon: 'pause', label: 'Pausar', action: 'pause' };
-    // if (activity.state === 'PAUSADO') return { icon: 'play', label: 'Reanudar', action: 'resume' };
     if (['PENDIENTE', 'POSPUESTO'].includes(activity.state)) return { icon: 'play', label: 'Iniciar', action: 'start' };
     return null;
   };
 
   const stateConfig = activity ? getStateConfig(activity.state) : null;
   const actionConfig = getActionButtonConfig();
+
+  const handleStartPress = async () => {
+    if (!onActionPress || isLoading) return;
+    try {
+      setIsLoading(true);
+      await onActionPress(actionConfig.action, activity);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return null;
@@ -119,7 +129,6 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
           }
         ]}
       >
-        {/* Cabecera */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Surface style={[styles.headerIconSurface, { backgroundColor: stateConfig.color + '20' }]}>
@@ -134,6 +143,7 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
             size={26} 
             onPress={onDismiss}
             iconColor={colors.textLight}
+            disabled={isLoading}
           />
         </View>
 
@@ -142,7 +152,6 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
           bounces={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* Fila de Badges */}
           <View style={styles.badgesRow}>
             <Surface style={[styles.badge, { backgroundColor: stateConfig.color + '20', borderColor: stateConfig.color }]}>
               <MaterialCommunityIcons name={stateConfig.icon} size={12} color={stateConfig.color} />
@@ -172,7 +181,6 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
             )}
           </View>
 
-          {/* Bloque de Configuración del Tipo de Actividad */}
           <Surface style={[styles.sectionCard, { backgroundColor: colors.background }]}>
             <View style={styles.sectionCardHeader}>
               <MaterialCommunityIcons name={typeInfo.icon} size={18} color={typeInfo.color} />
@@ -247,7 +255,6 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
             )}
           </Surface>
 
-          {/* Grid Horarios de Inicio y Fin (Renderizado Condicional) */}
           {(formattedInitDate || formattedEndDate) && (
             <View style={styles.infoGrid}>
               {formattedInitDate && (
@@ -268,7 +275,6 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
             </View>
           )}
 
-          {/* Bot Asignado */}
           <Surface style={[styles.sectionCard, { backgroundColor: colors.background }]}>
             <View style={styles.sectionCardHeader}>
               <MaterialCommunityIcons name="robot" size={18} color={colors.primary} />
@@ -293,7 +299,6 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
             )}
           </Surface>
 
-          {/* Resultado si está COMPLETADO */}
           {activity.state === 'COMPLETADO' && activity.result && (
             <Surface style={[styles.resultCard, { 
               backgroundColor: activity.result === 'SUCCESS' ? '#4CAF5010' : '#F4433610',
@@ -322,13 +327,14 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
           )}
         </ScrollView>
 
-        {/* Sección de Acciones */}
         <View style={styles.actionsContainer}>
           {shouldShowActionButton && actionConfig && (
             <View style={activity.state === 'EN_CURSO' ? styles.parallelActionsRow : null}>
               <Button 
                 mode="contained" 
-                onPress={() => onActionPress && onActionPress(actionConfig.action, activity)}
+                onPress={handleStartPress}
+                loading={isLoading}
+                disabled={isLoading}
                 style={[
                   activity.state === 'EN_CURSO' ? styles.parallelButton : styles.actionButton, 
                   { backgroundColor: stateConfig.color }
@@ -339,23 +345,9 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
               >
                 {actionConfig.label}
               </Button>
-
-              {/* {activity.state === 'EN_CURSO' && (
-                <Button 
-                  mode="contained" 
-                  onPress={() => onActionPress && onActionPress('finish', activity)}
-                  style={[styles.parallelButton, { backgroundColor: '#81C784' }]} 
-                  textColor={colors.background}
-                  contentStyle={styles.buttonContent}
-                  icon="check-all"
-                >
-                  Finalizar
-                </Button>
-              )} */}
             </View>
           )}
           
-         
           <View style={styles.secondaryActions}>
             <Button 
               mode="outlined" 
@@ -364,7 +356,7 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
               textColor={colors.primary}
               contentStyle={styles.buttonContent}
               icon="pencil"
-              disabled = {activity.state !== 'PENDIENTE' && activity.state !== 'POSPUESTO' }
+              disabled={isLoading || (activity.state !== 'PENDIENTE' && activity.state !== 'POSPUESTO')}
             >
               Editar
             </Button>
@@ -376,16 +368,11 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
               textColor={colors.error}
               contentStyle={styles.buttonContent}
               icon="delete"
-              disabled = {activity.state !== 'PENDIENTE' && activity.state !== 'POSPUESTO' }
+              disabled={isLoading || (activity.state !== 'PENDIENTE' && activity.state !== 'POSPUESTO')}
             >
               Eliminar
             </Button>
           </View>
-          
-
-          
-
-          
         </View>
       </Modal>
     </Portal>
