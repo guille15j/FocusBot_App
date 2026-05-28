@@ -74,9 +74,7 @@ export default function CreateActivityScreen({ navigation, route }) {
   const [timerHours, setTimerHours] = useState(activity?.type?.work_duration != null ? Math.floor(activity.type.work_duration / 60).toString() : '0');
   const [timerMinutes, setTimerMinutes] = useState(activity?.type?.work_duration != null ? (activity.type.work_duration % 60).toString() : '25');
 
-  const [hitos, setHitos] = useState(
-    activity?.extra_data?.hitos?.map(hito => ({ nombre: hito })) || [{ nombre: '' }]
-  );
+  const [hitos, setHitos] = useState( activity?.extra_data?.hitos?.map(hito => ({ nombre: hito })) || [{ nombre: '' }] );
   const [hitosError, setHitosError] = useState(false);
 
   const [categoryMenuVisible, setCategoryMenuVisible] = useState(false);

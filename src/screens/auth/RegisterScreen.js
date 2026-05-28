@@ -1,18 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import {
-  View,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  useColorScheme,
-  Pressable,
-} from 'react-native';
-import {
-  TextInput,
-  Button,
-  Text,
-  HelperText,
-} from 'react-native-paper';
+import {View,  ScrollView,  KeyboardAvoidingView,  Platform,  useColorScheme,  Pressable,} from 'react-native';
+import {  TextInput,  Button,  Text,  HelperText,} from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -20,9 +8,7 @@ import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { AuthService } from '../../api/apiService';
 import { useToast } from '../../context/ToastContext';
 
-const DateTimePicker = !Platform.isWeb
-  ? require('@react-native-community/datetimepicker').default
-  : null;
+const DateTimePicker = !Platform.isWeb  ? require('@react-native-community/datetimepicker').default  : null;
 
 export default function RegisterScreen({ navigation }) {
   const scheme = useColorScheme();
@@ -162,7 +148,7 @@ export default function RegisterScreen({ navigation }) {
             <TextInput label="Confirmar contraseña" value={confirmPassword} onChangeText={handleChange(setConfirmPassword, 'confirmPassword')} mode="outlined" secureTextEntry={!showConfirmPassword} style={globalStyles.input} outlineStyle={{ borderRadius: 30 }} left={<TextInput.Icon icon="lock-check" />} right={<TextInput.Icon icon={showConfirmPassword ? 'eye-off' : 'eye'} onPress={() => setShowConfirmPassword(!showConfirmPassword)} />} error={!!errors.confirmPassword} />
             {errors.confirmPassword ? <HelperText type="error" visible={true}>{errors.confirmPassword}</HelperText> : null}
 
-            {/* Fecha de nacimiento con aspecto de TextInput */}
+            {/* Fecha de nacimiento con el estulo de los input */}
             {isWeb ? (
               <input
                 type="date"

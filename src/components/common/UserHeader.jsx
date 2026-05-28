@@ -57,7 +57,6 @@ const UserHeader = ({ user, navigation }) => {
               <Text variant="titleMedium" style={styles.userName} numberOfLines={1}>
                 {user.first_name} {user.last_name}
               </Text>
-              {/* 🚀 CORRECCIÓN: Paréntesis para evitar que concatene '#' con undefined */}
               <Text variant="bodySmall" style={styles.userDetail} numberOfLines={1}>
                 {user.nickname ? `@${user.nickname}` : user.email}
               </Text>
@@ -65,7 +64,6 @@ const UserHeader = ({ user, navigation }) => {
             
             <View style={{ flex: 1 }} />
             
-            {/* 🚀 REDISEÑO: Botón de logout más limpio y con hitSlop para evitar falsas pulsaciones al ir al perfil */}
             <IconButton 
               mode="subtle" 
               icon="logout" 
@@ -135,7 +133,7 @@ const getStyles = (colors, isWeb) => StyleSheet.create({
     color: colors.placeholder,
     marginTop: 1,
   },
-  /* ESTILOS ESPECÍFICOS PARA LA WEB */
+  // ESTILOS WEB
   webWrapper: { 
     flexDirection: 'row', 
     alignItems: 'center', 

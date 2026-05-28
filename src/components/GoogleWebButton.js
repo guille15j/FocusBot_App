@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Button } from 'react-native-paper';
 import { AuthService } from '../api/apiService';
 
-export default function GoogleWebButton({ onSuccess, colors, globalStyles, clientId }) {  // ✅ recibimos clientId
+export default function GoogleWebButton({ onSuccess, colors, globalStyles, clientId }) {  
 
   useEffect(() => {
     const script = document.createElement('script');

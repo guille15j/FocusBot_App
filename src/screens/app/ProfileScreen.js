@@ -36,7 +36,7 @@ export default function ProfilePage({ navigation }) {
   const colors = useMemo(() => getColors(scheme), [scheme]);
   const globalStyles = useMemo(() => getglobalStyles(scheme, isWeb), [scheme, isWeb]);
 
-  // Campos básicos de identidad
+  // Campos basicos del usr
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [nickname, setNickname] = useState('');
@@ -165,7 +165,7 @@ export default function ProfilePage({ navigation }) {
       mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 0.2, // Compresión estratégica para no sobrecargar almacenamiento Base64
+      quality: 0.2, // Base64
       base64: true,
     });
 
@@ -201,7 +201,7 @@ export default function ProfilePage({ navigation }) {
           </Text>
         </View>
 
-        {/* MODO EDICIÓN FORMULARIO */}
+        {/* MODO FORMULARIO */}
         {isEditing ? (
           <View style={[styles.formWrapper, isWeb && styles.webFormWidth]}>
             

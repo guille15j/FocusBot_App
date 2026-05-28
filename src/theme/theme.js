@@ -1,4 +1,3 @@
-// theme.js - CORREGIDO
 import { MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
 import { Platform, StyleSheet } from 'react-native';
 

@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   modalContent: {
     borderRadius: 24,
     padding: 24,
-    maxHeight: '80%',      // límite de pantalla, pero sin scroll
+    maxHeight: '80%', // límite de pantalla, pero sin scroll
     elevation: 8,
   },
   modalHeader: {

@@ -1,13 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import {
-  View,
-  FlatList,
-  useWindowDimensions,
-  Platform,
-  TouchableOpacity,
-  useColorScheme,
-  StyleSheet
-} from 'react-native';
+import { View, FlatList,useWindowDimensions,Platform,TouchableOpacity, useColorScheme, StyleSheet} from 'react-native';
 import { IconButton, Surface, Text } from 'react-native-paper';
 import { getColors } from '../../theme/theme';
 import BotCard from './BotCard';
@@ -41,7 +33,7 @@ const BotCarousel = ({ bots = [], onAddPress, onIndexChange, onBotPress, addProp
   // Posicionamiento inicial al índice 1 si el addProp está activo y hay elementos
   useEffect(() => {
     if (addProp && data.length > 1) {
-      // Un pequeño delay garantiza que FlatList esté renderizado en el árbol nativo antes de desplazarlo
+      // Un delay garantiza que FlatList esté renderizado antes de desplazarlo
       const timer = setTimeout(() => {
         scrollToIndex(1);
       }, 150);
@@ -51,7 +43,7 @@ const BotCarousel = ({ bots = [], onAddPress, onIndexChange, onBotPress, addProp
     }
   }, [addProp, data.length]);
 
-  // Notificar el índice activo para manejar la selección del bot exterior
+  // Notificar el index activo para manejar la selección del bot exterior
   useEffect(() => {
     if (onIndexChange && data[currentIndex] && !data[currentIndex].isEmpty && !data[currentIndex].isAddButton) {
       onIndexChange(data[currentIndex]);

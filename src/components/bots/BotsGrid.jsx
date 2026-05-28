@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   cardWrapper: {
-    padding: 6, // Controla la separación exacta y uniforme entre las tarjetas de la rejilla
+    padding: 6, 
   },
 });
 

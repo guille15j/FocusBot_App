@@ -1,14 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { 
-  View, 
-  Platform, 
-  Text, 
-  Pressable, 
-  Modal, 
-  StyleSheet, 
-  Button as RNButton,
-  useColorScheme 
-} from 'react-native';
+import {View, Platform,Text,  Pressable, Modal, StyleSheet,Button as RNButton,useColorScheme} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { getColors } from '../../theme/theme';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';

@@ -1,16 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { 
-  View, 
-  KeyboardAvoidingView,
-  Platform,
-  useColorScheme
-} from 'react-native';
-import { 
-  TextInput, 
-  Button, 
-  Text, 
-  HelperText
-} from 'react-native-paper';
+import { View, KeyboardAvoidingView, Platform, useColorScheme} from 'react-native';
+import { TextInput, Button,Text, HelperText} from 'react-native-paper';
 import { getColors, getglobalStyles } from '../../theme/theme';
 import { LinearGradient } from "expo-linear-gradient";
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';

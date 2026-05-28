@@ -128,7 +128,7 @@ const handleGoogleSignIn = async () => {
     return;
   }
 
-  // 2. Intentar iniciar sesión
+  // Intentar iniciar sesión
   try {
     const userInfo = await GoogleSignin.signIn();
     // Alert.alert('Debug', `userInfo recibido: ${JSON.stringify(userInfo, null, 2)}`);
@@ -141,7 +141,7 @@ const handleGoogleSignIn = async () => {
       return;
     }
     
-    // 3. Llamar al backend
+    // llamar al backend
     await manejarLoginGoogle(idToken);
   } catch (error) {
     // Mostrar el error completo

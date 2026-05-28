@@ -191,7 +191,13 @@ const GenerateRecordModal = ({ visible, onDismiss, onGenerate }) => {
 };
 
 const styles = StyleSheet.create({
-  modal: { margin: 20, padding: 24, borderRadius: 28, maxWidth: 500, alignSelf: 'center', width: Platform.OS === 'web' ? '100%' : 'auto' },
+  modal: { margin: 20,
+    padding: 24, 
+    borderRadius: 28, 
+    maxWidth: 500, 
+    alignSelf: 'center', 
+    width: Platform.OS === 'web' ? '100%' : 'auto' 
+  },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   title: { fontSize: 22, fontWeight: 'bold' },
   description: { fontSize: 14, marginBottom: 25, lineHeight: 20 },

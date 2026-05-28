@@ -64,7 +64,7 @@ export const useActivities = (autoRefresh = false, intervalMs = 15 * 60 * 1000) 
             
         } catch (err) {
             setError(err.message);
-            throw err; // Re-lanzamos para que la UI pueda mostrar un Alert si falla
+            throw err; // lanzamos apra que la pagina renderizce el toast
         }
     };
 

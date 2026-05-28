@@ -63,7 +63,6 @@ const BotCard = ({ item, AppColors, onClick }) => {
       
       <Card.Content style={styles.content}>
         <View style={styles.footerRow}>
-          {/* Insignia de Estado con un diseño estilizado */}
           <Surface style={[styles.statusBadge, { backgroundColor: config.color + '15', borderColor: config.color + '40' }]}>
             <View style={[styles.statusDot, { backgroundColor: config.color }]} />
             <Text style={[styles.statusText, { color: config.color }]}>
@@ -71,7 +70,6 @@ const BotCard = ({ item, AppColors, onClick }) => {
             </Text>
           </Surface>
 
-          {/* Renderizado Condicional de la última sincronización */}
           {horaSincronizada && (
             <View style={styles.syncContainer}>
               <MaterialCommunityIcons name="cached" size={13} color={AppColors.placeholder} />

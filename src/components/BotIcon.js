@@ -78,7 +78,7 @@ export const BotIcon = ({ size = 240, loading = false, state = 'IDLE' }) => {
   return (
     <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
       
-      {/* ANILLO DE ACTIVIDAD EXTERIOR (Girando perfecto sin wobble effect) */}
+      {/* ANILLO DE ACTIVIDAD EXTERIOR */}
       <Animated.View
         style={[
           StyleSheet.absoluteFillObject,
@@ -101,7 +101,7 @@ export const BotIcon = ({ size = 240, loading = false, state = 'IDLE' }) => {
         </Svg>
       </Animated.View>
 
-      {/* DISEÑO ORIGINAL DE OJOS Y PARPADEO (Fijo y nítido) */}
+      {/* DISEÑO ORIGINAL DE OJOS Y PARPADEO */}
       <View style={{ transform: [{ scale: scale }], width: 240, height: 240, alignItems: 'center', justifyContent: 'center' }}>
         <Svg width={240} height={240} viewBox="0 0 240 240">
           <Defs>

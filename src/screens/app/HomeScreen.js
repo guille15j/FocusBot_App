@@ -30,7 +30,7 @@ export default function HomeScreen({ navigation }) {
   const [editBotVisible, setEditBotVisible] = useState(false);
   const [selectedBot, setSelectedBot] = useState(null);
   
-  // NÚEVOS ESTADOS PARA CONTROLAR EL MODAL DE DETALLE
+  // CONTROLAR EL MODAL DE DETALLE
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
 
@@ -201,13 +201,11 @@ export default function HomeScreen({ navigation }) {
           }}
         />
 
-        {/* CORDÓN DE RENDERIZADO DEL MODAL DETALLE DE ACTIVIDAD */}
+        {/* MODAL DETALLE DE ACTIVIDAD */}
         <ActivityDetailModal
           visible={detailModalVisible}
           onDismiss={handleCloseDetailModal}
           activity={selectedActivity}
-          // Si necesitas manejar eventos dentro del modal (pausar, completar, etc.)
-          // puedes pasarle la función correspondiente aquí del ActivityContext si existe
         />
       </Portal>
     </ScreenWrapper>

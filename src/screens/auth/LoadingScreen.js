@@ -4,7 +4,7 @@ import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg'; // �
 import { useAppColors } from '../../hooks/useAppColors';
 import BotIcon from '../../components/BotIcon';
 
-// Módulos integrados de tu arquitectura
+// Módulos
 import { authStorage } from '../../core/authStorage';
 import { AuthContext } from '../../context/AuthContext';
 
@@ -24,7 +24,7 @@ export default function LoadingScreen() {
   const { setAuthSession } = useContext(AuthContext);
   const [messageIndex, setMessageIndex] = useState(0);
 
-  // Animaciones estéticas con rangos suavizados para mayor elegancia
+  // Animaciones 
   const fadeAnim = useRef(new Animated.Value(0)).current;      
   const pulseAnim = useRef(new Animated.Value(1)).current;     
   const textTranslateY = useRef(new Animated.Value(6)).current;
@@ -120,14 +120,12 @@ export default function LoadingScreen() {
     };
   }, []);
 
-  // Paleta refinada: usamos el background oscuro y una variante profunda para el gradiente
   const bgBase = colors.background === '#FFFFFF' || colors.background === 'rgb(255, 255, 255)' ? '#F5F7FA' : colors.background;
-  const darkGradientAccent = '#090D1A'; // Tono noche profunda que blinda la lectura del texto blanco
+  const darkGradientAccent = '#090D1A'; 
 
   return (
     <View style={[styles.container, { backgroundColor: bgBase }]}>
       
-      {/* 🚀 FONDO MEJORADO: GRADIENTE LINEAL SOFISTICADO EN ÁNGULO */}
       <AnimatedView style={[StyleSheet.absoluteFill, { transform: [{ scale: pulseAnim }] }]}>
         <Svg height="100%" width="100%">
           <Defs>
@@ -140,8 +138,7 @@ export default function LoadingScreen() {
           <Rect x="0" y="0" width="100%" height="100%" fill="url(#linearGrad)" />
         </Svg>
       </AnimatedView>
-
-      {/* 🚀 MÁSCARA OSCURA DE CONTRASTE: Asegura el 100% de legibilidad del texto en cualquier pantalla */}
+      
       <View style={[StyleSheet.absoluteFill, styles.overlayScrim]} />
 
       {/* COMPONENTE CENTRAL */}
@@ -150,13 +147,12 @@ export default function LoadingScreen() {
           <BotIcon size={160} loading={true} state="IDLE" />
         </View>
         
-        {/* TEXTO Y BARRA CON ALTO CONTRASTE */}
+        {/* TEXTO Y BARRA */}
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: textTranslateY }], marginTop: 45, alignItems: 'center' }}>
           <Text style={[styles.loadingText, { color: '#FFFFFF' }]}>
             {MESSAGES[messageIndex]}
           </Text>
           
-          {/* Riel de la barra con opacidad equilibrada */}
           <View style={styles.loaderBarContainer}>
             <Animated.View 
               style={[
@@ -181,7 +177,7 @@ const styles = StyleSheet.create({
     alignItems: 'center' 
   },
   overlayScrim: {
-    backgroundColor: 'rgba(0, 0, 0, 0.25)', // Capa de cine que unifica los tonos y descansa la vista
+    backgroundColor: 'rgba(0, 0, 0, 0.25)', 
     zIndex: 1,
   },
   content: { 
@@ -202,14 +198,13 @@ const styles = StyleSheet.create({
     textAlign: 'center', 
     letterSpacing: 0.6,
     minHeight: 24,
-    // Sombra de texto suave de protección (text shadow) para que no se pierda jamás con el fondo
     textShadowColor: 'rgba(0, 0, 0, 0.4)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
   loaderBarContainer: { 
     width: 140, 
-    height: 3, // Más fina = más minimalista y elegante
+    height: 3,
     borderRadius: 1.5, 
     marginTop: 22, 
     overflow: 'hidden',

@@ -1,16 +1,6 @@
 import React, { useState, useContext, useMemo } from 'react';
-import {
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  useColorScheme,
-} from 'react-native';
-import {
-  TextInput,
-  Button,
-  Text,
-  HelperText,
-} from 'react-native-paper';
+import {View, KeyboardAvoidingView, Platform, useColorScheme,} from 'react-native';
+import { TextInput, Button, Text, HelperText,} from 'react-native-paper';
 import { AuthContext } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { getColors, getglobalStyles } from '../../theme/theme';

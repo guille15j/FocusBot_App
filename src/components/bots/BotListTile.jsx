@@ -45,7 +45,7 @@ const BotTile = ({ item, onPress, AppColors }) => {
       right={props => (
         <View style={styles.rightContainer}>
           <Text variant="labelSmall" style={styles.timeText}>
-            {item.last_sync ? item.last_sync.split('T')[1].substring(0, 5) : '--:--'}
+            {item.last_sync ? item.last_sync.split('T')[1].substring(0, 5) : ' '}
           </Text>
           <List.Icon {...props} icon="chevron-right" />
         </View>

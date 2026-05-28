@@ -24,7 +24,7 @@ export const useBots = (autoRefresh = false, intervalMs = 45000) => {
         }
     }, []);
 
-    // Lógica de Polling para el estado de los bots
+    // Polling para el estado de los bots
     useEffect(() => {
         let interval;
         if (autoRefresh && isFocused) {

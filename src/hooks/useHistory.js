@@ -14,11 +14,8 @@ export const useHistory = () => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
-    // ── NUEVO: estado para las recomendaciones ──
     const [recomendaciones, setRecomendaciones] = useState([]);
 
-    //Obtención combinada (Historicos Persistentes + Dashboard Semanal)
     const fetchHistoryData = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -41,7 +38,6 @@ export const useHistory = () => {
         }
     }, []);
 
-    // ── NUEVO: función para obtener las recomendaciones ──
     const fetchRecommendations = useCallback(async () => {
         try {
             const data = await HistoryService.getRecommendations();

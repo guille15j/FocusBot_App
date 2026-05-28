@@ -6,13 +6,13 @@ export const BotContext = createContext({});
 
 export const BotProvider = ({ children }) => {
     const { user } = useContext(AuthContext);
-    const botsData = useBots(false); //NUEVO
+    const botsData = useBots(false); 
 
-    useEffect(() => { //NUEVO
+    useEffect(() => { 
         if (user) {
             botsData.refresh();
         }
-    }, [user]); //NUEVO
+    }, [user]); 
 
     return (
         <BotContext.Provider value={{

@@ -88,10 +88,8 @@ export default function BotsPage() {
           buttons={buttons}
           theme={{
             colors: {
-              // Elimina el contenedor rosa que viene por defecto en la librería
-              secondaryContainer: 'transparent', 
-              // Fuerza a que la línea exterior y divisoria use el borde constante del tema
-              outline: colors.border || 'rgba(0,0,0,0.12)'
+              secondaryContainer: 'transparent',
+              outline: colors.primary || 'rgba(0,0,0,0.12)'
             }
           }}
         />

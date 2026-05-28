@@ -29,12 +29,9 @@ async function fetchApi(endpoint, method = 'GET', body = null) {
     try {
         const respuesta = await fetch(url, options);
         
-        // Leemos el cuerpo UNA SOLA VEZ
         const data = await respuesta.json().catch(() => null);
 
         if (!respuesta.ok) {
-            // El servidor devolvió un error (400, 422, 500, etc.)
-            // Mostramos el mensaje que viene del backend o el status si no hay mensaje
             const mensajeError =  data?.error  || data?.message ||`Error ${respuesta.status}`;
             console.error(`Error en ${url}:`, mensajeError);
             throw new Error(mensajeError);
@@ -47,7 +44,6 @@ async function fetchApi(endpoint, method = 'GET', body = null) {
     }
 }
 
-// Agrupaciones de endpoints por "objetos" para mayor control y legibilidad
 export const AuthService = {
     // Nombre_Func : (parametros) => fetchApi(Configuracion),
     login: (identifier, password) => fetchApi('auth/login', 'POST', { identifier, password }),

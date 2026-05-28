@@ -84,7 +84,7 @@ export default function BottomNav({ navigation }) {
     );
   }
 
-  // RENDERIZADO PARA MÓVIL: ANDROID VS iOS
+  // RENDERIZADO PARA MÓVIL: ANDROID - iOS
   const containerStyle = Platform.OS === 'android' ? styles.androidBarContainer : styles.iosBarContainer;
 
   return (
@@ -117,7 +117,7 @@ export default function BottomNav({ navigation }) {
 }
 
 const getStyles = (colors, useSidebar, platform, isWeb) => StyleSheet.create({
-  // Estilos para WEB (sidebar)
+  // Estilos para WEB 
   sidebarContainer: {
     position: isLargeScreen && isWeb ? 'fixed' : 'absolute',
     top: 0,
@@ -143,7 +143,7 @@ const getStyles = (colors, useSidebar, platform, isWeb) => StyleSheet.create({
   },
   sidebarFooter: { paddingBottom: 30, width: '100%', alignItems: 'center', gap: 10 },
 
-  // Barra Android (estilo Material Design)
+  // Barra Android
   androidBarContainer: {
     position: 'absolute',
     bottom: 0,
@@ -156,7 +156,7 @@ const getStyles = (colors, useSidebar, platform, isWeb) => StyleSheet.create({
     paddingBottom: 0,
   },
 
-  // Barra iOS (píldora flotante)
+  // Barra iOS 
   iosBarContainer: {
     position: 'absolute',
     bottom: Platform.OS === 'ios' ? 20 : 10,
@@ -174,7 +174,7 @@ const getStyles = (colors, useSidebar, platform, isWeb) => StyleSheet.create({
     elevation: 24,
   },
 
-  // Contenido interno (común)
+  // Contenido 
   bottomBar: {
     flex: 1,
     flexDirection: 'row',

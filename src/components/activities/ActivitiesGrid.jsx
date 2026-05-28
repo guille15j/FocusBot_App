@@ -12,7 +12,7 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
   
   const animatedValue = useRef(new Animated.Value(opened ? 1 : 0)).current;
 
-  // Filtrado tolerante que comprueba tanto status como state
+  // Filtrado omprueba tanto status como state
   const filteredData = useMemo(() => {
     return Array.isArray(activities) 
       ? activities.filter(a => a !== null && (a.status || a.state)?.toUpperCase() === filterState?.toUpperCase()) 
@@ -85,7 +85,6 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
                 key={item?.activity_id || item?.id || `grid-act-${index}`} 
                 style={{ width: `${100 / numColumns}%`, padding: 4 }}
               >
-                {/* Se pasan ambas propiedades para asegurar compatibilidad con ActivityCard */}
                 <ActivityCard 
                   activity={item}
                   item={item} 
