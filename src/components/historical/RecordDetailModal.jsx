@@ -49,7 +49,7 @@ const RecordDetailModal = ({ visible, onDismiss, record }) => {
         }}
         contentContainerStyle={[
           styles.modal, 
-          { backgroundColor: colors.surface, margin: isWeb ? 60 : 20 }
+          { backgroundColor: colors.surface, margin: isWeb ? 700 : 20 }
         ]}
       >
         {/* HEADER ESTILO GENERATE MODAL */}

@@ -5,10 +5,12 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useColorScheme } from 'react-native';
 import { HistoryService } from '../../api/apiService';
 import { getColors } from '../../theme/theme';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 export default function RecommendationButton({ size = 1 }) {
   const scheme = useColorScheme();
   const colors = getColors(scheme);
+  const { isWeb } = useResponsiveLayout();
   const [visible, setVisible] = useState(false);
   const [recomendaciones, setRecomendaciones] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -59,7 +61,7 @@ export default function RecommendationButton({ size = 1 }) {
 
       <Modal visible={visible} transparent animationType="fade" onRequestClose={() => setVisible(false)}>
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface, marginHorizontal: isWeb ? 700 : 20}]}>
 
             <View style={styles.modalHeader}>
               <MaterialCommunityIcons name="lightbulb-on-outline" size={32} color="#FFB74D" />
