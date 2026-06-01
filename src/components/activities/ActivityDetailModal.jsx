@@ -225,7 +225,7 @@ const ActivityDetailModal = ({ visible, onDismiss, activity, onActionPress, onEd
             {activity.type?.name_type === 'TEMPORIZADOR' && (
               <View style={styles.typeSpecificContent}>
                 <View style={styles.configItemRow}>
-                  <MaterialCommunityIcons name="hourglass-hash" size={16} color={colors.textLight} />
+                  <MaterialCommunityIcons name="clock" size={16} color={colors.textLight} />
                   <Text style={[styles.configDetailText, { color: colors.text }]}>
                     <Text style={{ fontWeight: 'bold' }}>Tiempo Programado:</Text> {Math.floor((activity.type?.work_duration || 0) / 60)}h {(activity.type?.work_duration || 0) % 60}min ({activity.type?.work_duration} minutos totales)
                   </Text>
