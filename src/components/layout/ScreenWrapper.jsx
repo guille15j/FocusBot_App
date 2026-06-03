@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet, Platform, useColorScheme } from 'react-native';
+import { View, ScrollView, StyleSheet, useColorScheme, KeyboardAvoidingView } from 'react-native';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { getColors } from '../../theme/theme';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -22,13 +22,29 @@ export const ScreenWrapper = ({ children, withScroll = true }) => {
         }
       ]}
     >
-      <Container
-        style={isWeb ? styles.webPadding : (platform === 'ios' ? styles.mobileIos : styles.mobileAndroid)}
-        showsVerticalScrollIndicator={!isWeb}
-        contentContainerStyle={withScroll ? { flexGrow: 1 } : undefined}
+      <KeyboardAvoidingView
+        behavior={platform === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoiding}
+        enabled={!isWeb} 
+        keyboardVerticalOffset={platform === 'ios' ? 36 : 0}
       >
-        {children}
-      </Container>
+        <Container
+          style={[
+            isWeb ? styles.webPadding : styles.mobileContainer,
+            // 🚀 SOLUCIÓN: El margen va aquí, pero le aplicamos el mismo fondo de la app.
+            // Esto hace que las sombras ('elevation') se dibujen sobre el color correcto 
+            // y elimina la dichosa línea blanca.
+            !isWeb && { 
+              marginBottom: platform === 'ios' ? 36 : 70,
+              backgroundColor: colors.background 
+            }
+          ]}
+          showsVerticalScrollIndicator={!isWeb}
+          contentContainerStyle={withScroll ? { flexGrow: 1 } : undefined}
+        >
+          {children}
+        </Container>
+      </KeyboardAvoidingView>
     </View>
   );
 };
@@ -37,18 +53,16 @@ const styles = StyleSheet.create({
   safeArea: { 
     flex: 1,
   },
+  keyboardAvoiding: {
+    flex: 1,
+  },
   webPadding: { 
-    // El padding y marhin para web se manejará en las pantallas o en el layout princip
     marginVertical: 20,
     marginLeft: 80,
     height: '100dvh',
     overflow: 'scroll',
-
   },
-  mobileAndroid: {  
-    marginBottom: 70
-  },
-  mobileIos: {
-    marginBottom: 36
+  mobileContainer: {
+    flex: 1,
   }
 });

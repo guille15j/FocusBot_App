@@ -156,7 +156,7 @@ export default function Activities({ navigation }) {
               <ActivitiesGrid activities={actividadesFiltradas} filterState="EN_CURSO" onActivityPress={handleActivityPress} AppColors={colors} />
               <ActivitiesGrid activities={actividadesFiltradas} filterState="PAUSADO" onActivityPress={handleActivityPress} AppColors={colors} />
               <ActivitiesGrid activities={actividadesFiltradas} filterState="PENDIENTE" onActivityPress={handleActivityPress} AppColors={colors} />
-              <ActivitiesGrid activities={actividadesFiltradas} filterState="POSPUESTO" onActivityPress={handleActivityPress} AppColors={colors} opened={false}/>
+              <ActivitiesGrid activities={actividadesFiltradas} filterState="POSPUESTO" onActivityPress={handleActivityPress} AppColors={colors} opened={true}/>
               <ActivitiesGrid activities={actividadesFiltradas} filterState="COMPLETADO" onActivityPress={handleActivityPress} AppColors={colors} opened={false} />
               <ActivitiesGrid activities={actividadesFiltradas} filterState="CANCELADO" onActivityPress={handleActivityPress} AppColors={colors} opened={false} />
             </>

@@ -1,23 +1,45 @@
-import React, { useState, useRef, useMemo } from 'react';
-import { View, StyleSheet, useWindowDimensions, Pressable, Animated, Platform } from 'react-native';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
+import { View, StyleSheet, useWindowDimensions, Pressable, Animated } from 'react-native';
 import { Text, IconButton } from 'react-native-paper';
 import ActivityCard from './ActivityCard';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 
 const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, opened = true }) => {
   const { width } = useWindowDimensions();
-  const { isWeb, platform } = useResponsiveLayout();
+  const { isWeb } = useResponsiveLayout();
   const [isExpanded, setIsExpanded] = useState(opened);
   const [shouldRender, setShouldRender] = useState(opened);
   
   const animatedValue = useRef(new Animated.Value(opened ? 1 : 0)).current;
 
-  // Filtrado omprueba tanto status como state
+  // 1. Filtrado comprueba tanto status como state
   const filteredData = useMemo(() => {
     return Array.isArray(activities) 
       ? activities.filter(a => a !== null && (a.status || a.state)?.toUpperCase() === filterState?.toUpperCase()) 
       : [];
   }, [activities, filterState]);
+
+  // 2. Hook de Sincronización (SIEMPRE se debe ejecutar antes de cualquier early return)
+  useEffect(() => {
+    if (opened) {
+      setShouldRender(true);
+      setIsExpanded(true);
+      Animated.timing(animatedValue, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: !isWeb,
+      }).start();
+    } else {
+      Animated.timing(animatedValue, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: !isWeb,
+      }).start(() => {
+        setShouldRender(false);
+      });
+      setIsExpanded(false);
+    }
+  }, [opened]);
 
   const toggleSection = () => {
     if (isExpanded) {
@@ -52,6 +74,11 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
 
   const numColumns = width < 600 ? 1 : width < 1100 ? 2 : 3;
 
+  // CONDICIONAL MOVIDA AQUÍ: Si no hay datos, evitamos pintar el JSX de manera segura
+  if (filteredData.length === 0) {
+    return null;
+  }
+
   return (
     <View style={styles.sectionContainer}>
       <Pressable onPress={toggleSection} style={styles.headerPressable}>
@@ -66,33 +93,27 @@ const ActivitiesGrid = ({ activities, onActivityPress, AppColors, filterState, o
           </View>
         </View>
         
-        <Animated.View style={{ transform: [{ rotate: rotateChevron }] }}>
-          <IconButton icon="chevron-down" size={20} onPress={toggleSection} />
-        </Animated.View>
+        <View style={styles.iconWrapper}>
+          <Animated.View style={{ transform: [{ rotate: rotateChevron }] }}>
+            <IconButton icon="chevron-down" size={20} onPress={toggleSection} style={styles.noMargin} />
+          </Animated.View>
+        </View>
       </Pressable>
 
       {shouldRender && (
         <Animated.View style={[styles.gridContainer, { opacity, transform: [{ translateY }] }]}>
-          {filteredData.length === 0 ? (
-            <View style={styles.emptyGridSection}>
-              <Text style={{ color: AppColors.placeholder, fontSize: 12, fontStyle: 'italic' }}>
-                Sin resultados para este estado
-              </Text>
+          {filteredData.map((item, index) => (
+            <View 
+              key={item?.activity_id || item?.id || `grid-act-${index}`} 
+              style={{ width: `${100 / numColumns}%`, padding: 4 }}
+            >
+              <ActivityCard 
+                activity={item}
+                item={item} 
+                onPress={() => onActivityPress && onActivityPress(item)} 
+              />
             </View>
-          ) : (
-            filteredData.map((item, index) => (
-              <View 
-                key={item?.activity_id || item?.id || `grid-act-${index}`} 
-                style={{ width: `${100 / numColumns}%`, padding: 4 }}
-              >
-                <ActivityCard 
-                  activity={item}
-                  item={item} 
-                  onPress={() => onActivityPress && onActivityPress(item)} 
-                />
-              </View>
-            ))
-          )}
+          ))}
         </Animated.View>
       )}
     </View>
@@ -112,7 +133,13 @@ const styles = StyleSheet.create({
   stateTitle: { fontWeight: '900', letterSpacing: 1, textTransform: 'uppercase', fontSize: 12, opacity: 0.5 },
   countBadge: { marginLeft: 8, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10, minWidth: 20, alignItems: 'center' },
   gridContainer: { flexDirection: 'row', flexWrap: 'wrap', paddingVertical: 4 },
-  emptyGridSection: { width: '100%', paddingLeft: 16, paddingVertical: 4 }
+  iconWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noMargin: {
+    margin: 0,
+  }
 });
 
 export default ActivitiesGrid;

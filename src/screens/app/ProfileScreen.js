@@ -138,11 +138,6 @@ export default function ProfilePage({ navigation }) {
     } catch (error) {
       console.error("ERROR CRÍTICO EN ACTUALIZACIÓN:", error);
       showToast("Ocurrió un fallo al sincronizar los datos locales.",'error');
-      // if (isWeb) {
-      //   alert("Ocurrió un fallo al sincronizar los datos locales.");
-      // } else {
-      //    showToast("Ocurrió un fallo al sincronizar los datos locales.",'error');
-      // }
     } finally {
       setLoading(false);
     }
@@ -175,12 +170,16 @@ export default function ProfilePage({ navigation }) {
     }
   };
 
+  const eliminarImagen = () => {
+    setProfileImg(null);
+  };
+
   const severityLabel = SEVERITY_OPTIONS.find(opt => opt.value === severity)?.label || severity;
   const descLength = description_detail?.length || 0;
 
   return (
     <ScreenWrapper withScroll={true}>
-      <View style={isWeb ? globalStyles.container_web : globalStyles.container_movil}>
+      <View style={isWeb ? globalStyles.container_web : { flex: 1 }}>
         
         {/* SECCIÓN DEL AVATAR */}
         <View style={styles.avatarSection}>
@@ -191,9 +190,31 @@ export default function ProfilePage({ navigation }) {
               style={{ backgroundColor: colors.surfaceVariant + '40'}}
             />
             {isEditing && (
-              <Surface style={[styles.editBadge, { backgroundColor: colors.primary }]} elevation={4}>
-                <IconButton icon="camera" size={18} iconColor={colors.surface} onPress={seleccionarImagen} style={styles.noMargin} />
-              </Surface>
+              <View style={styles.badgeContainer}>
+                {/* Botón cambiar imagen (Derecha) */}
+                <Surface style={[styles.editBadge, { backgroundColor: colors.primary }]} elevation={4}>
+                  <IconButton 
+                    icon="camera" 
+                    size={18} 
+                    iconColor={colors.surface} 
+                    onPress={seleccionarImagen} 
+                    style={styles.noMargin} 
+                  />
+                </Surface>
+
+                {/* Botón eliminar imagen (Izquierda, solo si hay imagen) */}
+                {profileImg && (
+                  <Surface style={[styles.deleteBadge, { backgroundColor: colors.error }]} elevation={4}>
+                    <IconButton 
+                      icon="delete" 
+                      size={18} 
+                      iconColor={colors.surface} 
+                      onPress={eliminarImagen} 
+                      style={styles.noMargin} 
+                    />
+                  </Surface>
+                )}
+              </View>
             )}
           </View>
           <Text style={[styles.headerNickname, { color: colors.text }]}>
@@ -383,7 +404,10 @@ export default function ProfilePage({ navigation }) {
               </Button>
               <Button
                 mode="outlined"
-                onPress={resetFormFields} 
+                onPress={() => {
+                  resetFormFields();
+                  setIsEditing(false); // Cierra el modo edición y regresa a la vista de perfil
+                }} 
                 style={styles.flexButton}
               >
                 Cancelar
@@ -435,7 +459,7 @@ export default function ProfilePage({ navigation }) {
               style={[globalStyles.buttonOutline,{borderColor: colors.error}]}
               textColor={colors.error} 
             >
-              Elimianr cuenta
+              Eliminar cuenta
             </Button>
           </View>
         )}
@@ -450,15 +474,36 @@ const styles = StyleSheet.create({
     marginVertical: 20
   },
   avatarContainer: {
-    position: 'relative'
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 120,
+    height: 120,
+  },
+  badgeContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 120,
+    height: 120,
   },
   editBadge: {
     position: 'absolute', 
-    right: -4, 
-    bottom: -4, 
+    right: -2, 
+    bottom: -2, 
     borderRadius: 24,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  deleteBadge: {
+    position: 'absolute', 
+    left: -2, 
+    bottom: -2, 
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
   },
   noMargin: {
     margin: 0
