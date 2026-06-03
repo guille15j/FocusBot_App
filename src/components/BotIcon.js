@@ -116,27 +116,27 @@ export const BotIcon = ({ size = 240, loading = false, state = 'IDLE' }) => {
           <AnimatedRect x="58" y={eyeY} width="45" height={blinkAnim} rx={state === 'FOCUS' ? 8 : 15} fill={eyeColor} />
           
           <G clipPath="url(#leftEyeClip)">
-            {state !== 'FOCUS' ? (
+            {/* {state !== 'FOCUS' ? (
               <Circle cx={120 - 40 + 10} cy={120 - 20} r="4" fill={BOT_COLORS.WHITE} />
             ) : (
               <G>
                 <Circle cx={120 - 40 + 10} cy={120 - 5} r="3" fill={BOT_COLORS.WHITE} />
                 <Circle cx={120 - 40 + 18} cy={120 + 5} r="2" fill={BOT_COLORS.WHITE} />
               </G>
-            )}
+            )} */}
           </G>
 
           <AnimatedRect x="138" y={eyeY} width="45" height={blinkAnim} rx={state === 'FOCUS' ? 8 : 15} fill={eyeColor} />
           
           <G clipPath="url(#rightEyeClip)">
-            {state !== 'FOCUS' ? (
+            {/* {state !== 'FOCUS' ? (
               <Circle cx={120 + 40 + 10} cy={120 - 20} r="4" fill={BOT_COLORS.WHITE} />
             ) : (
               <G>
                 <Circle cx={120 + 40 + 10} cy={120 - 5} r="3" fill={BOT_COLORS.WHITE} />
                 <Circle cx={120 + 40 + 18} cy={120 + 5} r="2" fill={BOT_COLORS.WHITE} />
               </G>
-            )}
+            )} */}
           </G>
         </Svg>
       </View>
