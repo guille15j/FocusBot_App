@@ -102,7 +102,6 @@ export default function CreateActivityScreen({ navigation, route }) {
       return;
     }
 
-    // Validación para hitos
     if (activityType === 'HITO') {
       const hitosValidos = hitos.filter(h => h.nombre.trim() !== '');
       if (hitosValidos.length === 0) {
@@ -155,7 +154,6 @@ export default function CreateActivityScreen({ navigation, route }) {
       return;
     }
 
-    // Validación para hitos
     if (activityType === 'HITO') {
       const hitosValidos = hitos.filter(h => h.nombre.trim() !== '');
       if (hitosValidos.length === 0) {
@@ -209,14 +207,14 @@ export default function CreateActivityScreen({ navigation, route }) {
 
   return (
     <ScreenWrapper withScroll={true}>
-      <View style={[isWeb ? globalStyles.container_web : globalStyles.container_movil, { flex: 1 }]}>
+      <View style={[isWeb ? [globalStyles.container_web,] : globalStyles.container_movil, { flex: 1 }]}>
         <View style={[styles.header, { borderBottomColor: colors.placeholder + '30' , marginRight: 16}]}>
           <IconButton icon="arrow-left" size={24} onPress={() => navigation.goBack()} iconColor={colors.text} />
           <Text style={[styles.headerTitle, { color: colors.text }]}>{isEditing ? 'Editar Actividad' : 'Nueva Actividad'}</Text>
           <RecommendationButton size={1} />
         </View>
 
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40, marginHorizontal: 20 }}>
           <Text style={[styles.label, { color: colors.textLight, marginTop: 20 }]}>
             SELECCIONAR BOT <Text style={{ color: colors.error }}>*</Text>
           </Text>
@@ -383,7 +381,16 @@ export default function CreateActivityScreen({ navigation, route }) {
         </ScrollView>
 
         <Portal>
-          <Modal visible={infoModalVisible} onDismiss={() => setInfoModalVisible(false)} contentContainerStyle={[styles.modal, { backgroundColor: colors.surface }]}>
+          {/* SE APLICA EL MARGEN CONDICIONAL DIRECTAMENTE EN EL CONTENT CONTAINER STYLE */}
+          <Modal 
+            visible={infoModalVisible} 
+            onDismiss={() => setInfoModalVisible(false)} 
+            contentContainerStyle={[
+              styles.modal, 
+              { backgroundColor: colors.surface },
+              isWeb && styles.webModalMargin
+            ]}
+          >
              <View style={styles.modalHeader}>
                 <MaterialCommunityIcons name={selectedType?.icon} size={32} color={selectedType?.color} />
                 <Text style={[styles.modalTitle, { color: selectedType?.color, marginLeft: 12 }]}>{selectedType?.label}</Text>
@@ -414,6 +421,13 @@ const styles = StyleSheet.create({
   actionRow: { flexDirection: 'row', gap: 12, marginTop: 35 },
   btn: { flex: 1, borderRadius: 25, height: 48, justifyContent: 'center' },
   modal: { padding: 25, margin: 20, borderRadius: 28 },
+  // ESTILO ESPECÍFICO PARA WEB
+  webModalMargin: {
+    marginHorizontal: 700,
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 500, // Medida de seguridad por si la ventana se reduce
+  },
   modalHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   modalTitle: { fontSize: 22, fontWeight: 'bold' },
   errorHint: { fontSize: 12, marginLeft: 4, marginTop: 2, marginBottom: 4 },
