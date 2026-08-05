@@ -1,0 +1,87 @@
+# 📱 Focus Bot — Aplicación Móvil
+
+Aplicación multiplataforma desarrollada con **React Native** y **Expo** para gestionar el ecosistema IoT de productividad **Focus Bot**.  
+Permite crear actividades, vincular dispositivos físicos, monitorizar sesiones en tiempo real y consultar estadísticas históricas.
+
+---
+
+## 🧩 Arquitectura
+
+La aplicación funciona como cliente del backend y se comunica exclusivamente mediante **API REST protegida con JWT**.  
+No interactúa directamente con el dispositivo físico:  
+- La app envía acciones al backend.  
+- El backend transmite los comandos al bot mediante **MQTT**.  
+
+Este diseño desacopla la lógica, mejora la seguridad y facilita la escalabilidad del sistema.
+
+---
+
+## 📁 Estructura del Proyecto
+
+focusbot-app/
+├── assets/                 # Recursos estáticos (iconos, imágenes, fuentes)
+├── src/
+│   ├── components/         # UI reutilizable (DatePicker, UserBar, BottomBar)
+│   ├── screens/
+│   │   ├── auth/           # Login, registro, verificación, cambio de contraseña
+│   │   ├── activities/     # CRUD de actividades (Pomodoro, Hitos, Temporizador)
+│   │   ├── bots/           # Vinculación y gestión de dispositivos
+│   │   ├── history/        # Historial y estadísticas
+│   │   └── profile/        # Perfil de usuario
+│   ├── services/           # Cliente HTTP y lógica de peticiones
+│   ├── context/            # AuthContext y navegación condicional
+│   └── theme/              # Tema global (React Native Paper)
+├── app.json
+└── package.json
+
+
+---
+
+## ⚙️ Hooks y Contextos
+
+- **AuthContext**  
+  Gestiona el token JWT, el estado de autenticación y las acciones de login, registro, verificación y logout.
+
+- **Navegación condicional**  
+  Determina si se muestra el stack de autenticación o el stack principal según el estado del usuario.
+
+---
+
+## 🔄 Flujo de Datos
+
+1. El usuario interactúa con la interfaz.  
+2. `apiServices.js` envía peticiones HTTP con `Authorization: Bearer <token>`.  
+3. El backend valida la autenticación y responde con datos JSON.  
+4. La app actualiza el estado global y la UI.  
+5. Si el token expira (401), el usuario es redirigido automáticamente al login.
+
+---
+
+## 🖥️ Pantallas Principales
+
+- **Auth**  
+  Login, registro, verificación por correo y Google OAuth2.
+
+- **Actividades**  
+  Creación y edición de actividades Pomodoro, Hitos y Temporizador.
+
+- **Bots**  
+  Vinculación por dirección MAC y visualización de estados:  
+  `OFFLINE`, `IDLE`, `FOCUSING`.
+
+- **Historial**  
+  Estadísticas y productividad por rango de fechas.
+
+- **Perfil**  
+  Datos personales y severidad del usuario: `LEVE`, `MEDIO`, `ALTO`.
+
+---
+
+## 🧼 Buenas Prácticas
+
+- Persistencia del token JWT y envío automático en cada petición.  
+- Redirección automática ante errores 401 (token expirado).  
+- Validación de formularios antes del envío.  
+- Componentes reutilizables para UI coherente.  
+- Tema global unificado mediante React Native Paper.
+
