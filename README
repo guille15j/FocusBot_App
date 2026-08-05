@@ -1,8 +1,6 @@
-# 📱 Focus Bot — Aplicación Móvil
-
-Aplicación multiplataforma desarrollada con **React Native** y **Expo** para gestionar el ecosistema IoT de productividad **Focus Bot**.  
+📱 Focus Bot — Aplicación Móvil
+Aplicación multiplataforma desarrollada con React Native y Expo para gestionar el ecosistema IoT de productividad Focus Bot.
 Permite crear actividades, vincular dispositivos físicos, monitorizar sesiones en tiempo real y consultar estadísticas históricas.
-
 ---
 
 ## 🧩 Arquitectura
