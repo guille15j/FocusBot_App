@@ -17,7 +17,6 @@
 - [Estructura del Proyecto](#-estructura-del-proyecto)
 - [Flujo de Datos y Autenticación](#-flujo-de-datos-y-autenticación)
 - [Módulos y Pantallas](#-módulos-y-pantallas)
-- [Instalación y Configuración](#-instalación-y-configuración)
 - [Buenas Prácticas y Calidad de Código](#-buenas-prácticas-y-calidad-de-código)
 
 ---
