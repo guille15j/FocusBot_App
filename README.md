@@ -103,39 +103,6 @@ El sistema implementa un ciclo de autenticación seguro basado en **Tokens JWT**
 
 ---
 
-## ⚙️ Instalación y Configuración
-
-### Prerrequisitos
-* Node.js (v18.x o superior)
-* npm / yarn
-* Aplicación **Expo Go** instalada en dispositivo móvil o emulador (Android Studio / Xcode)
-
-### Pasos de Instalación
-
-1. **Clonar el repositorio:**
-   ```bash
-   git clone [https://github.com/tu-usuario/focusbot-app.git](https://github.com/tu-usuario/focusbot-app.git)
-   cd focusbot-app
-   ```
-
-2. **Instalar dependencias:**
-   ```bash
-   npm install
-   ```
-
-3. **Configurar variables de entorno:**
-   Crea un archivo `.env` en la raíz del proyecto basado en `.env.example`:
-   ```env
-   EXPO_PUBLIC_API_URL=[https://api.focusbot.ejemplo.com/v1](https://api.focusbot.ejemplo.com/v1)
-   ```
-
-4. **Iniciar el servidor de desarrollo:**
-   ```bash
-   npx expo start
-   ```
-
----
-
 ## 🧼 Buenas Prácticas y Calidad de Código
 
 * **Seguridad en Red:** Persistencia encriptada/segura del token JWT y adjunción automática en cada Request HTTP.
